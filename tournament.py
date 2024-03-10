@@ -1,5 +1,5 @@
 class Tournament:
-    def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, matches=None, MaxSlotsCount=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None, Players=None, tournamentWinner = None):
+    def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, matches=None, MaxSlotsCount=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None, Players=None, tournamentWinner = None, droppedPlayers = None):       
         self.tournamentName = tournamentName
         self.tournamentId = tournamentId
         self.STATUS = STATUS
@@ -14,7 +14,7 @@ class Tournament:
         self.AllotedMatchTime = AllotedMatchTime
         self.Players = []
         self.tournamentWinner = tournamentWinner
-
+        self.droppedPlayer = []
     # Getter and setter methods for each attribute
     def get_tournamentName(self):
         return self.tournamentName
@@ -101,9 +101,9 @@ class Tournament:
         self.tournamentWinner = Player
 
 #Functions
-    ''
+    '''
     CreateAll the Matches for the tournament
-    ''
+    '''
     def createMatches(self):
         matchCount = len(get_Players) // 2        
         for i in range(matchCount):
@@ -120,8 +120,21 @@ class Tournament:
     player = player to add to tournament
     '''
     def addPlayertoTournament(self,Player)
-        self.Player.append(Player)
-        
+        self.Players.append(Player)
+    '''
+    Remove a player from the tournament
+    player = player to remove
+    '''
+    def removePlayerfromTournament(self,Player)
+        self.Players.remove(Player)
+        self.droppedPlayers.append(Player)
+    '''
+    To view the matches in the tournament
+    tournament = tournament you would like to view
+    '''
+    def viewMatchesinTournament(self,tournament):
+        for x in tournament.getMatches():
+            print(f"{x.toString()}")
 
 
 
