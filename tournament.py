@@ -1,5 +1,5 @@
 class Tournament:
-    def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, matches=None, MaxSlotsCount=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None, Players=None):
+    def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, matches=None, MaxSlotsCount=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None, Players=None, tournamentWinner = None):
         self.tournamentName = tournamentName
         self.tournamentId = tournamentId
         self.STATUS = STATUS
@@ -7,12 +7,13 @@ class Tournament:
         self.ENDDATE = ENDDATE
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        self.matches = matches
+        self.matches = []
         self.MaxSlotsCount = MaxSlotsCount
         self.TournamentType = TournamentType
         self.TeamBoolean = TeamBoolean
         self.AllotedMatchTime = AllotedMatchTime
-        self.Players = Players
+        self.Players = []
+        self.tournamentWinner = tournamentWinner
 
     # Getter and setter methods for each attribute
     def get_tournamentName(self):
@@ -92,6 +93,41 @@ class Tournament:
 
     def set_Players(self, Players):
         self.Players = Players
+    
+    def get_tournamentWinner(self):
+        return self.tournamentWinner
+
+    def set_tournamentWinner(self,Player)
+        self.tournamentWinner = Player
+
+#Functions
+    ''
+    CreateAll the Matches for the tournament
+    ''
+    def createMatches(self):
+        matchCount = len(get_Players) // 2        
+        for i in range(matchCount):
+            match = Match()
+
+    '''
+    Remove a player from a tournament
+    player = player to remove
+    '''
+    def removePlayerfromTournament(self,player):
+        get_Players().remove(playerid)  
+    '''
+    Add a singulaur player to the tournament
+    player = player to add to tournament
+    '''
+    def addPlayertoTournament(self,Player)
+        self.Player.append(Player)
+        
+
+
+
+
+
+
 
     # Helper function to print tournament details
     def print_details(self):
