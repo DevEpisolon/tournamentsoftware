@@ -1,7 +1,8 @@
+import time
 class Match:
     def __init__(self, matchid, slots, match_status, max_rounds, winner_next_match_id=None, previous_match_id=None,
                  match_winner=None, match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
-                 players=None):
+                 players=None, startTime=None, endTime=None):
         self.matchid = matchid
         self.slots = slots
         self.match_status = match_status
@@ -17,6 +18,8 @@ class Match:
         self.max_rounds = max_rounds
         # keeps track of the players win
         self.rounds = rounds = {player.get_playername(): 0 for player in self.players}
+        self.startTime = startTime
+        self.endTime = endTime
 
     # Getters
     def get_matchid(self):
@@ -58,6 +61,11 @@ class Match:
     def get_rounds(self):
         return self.rounds
 
+    def get_start_time(self):
+        return self.startTime
+    
+    def get_end_time(self):
+        return self.endTime
     # Setters
     def set_matchid(self, matchid):
         self.matchid = matchid
@@ -98,6 +106,11 @@ class Match:
     def set_rounds(self, rounds):
         self.rounds = rounds
 
+    def set_start_time(self, startTime):
+        self.startTime = startTime
+
+    def set_end_time(self, endTime):
+        self.endTime = endTime
     """
         player(Player): player to add
 
@@ -184,11 +197,36 @@ class Match:
         elif status == 3:
             self.set_match_status("inactive")
 
+    """
+    Uses time library to get the time when the function is called and prints out the time.
+    
+    Note that self.startTime is an epoch
+    """
     def start_match(self):
-        return
+        self.set_start_time(time.time())
+        convertedTime = time.ctime(self.get_start_time())
+        print("The Match started at:", convertedTime)
 
+    """
+    Uses time library to get the time when the function is called and prints out the time
+
+    Note that self.endTime is an epoch
+    """
     def end_match(self):
-        return
+        self.set_end_time(time.time())
+        convertedTime = time.ctime(self.get_end_time())
+        print("Match ended at:", convertedTime)
 
+    """
+    Checks if the match has ended to calculate the match timer.
+    If match is in progress then use the current time this function
+    has been called.
+    """
     def match_timer(self):
-        return
+        if self.get_end_time() is None:
+            currentTime = time.time()
+            match_timer = currentTime - self.get_start_time()
+            print(f"The match timer is {match_timer} seconds")
+        else:
+            match_timer = self.get_end_time() - self.get_start_time()
+            print(f"The match timer is {match_timer} seconds")
