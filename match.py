@@ -240,3 +240,7 @@ class Match:
         else:
             match_timer = self.get_end_time() - self.get_start_time()
             print(f"The match timer is {match_timer} seconds")
+
+
+    def do_better():
+        pass
