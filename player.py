@@ -150,5 +150,4 @@ class Player:
             print("Error: Number of ties cannot be negative.")
 
     def update_match_history(self):
-        #current_match = []
         pass
