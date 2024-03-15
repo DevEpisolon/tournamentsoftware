@@ -145,10 +145,6 @@ class Tournament:
             if match.match_status == "in progress":
                 ongoing_matches.append(match)
         return ongoing_matches
-    
-
-
-
 
 
 
