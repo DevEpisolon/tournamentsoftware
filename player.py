@@ -1,4 +1,3 @@
-#test
 class Player:
     def __init__(self, playername, displayname, uniqueid, email, avatar=None, join_date=None, # user info
                     wins=0, losses=0, ties=0, wlratio=0, winstreaks=0, match_history=[], # general stats
