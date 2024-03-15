@@ -97,7 +97,7 @@ class Tournament:
     def get_tournamentWinner(self):
         return self.tournamentWinner
 
-    def set_tournamentWinner(self,Player)
+    def set_tournamentWinner(self,Player):
         self.tournamentWinner = Player
 
 #Functions
@@ -119,13 +119,13 @@ class Tournament:
     Add a singulaur player to the tournament
     player = player to add to tournament
     '''
-    def addPlayertoTournament(self,Player)
+    def addPlayertoTournament(self,Player):
         self.Players.append(Player)
     '''
     Remove a player from the tournament
     player = player to remove
     '''
-    def removePlayerfromTournament(self,Player)
+    def removePlayerfromTournament(self,Player):
         self.Players.remove(Player)
         self.droppedPlayers.append(Player)
     '''
@@ -135,6 +135,17 @@ class Tournament:
     def viewMatchesinTournament(self,tournament):
         for x in tournament.getMatches():
             print(f"{x.toString()}")
+
+    def ongoingMatches(self):
+        """ Get all the matches that are in progress
+            :return: None
+        """
+        ongoing_matches = []
+        for match in self.matches:
+            if match.match_status == "in progress":
+                ongoing_matches.append(match)
+        return ongoing_matches
+    
 
 
 
