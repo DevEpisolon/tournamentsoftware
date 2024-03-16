@@ -102,14 +102,6 @@ class Tournament:
 
 #Functions
     '''
-    CreateAll the Matches for the tournament
-    '''
-    def createMatches(self):
-        matchCount = len(get_Players) // 2        
-        for i in range(matchCount):
-            match = Match()
-
-    '''
     Remove a player from a tournament
     player = player to remove
     '''
@@ -135,11 +127,29 @@ class Tournament:
     def viewMatchesinTournament(self,tournament):
         for x in tournament.getMatches():
             print(f"{x.toString()}")
-
-
-
-
-
+    '''
+    To get the int of the players in the tournament
+    '''
+    def getPlayerCount(self):
+        return len(self.Players)
+   '''
+    CreateAll the Matches for the tournament
+    '''
+    def createMatches(self):
+        matches = []
+        matchCount = self.getPlayerCount() - 1
+        tempPlayers = self.get_Players()  # Assuming get_Players is a method of the Tournament class
+        for i in range(matchCount):
+            playersInMatch = []
+            for _ in range(self.get_MaxSlotsCount()):  # Assuming get_MaxSlotsCount is a method of the Tournament class
+                playersInMatch.append(tempPlayers.pop())
+            match = Match(matchid=i, slots=getSlots(), match_status=None, max_rounds=None,
+                      tournamentName=self.get_tournamentName(), players=playersInMatch,
+                      winner_next_match_id=None, previous_match_id=None, match_winner=None,
+                      match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
+                      startTime=None, endTime=None)
+            matches.append(match)
+        set_matches(matches)
 
 
     # Helper function to print tournament details
