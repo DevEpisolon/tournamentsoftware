@@ -1,5 +1,5 @@
 class Player:
-    def __init__(self, playername, displayname, uniqueid, email, avatar=None, join_date=None, # user info
+    def __init__(self, playername, displayname, uniqueid=None, email=None, avatar=None, join_date=None, # user info
                     wins=0, losses=0, ties=0, wlratio=0, winstreaks=0, match_history=[], # general stats
                     current_tournament_wins=0, current_tournament_losses=0, current_tournament_ties=0): # tourney info
         self.playername = playername
