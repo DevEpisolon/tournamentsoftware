@@ -20,12 +20,11 @@ class Player:
 
     # for calling print() on a player
     def __str__(self):
-        return f'''
-Dummy Player Info:
+        return f'''Dummy Player Info:
 Player: {self.displayname}-{self.playername} | ID: {self.uniqueid}
 Email: {self.email} | Join Date: {self.join_date}
 Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlratio}
-        '''
+'''
 
     @classmethod
     def create_dummy(cls, playername, displayname, wins=0, losses=0, ties=0):
