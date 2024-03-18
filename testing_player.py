@@ -2,7 +2,7 @@ import json
 from player import Player
 
 # Convert dummies to dictionary in JSON format
-def dummy_json_conversion(dummy):
+def dummy_to_document(dummy):
     return {
         "playername": dummy.playername,
         "displayname": dummy.displayname,
@@ -34,7 +34,7 @@ dummies.append(dummy7)
 dummies.append(dummy8)
 
 # Convert dummies to JSON format
-dummies = [dummy_json_conversion(dummy) for dummy in dummies]
+dummies = [dummy_to_document(dummy) for dummy in dummies]
 
 # Write JSON data to file
 with open('dummies.json', 'w') as f:
