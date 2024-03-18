@@ -21,9 +21,10 @@ class Player:
     # for calling print() on a player
     def __str__(self):
         return f'''
-            Player: {self.displayname} - {self.playername} ID: {self.uniqueid}
-            Email: {self.email} Join Date: {self.join_date}
-            Wins: {self.wins}, Losses: {self.losses}, Ties: {self.ties} W/L: {self.wlratio}
+Dummy Player Info:
+Player: {self.displayname}-{self.playername} | ID: {self.uniqueid}
+Email: {self.email} | Join Date: {self.join_date}
+Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlratio}
         '''
 
     @classmethod
