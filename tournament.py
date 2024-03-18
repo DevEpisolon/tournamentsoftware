@@ -1,3 +1,4 @@
+from datetime import datetime
 class Tournament:
     def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, matches=None, MaxSlotsCount=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None, Players=None, tournamentWinner = None, droppedPlayers = None):       
         self.tournamentName = tournamentName
@@ -5,7 +6,7 @@ class Tournament:
         self.STATUS = STATUS
         self.STARTDATE = STARTDATE
         self.ENDDATE = ENDDATE
-        self.createdAt = createdAt
+        self.createdAt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.updatedAt = updatedAt
         self.matches = []
         self.MaxSlotsCount = MaxSlotsCount
@@ -97,7 +98,7 @@ class Tournament:
     def get_tournamentWinner(self):
         return self.tournamentWinner
 
-    def set_tournamentWinner(self,Player)
+    def set_tournamentWinner(self,Player):
         self.tournamentWinner = Player
 
 #Functions
@@ -111,13 +112,13 @@ class Tournament:
     Add a singulaur player to the tournament
     player = player to add to tournament
     '''
-    def addPlayertoTournament(self,Player)
+    def addPlayertoTournament(self,Player):
         self.Players.append(Player)
     '''
     Remove a player from the tournament
     player = player to remove
     '''
-    def removePlayerfromTournament(self,Player)
+    def removePlayerfromTournament(self,Player):
         self.Players.remove(Player)
         self.droppedPlayers.append(Player)
     '''
@@ -127,6 +128,7 @@ class Tournament:
     def viewMatchesinTournament(self,tournament):
         for x in tournament.getMatches():
             print(f"{x.toString()}")
+<<<<<<< HEAD
     '''
     To get the int of the players in the tournament
     '''
@@ -150,6 +152,13 @@ class Tournament:
                       startTime=None, endTime=None)
             matches.append(match)
         set_matches(matches)
+=======
+
+
+
+    
+
+>>>>>>> 808fb51 (main function for dummy player testing)
 
 
     # Helper function to print tournament details
