@@ -1,16 +1,12 @@
 from tournament import Tournament
-from player import Player
+from player import *
 from testing_player import *
-
-
-
 
 def add_players():
     # Create players for the tournament
     players = []
     for i in dummies:
         players.append(i)
-
     return players
 
 
@@ -34,13 +30,7 @@ def create_tournament():
         droppedPlayers=None
     )
     players = add_players()
+    print(players)
 
 def main():
     create_tournament()
-
-# Adding players to the tournament
-#for player in players:
-#tournament.add_player(player)
-    
-#tournament.create_matches()
-#tournament.viewMatchesinTournament(tournament)
