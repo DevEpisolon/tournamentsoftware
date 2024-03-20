@@ -1,6 +1,6 @@
 import time
 class Match:
-    def __init__(self, matchid, slots, match_status, max_rounds, winner_next_match_id=None, previous_match_id=None,
+    def __init__(self, matchid, slots, match_status, max_rounds, tournamentName, winner_next_match_id=None, previous_match_id=None,
                  match_winner=None, match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
                  players=None, startTime=None, endTime=None):
         self.matchid = matchid
@@ -20,6 +20,8 @@ class Match:
         self.rounds = rounds = {player.get_playername(): 0 for player in self.players}
         self.startTime = startTime
         self.endTime = endTime
+        # Should be made with the tournament class so no setters needed!
+        self.tournamentName = tournamentName
 
     # Getters
     def get_matchid(self):
@@ -66,6 +68,9 @@ class Match:
     
     def get_end_time(self):
         return self.endTime
+    
+    def get_tournamentName(self):
+        return self.tournamentName
     # Setters
     def set_matchid(self, matchid):
         self.matchid = matchid
@@ -241,6 +246,3 @@ class Match:
             match_timer = self.get_end_time() - self.get_start_time()
             print(f"The match timer is {match_timer} seconds")
 
-
-    def do_better():
-        pass
