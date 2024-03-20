@@ -134,9 +134,16 @@ class Tournament:
     '''
     def getPlayerCount(self):
         return len(self.Players)
-   
     '''
-    CreateAll the Matches for the tournament
+    To get a certian match in tournament
+    matches is all the matches in tournament
+    matchid is the match id
+    '''
+    def get_match_by_id(matches, matchid):
+    for match in all_matches:
+        if match.id == match_id:
+            return match
+    return None
     '''
     def createMatches(self):
         matches = []

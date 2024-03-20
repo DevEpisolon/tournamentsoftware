@@ -1,6 +1,6 @@
 from tournament import Tournament
 from player import Player
-
+from testing_player import dummies
 
 
 tournament_name = input("Enter a tournament name: ")
@@ -22,11 +22,7 @@ tournament = Tournament(
         droppedPlayers=None
     ) 
     # Create players for the tournament
-players = []
-#where i want to create my players for the tournament
-for i in range(1, slot_count + 1):
-    player_name = input(f"Enter name for Player {i}: ")
-    players.append(createDummy(player_name,player_name + i,0,0,0))
+players = dummies[:]
 
 # Adding players to the tournament
     for player in players:
