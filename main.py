@@ -1,11 +1,23 @@
 from tournament import Tournament
 from player import Player
+from testing_player import *
 
 
 
-tournament_name = input("Enter a tournament name: ")
-slot_count = int(input("Enter a Max slot count: "))
-tournament = Tournament(
+
+def add_players():
+    # Create players for the tournament
+    players = []
+    for i in dummies:
+        players.append(i)
+
+    return players
+
+
+def create_tournament():
+    tournament_name = input("Enter a tournament name: ")
+    slot_count = int(input("Enter a Max slot count: "))
+    tournament = Tournament(
         tournamentName=tournament_name,
         tournamentId=None,
         STATUS=None,
@@ -20,17 +32,15 @@ tournament = Tournament(
         Players=None,
         tournamentWinner=None,
         droppedPlayers=None
-    ) 
-    # Create players for the tournament
-players = []
-#where i want to create my players for the tournament
-for i in range(1, slot_count + 1):
-    player_name = input(f"Enter name for Player {i}: ")
-    players.append(createDummy(player_name,player_name + i,0,0,0))
+    )
+    players = add_players()
+
+def main():
+    create_tournament()
 
 # Adding players to the tournament
-    for player in players:
-        tournament.add_player(player)
+#for player in players:
+#tournament.add_player(player)
     
-tournament.create_matches()
-tournament.viewMatchesinTournament(tournament)
+#tournament.create_matches()
+#tournament.viewMatchesinTournament(tournament)
