@@ -128,13 +128,14 @@ class Tournament:
     def viewMatchesinTournament(self,tournament):
         for x in tournament.getMatches():
             print(f"{x.toString()}")
-<<<<<<< HEAD
+    
     '''
     To get the int of the players in the tournament
     '''
     def getPlayerCount(self):
         return len(self.Players)
-   '''
+   
+    '''
     CreateAll the Matches for the tournament
     '''
     def createMatches(self):
@@ -152,13 +153,11 @@ class Tournament:
                       startTime=None, endTime=None)
             matches.append(match)
         set_matches(matches)
-=======
 
 
 
     
 
->>>>>>> 808fb51 (main function for dummy player testing)
 
 
     # Helper function to print tournament details
