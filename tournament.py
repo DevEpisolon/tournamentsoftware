@@ -145,6 +145,8 @@ class Tournament:
             return match
     return None
     '''
+    To create the matches in the tournaemnt
+    '''
     def createMatches(self):
         matches = []
         matchCount = self.getPlayerCount() - 1
@@ -182,5 +184,4 @@ class Tournament:
         print("Team Boolean:", self.TeamBoolean)
         print("Alloted Match Time:", self.AllotedMatchTime)
         print("Players:", self.Players)
-
 

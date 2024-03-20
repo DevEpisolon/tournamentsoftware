@@ -1,11 +1,18 @@
 from tournament import Tournament
 from player import Player
-from testing_player import dummies
+from testing_player import *
 
 
-tournament_name = input("Enter a tournament name: ")
-slot_count = int(input("Enter a Max slot count: "))
-tournament = Tournament(
+def add_players():
+    # Create players for the tournament
+    players = dummies[:]
+    return players
+
+
+def create_tournament():
+    tournament_name = input("Enter a tournament name: ")
+    slot_count = int(input("Enter a Max slot count: "))
+    tournament = Tournament(
         tournamentName=tournament_name,
         tournamentId=None,
         STATUS=None,
@@ -22,11 +29,15 @@ tournament = Tournament(
         droppedPlayers=None
     ) 
     # Create players for the tournament
-players = dummies[:]
+   # fix this part
+   players = dummies[:]
+
+def main():
+    create_tournament()
 
 # Adding players to the tournament
-    for player in players:
-        tournament.add_player(player)
+#for player in players:
+#tournament.add_player(player)
     
-tournament.create_matches()
-tournament.viewMatchesinTournament(tournament)
+#tournament.create_matches()
+#tournament.viewMatchesinTournament(tournament)
