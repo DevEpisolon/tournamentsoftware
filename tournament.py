@@ -151,15 +151,21 @@ class Tournament:
         matches = []
         matchCount = self.getPlayerCount() - 1
         tempPlayers = self.get_Players()  # Assuming get_Players is a method of the Tournament class
+        count = 0
+        nextCountID = self.getPlayerCount()/2
+        playersInMatch = []
         for i in range(matchCount):
-            count = 0
-            nextCountID = self.getPlayerCount()/2
-            playersInMatch = []
+            count +=1
+            if(count == 2):
+                #createMatch
+                count = 0
+            else:
+                nextCountID -=1
             for _ in range(self.get_MaxSlotsCount()):  # Assuming get_MaxSlotsCount is a method of the Tournament class
                 playersInMatch.append(tempPlayers.pop())
             match = Match(matchid=i, slots=getSlots(), match_status=None, max_rounds=None,
                       tournamentName=self.get_tournamentName(), players=playersInMatch,
-                      winner_next_match_id=None, previous_match_id=None, match_winner=None,
+                      winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
                       match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
                       startTime=None, endTime=None)
             matches.append(match)
