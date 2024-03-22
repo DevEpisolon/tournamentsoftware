@@ -31,11 +31,13 @@ def create_tournament():
         droppedPlayers=None
     ) 
     # Create players for the tournament
-   # fix this part
-   players = dummies[:]
-    )
+    # fix this part
+    players = dummies[:]
     players = add_players()
-    print(players)
+    print([p.get_displayname() for p in players])
 
 def main():
     create_tournament()
+
+if __name__ == "__main__":
+    main()
