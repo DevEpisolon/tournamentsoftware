@@ -140,10 +140,10 @@ class Tournament:
     matchid is the match id
     '''
     def get_match_by_id(matches, matchid):
-    for match in all_matches:
-        if match.id == match_id:
-            return match
-    return None
+        for match in all_matches:
+            if match.id == match_id:
+                return match
+        return None
     '''
     To create the matches in the tournaemnt
     '''
