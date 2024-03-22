@@ -2,6 +2,7 @@ from tournament import Tournament
 from player import *
 from testing_player import *
 
+
 def add_players():
     # Create players for the tournament
     players = []
@@ -28,6 +29,10 @@ def create_tournament():
         Players=None,
         tournamentWinner=None,
         droppedPlayers=None
+    ) 
+    # Create players for the tournament
+   # fix this part
+   players = dummies[:]
     )
     players = add_players()
     print(players)

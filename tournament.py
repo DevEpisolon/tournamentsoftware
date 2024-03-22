@@ -134,26 +134,43 @@ class Tournament:
     '''
     def getPlayerCount(self):
         return len(self.Players)
-   
     '''
-    CreateAll the Matches for the tournament
+    To get a certian match in tournament
+    matches is all the matches in tournament
+    matchid is the match id
+    '''
+    def get_match_by_id(matches, matchid):
+    for match in all_matches:
+        if match.id == match_id:
+            return match
+    return None
+    '''
+    To create the matches in the tournaemnt
     '''
     def createMatches(self):
         matches = []
         matchCount = self.getPlayerCount() - 1
         tempPlayers = self.get_Players()  # Assuming get_Players is a method of the Tournament class
+        count = 0
+        nextCountID = self.getPlayerCount()/2
+        playersInMatch = []
         for i in range(matchCount):
-            playersInMatch = []
+            count +=1
+            if(count == 2):
+                #createMatch
+                count = 0
+            else:
+                nextCountID -=1
             for _ in range(self.get_MaxSlotsCount()):  # Assuming get_MaxSlotsCount is a method of the Tournament class
                 playersInMatch.append(tempPlayers.pop())
             match = Match(matchid=i, slots=getSlots(), match_status=None, max_rounds=None,
                       tournamentName=self.get_tournamentName(), players=playersInMatch,
-                      winner_next_match_id=None, previous_match_id=None, match_winner=None,
+                      winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
                       match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
                       startTime=None, endTime=None)
             matches.append(match)
         set_matches(matches)
-
+            
 
 
     
@@ -175,5 +192,4 @@ class Tournament:
         print("Team Boolean:", self.TeamBoolean)
         print("Alloted Match Time:", self.AllotedMatchTime)
         print("Players:", self.Players)
-
 

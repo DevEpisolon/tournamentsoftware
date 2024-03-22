@@ -33,9 +33,11 @@ dummies.append(dummy6)
 dummies.append(dummy7)
 dummies.append(dummy8)
 
+'''
 # Convert dummies to JSON format
 dummies = [dummy_to_document(dummy) for dummy in dummies]
 
 # Write JSON data to file
 with open('dummies.json', 'w') as f:
     json.dump(dummies, f, indent=2)
+'''
