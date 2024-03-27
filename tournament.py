@@ -108,7 +108,7 @@ class Tournament:
     player = player to remove
     '''
     def removePlayerfromTournament(self,player):
-        get_Players().remove(playerid)  
+        self.get_Players().remove(player.playerid)  
     '''
     Add a singulaur player to the tournament
     player = player to add to tournament
@@ -126,9 +126,9 @@ class Tournament:
     To view the matches in the tournament
     tournament = tournament you would like to view
     '''
-    def viewMatchesinTournament(self,tournament):
-        for x in tournament.getMatches():
-            print(f"{x.toString()}")
+    def viewMatchesinTournament(self):
+        for x in self.get_Matches():
+            print(f"{x}")
     
     '''
     To get the int of the players in the tournament
@@ -140,7 +140,7 @@ class Tournament:
     matches is all the matches in tournament
     matchid is the match id
     '''
-    def get_match_by_id(matches, matchid):
+    def get_match_by_id(matches, match_id):
         for match in all_matches:
             if match.id == match_id:
                 return match
