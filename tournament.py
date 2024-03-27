@@ -140,8 +140,8 @@ class Tournament:
     matches is all the matches in tournament
     matchid is the match id
     '''
-    def get_match_by_id(matches, match_id):
-        for match in all_matches:
+    def get_match_by_id(self, match_id):
+        for match in self.matches:
             if match.id == match_id:
                 return match
         return None
