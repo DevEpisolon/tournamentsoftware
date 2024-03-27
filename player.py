@@ -1,5 +1,5 @@
 class Player:
-    def __init__(self, playername, displayname, uniqueid, email, avatar=None, join_date=None, # user info
+    def __init__(self, playername, displayname, uniqueid=None, email=None, avatar=None, join_date=None, # user info
                     wins=0, losses=0, ties=0, wlratio=0, winstreaks=0, match_history=[], # general stats
                     current_tournament_wins=0, current_tournament_losses=0, current_tournament_ties=0): # tourney info
         self.playername = playername
@@ -20,11 +20,11 @@ class Player:
 
     # for calling print() on a player
     def __str__(self):
-        return f'''
-            Player: {self.displayname} - {self.playername} ID: {self.uniqueid}
-            Email: {self.email} Join Date: {self.join_date}
-            Wins: {self.wins}, Losses: {self.losses}, Ties: {self.ties} W/L: {self.wlratio}
-        '''
+        return f'''Dummy Player Info:
+Player: {self.displayname}-{self.playername} | ID: {self.uniqueid}
+Email: {self.email} | Join Date: {self.join_date}
+Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlratio}
+'''
 
     @classmethod
     def create_dummy(cls, playername, displayname, wins=0, losses=0, ties=0):
@@ -148,3 +148,6 @@ class Player:
             self.ties -= 1
         else:
             print("Error: Number of ties cannot be negative.")
+
+    def update_match_history(self):
+        pass
