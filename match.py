@@ -250,7 +250,7 @@ class Match:
 
     def get_match(self):
         players = self.get_players()
-        return "Match ID: {} Match Status: {} Player 1: {} Player 2: {}".format(self.get_matchid(), self.get_match_status(), players[0].get_playername(), players[1].get_playername())
+        return "Match ID: {} | Match Status: {} | Player 1: {} | Player 2: {}".format(self.get_matchid(), self.get_match_status(), players[0].get_playername(), players[1].get_playername())
 
 
 player1 = player.Player("Tim", "Tim", 0, 0)
