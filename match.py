@@ -1,5 +1,4 @@
 import time
-import player
 
 class Match:
     def __init__(self, matchid, slots, match_status, max_rounds, tournamentName, winner_next_match_id=None, previous_match_id=None,
@@ -248,7 +247,11 @@ class Match:
             match_timer = self.get_end_time() - self.get_start_time()
             print(f"The match timer is {match_timer} seconds")
 
-    def get_match(self):
+    """
+    Equivalent to overriding toString in Java/C.
+    When print is called on the match object, the output will be MatchID, status, and players participating.
+    """
+    def __str__(self):
         players = self.get_players()
         return "Match ID: {} | Match Status: {} | Player 1: {} | Player 2: {}".format(self.get_matchid(), self.get_match_status(), players[0].get_playername(), players[1].get_playername())
 
