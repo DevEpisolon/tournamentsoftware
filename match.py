@@ -1,4 +1,6 @@
 import time
+import player
+
 class Match:
     def __init__(self, matchid, slots, match_status, max_rounds, tournamentName, winner_next_match_id=None, previous_match_id=None,
                  match_winner=None, match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
@@ -245,4 +247,14 @@ class Match:
         else:
             match_timer = self.get_end_time() - self.get_start_time()
             print(f"The match timer is {match_timer} seconds")
+
+    def get_match(self):
+        players = self.get_players()
+        return "Match ID: {} Match Status: {} Player 1: {} Player 2: {}".format(self.get_matchid(), self.get_match_status(), players[0].get_playername(), players[1].get_playername())
+
+
+player1 = player.Player("Tim", "Tim", 0, 0)
+player2 = player.Player("Mit", "Mit", 0, 0)
+test = Match(1, 2, 'ready', 1, "Test", players = [player1, player2])
+print(test.get_match())
 
