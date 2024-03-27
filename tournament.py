@@ -170,6 +170,8 @@ class Tournament:
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
                       match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
                       startTime=None, endTime=None)
+            #Empty the players list to add other players
+            playersInMatch = []
             matches.append(m)
         self.set_Matches(matches)
             
