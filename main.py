@@ -33,9 +33,10 @@ def create_tournament():
     # Create players for the tournament
     # fix this part
     players = dummies[:]
-    players = add_players()
+    tournament.set_Players(players)
     print([p.get_displayname() for p in players])
-
+    tournament.createMatches()
+    print(tournament.get_Matches())
 def main():
     create_tournament()
 
