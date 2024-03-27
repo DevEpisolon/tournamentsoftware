@@ -253,8 +253,3 @@ class Match:
         return "Match ID: {} | Match Status: {} | Player 1: {} | Player 2: {}".format(self.get_matchid(), self.get_match_status(), players[0].get_playername(), players[1].get_playername())
 
 
-player1 = player.Player("Tim", "Tim", 0, 0)
-player2 = player.Player("Mit", "Mit", 0, 0)
-test = Match(1, 2, 'ready', 1, "Test", players = [player1, player2])
-print(test.get_match())
-
