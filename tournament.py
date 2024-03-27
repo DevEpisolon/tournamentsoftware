@@ -1,4 +1,5 @@
 from datetime import datetime
+from match import Match
 class Tournament:
     def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, matches=None, MaxSlotsCount=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None, Players=None, tournamentWinner = None, droppedPlayers = None):       
         self.tournamentName = tournamentName
@@ -59,10 +60,10 @@ class Tournament:
     def set_updatedAt(self, updatedAt):
         self.updatedAt = updatedAt
 
-    def get_matches(self):
+    def get_Matches(self):
         return self.matches
 
-    def set_matches(self, matches):
+    def set_Matches(self, matches):
         self.matches = matches
 
     def get_MaxSlotsCount(self):
@@ -162,14 +163,15 @@ class Tournament:
             else:
                 nextCountID -=1
             for _ in range(self.get_MaxSlotsCount()):  # Assuming get_MaxSlotsCount is a method of the Tournament class
-                playersInMatch.append(tempPlayers.pop())
-            match = Match(matchid=i, slots=getSlots(), match_status=None, max_rounds=None,
+                if (len(tempPlayers) > 0):
+                    playersInMatch.append(tempPlayers.pop())
+            m = Match(matchid=i, slots=self.get_MaxSlotsCount(), match_status=None, max_rounds=None,
                       tournamentName=self.get_tournamentName(), players=playersInMatch,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
                       match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
                       startTime=None, endTime=None)
-            matches.append(match)
-        set_matches(matches)
+            matches.append(m)
+        self.set_Matches(matches)
             
 
 
