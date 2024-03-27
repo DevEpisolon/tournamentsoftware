@@ -36,7 +36,12 @@ def create_tournament():
     tournament.set_Players(players)
     print([p.get_displayname() for p in players])
     tournament.createMatches()
+    print()
+    #This shows only the match object because it is in a list
     print(tournament.get_Matches())
+    print()
+    #This shows the match info from the __str__ method
+    tournament.viewMatchesinTournament()
 def main():
     create_tournament()
 
