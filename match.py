@@ -253,6 +253,8 @@ class Match:
     """
     def __str__(self):
         players = self.get_players()
-        return "Match ID: {} | Match Status: {} | Player 1: {} | Player 2: {}".format(self.get_matchid(), self.get_match_status(), players[0].get_playername(), players[1].get_playername())
-
+        if (len(players) >1):
+            return "Match ID: {} | Match Status: {} | Player 1: {} | Player 2: {}".format(self.get_matchid(), self.get_match_status(), players[0].get_playername(), players[1].get_playername())
+        else:
+            return "Match ID: {} | Match Status: {} | No Players".format(self.get_matchid(),self.get_match_status())
 
