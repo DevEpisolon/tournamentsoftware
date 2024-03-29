@@ -1,6 +1,7 @@
 import time
+
 class Match:
-    def __init__(self, matchid, slots, match_status, max_rounds, winner_next_match_id=None, previous_match_id=None,
+    def __init__(self, matchid, slots, match_status, max_rounds, tournamentName, winner_next_match_id=None, previous_match_id=None,
                  match_winner=None, match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
                  players=None, startTime=None, endTime=None):
         self.matchid = matchid
@@ -20,6 +21,8 @@ class Match:
         self.rounds = rounds = {player.get_playername(): 0 for player in self.players}
         self.startTime = startTime
         self.endTime = endTime
+        # Should be made with the tournament class so no setters needed!
+        self.tournamentName = tournamentName
 
     # Getters
     def get_matchid(self):
@@ -66,6 +69,9 @@ class Match:
     
     def get_end_time(self):
         return self.endTime
+    
+    def get_tournamentName(self):
+        return self.tournamentName
     # Setters
     def set_matchid(self, matchid):
         self.matchid = matchid
@@ -111,23 +117,25 @@ class Match:
 
     def set_end_time(self, endTime):
         self.endTime = endTime
-    """
+    
+    def add_players(self, player):
+        """
         player(Player): player to add
 
         Adds the player to the match if there are slots available.
-    """
-    def add_players(self, player):
+        """
         if len(self.players) >= self.slots:
             print("Error: There are too many players.")
         else:
             self.players.append(player)
 
-    """
+   
+    def remove_player(self, player):
+        """
         player(Player): player to remove
 
         If the player exists, then remove them.
-    """
-    def remove_player(self, player):
+        """
         if player in self.players:
             self.players.remove(player)
         else:
@@ -139,57 +147,62 @@ class Match:
     def show_players(self):
         for player in self.players():
             print(player.get_playername)
+    
+    def update_rounds(self, winner):
+        """
+        winner(Player): the winner of a round
 
-    """
+        If this is a best of 3, then this function will update self.rounds to reflect the outcome.
+        """
+        if winner.get_playername in self.rounds:
+            self.rounds[winner.get_playername()] += 1
+        else:
+            print(f"Error: {winner.get_playername()} is not a valid player in this match.")
+
+
+    def set_round_winner(self, matches):
+        '''
         matches(List[Match]): list of all matches in the tournament
-
+    
+        Sets the match_winner and match_loser and updates the player's win/lose.
         If the next_match ID matches with the winner_next_match ID, then add_player into next_match.
         Note: update later for double elimination
-    """
-    def move_player(self, matches):
+        '''
+        for winner in self.get_players():
+            if self.rounds[winner.get_playername()] >= 2 and self.max_rounds == 3:
+                self.set_match_winner(winner)
+                winner.increase_wins()
+            elif self.rounds[winner.get_playername()] >= 3 and self.max_rounds == 5:
+                self.set_match_winner(winner)
+                winner.increase_wins()
+            elif self.rounds[winner.get_playername()] >= 1:
+                self.set_match_winner(winner)
+                winner.increase_wins()
+            else:
+                self.set_match_loser(winner)
+                winner.increase_losses()
+
         for next_match in matches:
             if next_match.getmatchid() == self.winner_next_match_id:
                 print(f"Player {self.match_winner.get_playername} moved onto match {matches.getmatchid}")
                 next_match.add_players(self.match_winner)
                 break
 
-    """
-        winner(Player): the winner of a round
-
-        If this is a best of 3, then this function will update self.rounds to reflect the outcome.
-    """
-    def update_rounds(self, winner):
-        if winner.get_playername in self.rounds:
-            self.rounds[winner.get_playername()] += 1
-        else:
-            print(f"Error: {winner.get_playername()} is not a valid player in this match.")
-
-    """
-        Sets the the match_winner, based on the rounds standings.
-        Note: update later for double elimination
-    """
-    def set_round_winner(self):
-        for winner in self.players:
-            if self.rounds[winner.get_playername()] >= 2 and self.max_rounds == 3:
-                self.set_match_winner(winner)
-            elif self.rounds[winner.get_playername()] >= 3 and self.max_rounds == 5:
-                self.set_match_winner(winner)
-            elif self.rounds[winner.get_playername()] >= 1:
-                self.set_match_winner(winner)
-
-    """
-        Prints the current round standings.
-    """
+       
     def print_standings(self):
+        """
+        Prints the current round standings.
+        """
         for items in self.rounds:
             print(f"{items.key}: {items.value}\n")
 
-    """
+    
+    def change_match_status(self, status):
+        """
         status(int)
     
         Changes the status of the match.
-    """
-    def change_match_status(self, status):
+        """
         if status == 1:
             self.set_match_status("completed")
         elif status == 2:
@@ -197,32 +210,35 @@ class Match:
         elif status == 3:
             self.set_match_status("inactive")
 
-    """
-    Uses time library to get the time when the function is called and prints out the time.
     
-    Note that self.startTime is an epoch
-    """
     def start_match(self):
+        """
+        Uses time library to get the time when the function is called and prints out the time.
+        
+        Note that self.startTime is an epoch
+        """
         self.set_start_time(time.time())
         convertedTime = time.ctime(self.get_start_time())
         print("The Match started at:", convertedTime)
 
-    """
-    Uses time library to get the time when the function is called and prints out the time
-
-    Note that self.endTime is an epoch
-    """
+    
     def end_match(self):
+        """
+        Uses time library to get the time when the function is called and prints out the time
+
+        Note that self.endTime is an epoch
+        """
         self.set_end_time(time.time())
         convertedTime = time.ctime(self.get_end_time())
         print("Match ended at:", convertedTime)
 
-    """
-    Checks if the match has ended to calculate the match timer.
-    If match is in progress then use the current time this function
-    has been called.
-    """
+    
     def match_timer(self):
+        """
+        Checks if the match has ended to calculate the match timer.
+        If match is in progress then use the current time this function
+        has been called.
+        """
         if self.get_end_time() is None:
             currentTime = time.time()
             match_timer = currentTime - self.get_start_time()
@@ -230,3 +246,15 @@ class Match:
         else:
             match_timer = self.get_end_time() - self.get_start_time()
             print(f"The match timer is {match_timer} seconds")
+
+    """
+    Equivalent to overriding toString in Java/C.
+    When print is called on the match object, the output will be MatchID, status, and players participating.
+    """
+    def __str__(self):
+        players = self.get_players()
+        if (len(players) >1):
+            return "Match ID: {} | Match Status: {} | Player 1: {} | Player 2: {}".format(self.get_matchid(), self.get_match_status(), players[0].get_playername(), players[1].get_playername())
+        else:
+            return "Match ID: {} | Match Status: {} | No Players".format(self.get_matchid(),self.get_match_status())
+
