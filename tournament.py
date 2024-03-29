@@ -135,7 +135,7 @@ class Tournament:
     '''
     def viewMatchesinTournament(self):
         for x in self.get_Matches():
-            print(f"{x}")
+            print(f"{x}\n")
     
     '''
     To get the int of the players in the tournament
