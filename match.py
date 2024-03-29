@@ -147,21 +147,6 @@ class Match:
     def show_players(self):
         for player in self.players():
             print(player.get_playername)
-
-    
-    def move_player(self, matches):
-        """
-        matches(List[Match]): list of all matches in the tournament
-
-        If the next_match ID matches with the winner_next_match ID, then add_player into next_match.
-        Note: update later for double elimination
-        """
-        for next_match in matches:
-            if next_match.getmatchid() == self.winner_next_match_id:
-                print(f"Player {self.match_winner.get_playername} moved onto match {matches.getmatchid}")
-                next_match.add_players(self.match_winner)
-                break
-
     
     def update_rounds(self, winner):
         """
@@ -175,9 +160,12 @@ class Match:
             print(f"Error: {winner.get_playername()} is not a valid player in this match.")
 
 
-   def set_round_winner(self):
+   def set_round_winner(self, matches):
     """
+    matches(List[Match]): list of all matches in the tournament
+    
     Sets the match_winner and match_loser and updates the player's win/lose.
+    If the next_match ID matches with the winner_next_match ID, then add_player into next_match.
     Note: update later for double elimination
     """
     for winner in self.players:
@@ -194,7 +182,13 @@ class Match:
             self.set_match_loser(winner)
             winner.increase_losses()
 
-    
+    for next_match in matches:
+            if next_match.getmatchid() == self.winner_next_match_id:
+                print(f"Player {self.match_winner.get_playername} moved onto match {matches.getmatchid}")
+                next_match.add_players(self.match_winner)
+                break
+
+       
     def print_standings(self):
         """
         Prints the current round standings.
