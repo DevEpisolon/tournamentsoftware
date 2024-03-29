@@ -183,8 +183,8 @@ class Match:
                 winner.increase_losses()
 
         for next_match in matches:
-            if next_match.getmatchid() == self.winner_next_match_id:
-                print(f"Player {self.match_winner.get_playername} moved onto match {matches.getmatchid}")
+            if next_match.get_matchid() == self.winner_next_match_id:
+                print(f"Player {self.get_match_winner().get_playername()} moved onto match {next_match.get_matchid()}")
                 next_match.add_players(self.match_winner)
                 break
 
@@ -250,11 +250,20 @@ class Match:
     """
     Equivalent to overriding toString in Java/C.
     When print is called on the match object, the output will be MatchID, status, and players participating.
+    Make for loop to print a dynamic amount of players
     """
     def __str__(self):
         players = self.get_players()
-        if (len(players) >1):
+        """if (len(players) >1):
             return "Match ID: {} | Match Status: {} | Player 1: {} | Player 2: {}".format(self.get_matchid(), self.get_match_status(), players[0].get_playername(), players[1].get_playername())
         else:
-            return "Match ID: {} | Match Status: {} | No Players".format(self.get_matchid(),self.get_match_status())
+            return "Match ID: {} | Match Status: {} | No Players".format(self.get_matchid(),self.get_match_status())"""
+        
+        match_info = "Match ID: {} | Match Status: {}".format(self.get_matchid(), self.get_match_status())
+
+        for i in range(len(players)):
+            match_info += " | Player {}: {}".format(i+1, players[i].get_displayname())
+
+        return match_info
+
 
