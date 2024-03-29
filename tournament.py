@@ -137,6 +137,16 @@ class Tournament:
         for x in self.get_Matches():
             print(f"{x}")
     
+    def isPlayerInTournament(displayname):
+        '''
+        To check if a player is in tournament based on Display Name
+        displayname = players display name
+        '''
+        for p in get_Players():
+            if p.get_displayname() == displayname:
+                return True
+            else:
+                return False
     '''
     To get the int of the players in the tournament
     '''
@@ -165,19 +175,19 @@ class Tournament:
         count = 0
         nextCountID = self.getPlayerCount()/2
         playersInMatch = []
-        print(f"Max slots count: {self.get_MaxSlotsCount()}")
+        #print(f"Max slots count: {self.get_MaxSlotsCount()}")
         for i in range(1,matchCount+1):
-            print(f"Count: {count}")
+            #print(f"Count: {count}")
             count +=1
 
             #check count
             if(count == 2):
-                print("Came through the 2 end")
+                #print("Came through the 2 end")
                 if (len(tempPlayers)> 0):
                     for _ in range(self.get_MaxSlotsPerMatch()):
                         playersInMatch.append(tempPlayers.pop())
-                    print("The Players in the match")
-                    print([p.get_displayname() for p in playersInMatch])
+                    #print("The Players in the match")
+                    #print([p.get_displayname() for p in playersInMatch])
                     m = Match(matchid=i, slots=self.get_MaxSlotsCount(), match_status=None, max_rounds=None,
                       tournamentName=self.get_tournamentName(), players=playersInMatch,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
@@ -185,7 +195,7 @@ class Tournament:
                       startTime=None, endTime=None)
                     #print(m)
                 else:
-                    print("Detected no players in 2 count")
+                    #print("Detected no players in 2 count")
                     m = Match(matchid=i, slots=self.get_MaxSlotsCount(), match_status=None, max_rounds=None,
                       tournamentName=self.get_tournamentName(), players=None,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
@@ -194,12 +204,12 @@ class Tournament:
                 count = 0
             #Uneven count
             else:
-                print("Came through the other end!")
+                #print("Came through the other end!")
                 if (len(tempPlayers) >0):
                     for _ in range(self.get_MaxSlotsPerMatch()):
                         playersInMatch.append(tempPlayers.pop())
-                    print("The players in the match")
-                    print([p.get_displayname() for p in playersInMatch])
+                    #print("The players in the match")
+                    #print([p.get_displayname() for p in playersInMatch])
                     m = Match(matchid=i, slots=self.get_MaxSlotsCount(), match_status=None, max_rounds=None,
                       tournamentName=self.get_tournamentName(), players=playersInMatch,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
@@ -207,7 +217,7 @@ class Tournament:
                       startTime=None, endTime=None)
                     #print(m)
                 else:
-                    print("Detected no players in other")
+                    #print("Detected no players in other")
                     m = Match(matchid=i, slots=self.get_MaxSlotsCount(), match_status=None, max_rounds=None,
                       tournamentName=self.get_tournamentName(), players=None,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
