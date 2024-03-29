@@ -48,7 +48,7 @@ def create_tournament():
         cm = tournament.get_MatchbyID(mid)
         print(cm)
         pid = input("Enter player id you would like to promote(1 or 2): ")
-        cm.set_round_winner(cm.get_players()[int(pid) - 1])
+        cm.update_rounds(cm.get_players()[int(pid) - 1])
         print(cm.get_match_winner())
         print(f"\n {tournament.viewMatchesinTournament()}")
 def main():
