@@ -160,29 +160,29 @@ class Match:
             print(f"Error: {winner.get_playername()} is not a valid player in this match.")
 
 
-   def set_round_winner(self, matches):
-    """
-    matches(List[Match]): list of all matches in the tournament
+    def set_round_winner(self, matches):
+        '''
+        matches(List[Match]): list of all matches in the tournament
     
-    Sets the match_winner and match_loser and updates the player's win/lose.
-    If the next_match ID matches with the winner_next_match ID, then add_player into next_match.
-    Note: update later for double elimination
-    """
-    for winner in self.players:
-        if self.rounds[winner.get_playername()] >= 2 and self.max_rounds == 3:
-            self.set_match_winner(winner)
-            winner.increase_wins()
-        elif self.rounds[winner.get_playername()] >= 3 and self.max_rounds == 5:
-            self.set_match_winner(winner)
-            winner.increase_wins()
-        elif self.rounds[winner.get_playername()] >= 1:
-            self.set_match_winner(winner)
-            winner.increase_wins()
-        else:
-            self.set_match_loser(winner)
-            winner.increase_losses()
+        Sets the match_winner and match_loser and updates the player's win/lose.
+        If the next_match ID matches with the winner_next_match ID, then add_player into next_match.
+        Note: update later for double elimination
+        '''
+        for winner in self.get_players():
+            if self.rounds[winner.get_playername()] >= 2 and self.max_rounds == 3:
+                self.set_match_winner(winner)
+                winner.increase_wins()
+            elif self.rounds[winner.get_playername()] >= 3 and self.max_rounds == 5:
+                self.set_match_winner(winner)
+                winner.increase_wins()
+            elif self.rounds[winner.get_playername()] >= 1:
+                self.set_match_winner(winner)
+                winner.increase_wins()
+            else:
+                self.set_match_loser(winner)
+                winner.increase_losses()
 
-    for next_match in matches:
+        for next_match in matches:
             if next_match.getmatchid() == self.winner_next_match_id:
                 print(f"Player {self.match_winner.get_playername} moved onto match {matches.getmatchid}")
                 next_match.add_players(self.match_winner)
