@@ -174,19 +174,25 @@ class Match:
         else:
             print(f"Error: {winner.get_playername()} is not a valid player in this match.")
 
-    
-    def set_round_winner(self):
-        """
-        Sets the the match_winner, based on the rounds standings.
-        Note: update later for double elimination
-        """
-        for winner in self.players:
-            if self.rounds[winner.get_playername()] >= 2 and self.max_rounds == 3:
-                self.set_match_winner(winner)
-            elif self.rounds[winner.get_playername()] >= 3 and self.max_rounds == 5:
-                self.set_match_winner(winner)
-            elif self.rounds[winner.get_playername()] >= 1:
-                self.set_match_winner(winner)
+
+   def set_round_winner(self):
+    """
+    Sets the match_winner and match_loser and updates the player's win/lose.
+    Note: update later for double elimination
+    """
+    for winner in self.players:
+        if self.rounds[winner.get_playername()] >= 2 and self.max_rounds == 3:
+            self.set_match_winner(winner)
+            winner.increase_wins()
+        elif self.rounds[winner.get_playername()] >= 3 and self.max_rounds == 5:
+            self.set_match_winner(winner)
+            winner.increase_wins()
+        elif self.rounds[winner.get_playername()] >= 1:
+            self.set_match_winner(winner)
+            winner.increase_wins()
+        else:
+            self.set_match_loser(winner)
+            winner.increase_losses()
 
     
     def print_standings(self):
