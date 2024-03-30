@@ -135,7 +135,7 @@ class Tournament:
     '''
     def viewMatchesinTournament(self):
         for x in self.get_Matches():
-            print(f"{x}")
+            print(f"{x}\n")
     
     def isPlayerInTournament(displayname):
         '''
