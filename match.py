@@ -161,7 +161,7 @@ class Match:
 
     '''
     def set_round_winner(self, matches):
-        
+ 
         matches(List[Match]): list of all matches in the tournament
     
         Sets the match_winner and match_loser and updates the player's win/lose.
@@ -184,6 +184,7 @@ class Match:
 
         for next_match in matches:
             if next_match.get_matchid() == self.winner_next_match_id:
+                print(f"Player {self.get_match_winner().get_playername()} moved onto match {next_match.get_matchid()}")
                 next_match.add_players(self.match_winner)
                 break
     '''
@@ -260,6 +261,7 @@ class Match:
     """
     Equivalent to overriding toString in Java/C.
     When print is called on the match object, the output will be MatchID, status, and players participating.
+    Make for loop to print a dynamic amount of players
     """
     def __str__(self):
         output = (f"Match ID: {self.get_matchid()} | Next Match ID: {self.get_winner_next_match_id() + self.get_matchid()}"
@@ -267,4 +269,5 @@ class Match:
         for player in self.players:
             output += f" | Player: {player.get_playername()}"
         return output
+
 
