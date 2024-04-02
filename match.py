@@ -9,7 +9,7 @@ class Match:
         self.match_status = match_status
         self.winner_next_match_id = winner_next_match_id
         self.previous_match_id = previous_match_id
-        self.match_winner = match_winner
+        self.match_winner = None
         self.match_loser = match_loser
         self.loser_next_match_id = loser_next_match_id
         self.start_date = start_date
@@ -159,36 +159,46 @@ class Match:
         else:
             print(f"Error: {winner.get_playername()} is not a valid player in this match.")
 
-
-   def set_round_winner(self, matches):
-    """
-    matches(List[Match]): list of all matches in the tournament
+    '''
+    def set_round_winner(self, matches):
+        
+        matches(List[Match]): list of all matches in the tournament
     
-    Sets the match_winner and match_loser and updates the player's win/lose.
-    If the next_match ID matches with the winner_next_match ID, then add_player into next_match.
-    Note: update later for double elimination
-    """
-    for winner in self.players:
-        if self.rounds[winner.get_playername()] >= 2 and self.max_rounds == 3:
-            self.set_match_winner(winner)
-            winner.increase_wins()
-        elif self.rounds[winner.get_playername()] >= 3 and self.max_rounds == 5:
-            self.set_match_winner(winner)
-            winner.increase_wins()
-        elif self.rounds[winner.get_playername()] >= 1:
-            self.set_match_winner(winner)
-            winner.increase_wins()
-        else:
-            self.set_match_loser(winner)
-            winner.increase_losses()
+        Sets the match_winner and match_loser and updates the player's win/lose.
+        If the next_match ID matches with the winner_next_match ID, then add_player into next_match.
+        Note: update later for double elimination
+        
+        for winner in self.get_players():
+            if self.rounds[winner.get_playername()] >= 2 and self.max_rounds == 3:
+                self.set_match_winner(winner)
+                winner.increase_wins()
+            elif self.rounds[winner.get_playername()] >= 3 and self.max_rounds == 5:
+                self.set_match_winner(winner)
+                winner.increase_wins()
+            elif self.rounds[winner.get_playername()] >= 1:
+                self.set_match_winner(winner)
+                winner.increase_wins()
+            else:
+                self.set_match_loser(winner)
+                winner.increase_losses()
 
-    for next_match in matches:
-            if next_match.getmatchid() == self.winner_next_match_id:
-                print(f"Player {self.match_winner.get_playername} moved onto match {matches.getmatchid}")
+        for next_match in matches:
+            if next_match.get_matchid() == self.winner_next_match_id:
                 next_match.add_players(self.match_winner)
                 break
+    '''
 
-       
+    def set_round_winner(self, matches, player):
+        winner = player
+        self.set_match_winner(winner)
+        for i in range(len(matches)):
+            if matches[i].get_matchid() == self.matchid + self.winner_next_match_id:
+                matches[i].add_players(self.get_match_winner())
+                self.change_match_status(1)
+                print(f"{self.get_match_winner().get_playername()} won the match and is moving onto match {matches[i].get_matchid()}")
+                break
+
+
     def print_standings(self):
         """
         Prints the current round standings.
@@ -252,9 +262,9 @@ class Match:
     When print is called on the match object, the output will be MatchID, status, and players participating.
     """
     def __str__(self):
-        players = self.get_players()
-        if (len(players) >1):
-            return "Match ID: {} | Match Status: {} | Player 1: {} | Player 2: {}".format(self.get_matchid(), self.get_match_status(), players[0].get_playername(), players[1].get_playername())
-        else:
-            return "Match ID: {} | Match Status: {} | No Players".format(self.get_matchid(),self.get_match_status())
+        output = (f"Match ID: {self.get_matchid()} | Next Match ID: {self.get_winner_next_match_id() + self.get_matchid()}"
+                  f" | Match Status: {self.get_match_status()}")
+        for player in self.players:
+            output += f" | Player: {player.get_playername()}"
+        return output
 
