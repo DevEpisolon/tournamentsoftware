@@ -189,15 +189,19 @@ class Match:
                 break
     '''
 
-    def set_round_winner(self, matches, player):
-        winner = player
-        self.set_match_winner(winner)
-        for i in range(len(matches)):
-            if matches[i].get_matchid() == self.matchid + self.winner_next_match_id:
-                matches[i].add_players(self.get_match_winner())
-                self.change_match_status(1)
-                print(f"{self.get_match_winner().get_playername()} won the match and is moving onto match {matches[i].get_matchid()}")
-                break
+    def set_round_winner(self, matches, winner):
+        if winner.get_playername() not in self.rounds:
+            self.rounds[winner.get_playername()] = 0
+        else: 
+            self.rounds[winner.get_playername()] +=1 
+            if self.rounds[winner.get_playername()] >= int(self.max_rounds) -1:
+                self.set_match_winner(winner)
+                for i in range(len(matches)):
+                    if matches[i].get_matchid() == self.matchid + self.winner_next_match_id:
+                        matches[i].add_players(self.get_match_winner())
+                        self.change_match_status(1)
+                        print(f"{self.get_match_winner().get_playername()} won the match and is moving onto match {matches[i].get_matchid()}")
+                        break
 
 
     def print_standings(self):
