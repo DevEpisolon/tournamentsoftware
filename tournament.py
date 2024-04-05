@@ -52,7 +52,7 @@ class Tournament:
     def get_createdAt(self):
         return self.createdAt
     
-    def set_MaxSlotsPerMatch(count):
+    def set_MaxSlotsPerMatch(self,count):
         self.maxSlotsPerMatch = count
     
     def get_MaxSlotsPerMatch(self):
@@ -137,12 +137,12 @@ class Tournament:
         for x in self.get_Matches():
             print(f"{x}\n")
     
-    def isPlayerInTournament(displayname):
+    def isPlayerInTournament(self, displayname):
         '''
         To check if a player is in tournament based on Display Name
         displayname = players display name
         '''
-        for p in get_Players():
+        for p in self.get_Players():
             if p.get_displayname() == displayname:
                 return True
             else:
