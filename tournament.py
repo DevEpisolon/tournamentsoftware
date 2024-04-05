@@ -135,7 +135,7 @@ class Tournament:
     '''
     def viewMatchesinTournament(self):
         for x in self.get_Matches():
-            print(f"{x}")
+            print(f"{x}\n")
     
     def isPlayerInTournament(self, displayname):
         '''
@@ -251,4 +251,3 @@ class Tournament:
         print("Team Boolean:", self.TeamBoolean)
         print("Alloted Match Time:", self.AllotedMatchTime)
         print("Players:", self.Players)
-
