@@ -14,6 +14,7 @@ def add_players():
 def create_tournament():
     tournament_name = input("Enter a tournament name: ")
     slot_count = int(input("Enter a Max slot count: "))
+    max_slot_per_match = 2
     tournament = Tournament(
         tournamentName=tournament_name,
         tournamentId=None,
@@ -29,7 +30,7 @@ def create_tournament():
         Players=None,
         tournamentWinner=None,
         droppedPlayers=None
-    ) 
+    )
     # Create players for the tournament
     # fix this part
     players = dummies[:]
@@ -38,7 +39,7 @@ def create_tournament():
     print()
     print()
     tournament.viewMatchesinTournament()
-    counter = 1
+    #print("Reached end")
     while (tournament.get_tournamentWinner() is None):
         mid = input("\nEnter Match ID you would like to view: ")
         if int(mid) == len(tournament.get_Matches()):
@@ -64,6 +65,7 @@ def create_tournament():
     print("updating player info...\n")
     # update player info with match history
     print("Thank you for playing!!!")
+
 
 def main():
     create_tournament()

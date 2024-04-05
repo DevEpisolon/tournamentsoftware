@@ -192,9 +192,9 @@ class Match:
     def set_round_winner(self, matches, winner):
         if winner.get_playername() not in self.rounds:
             self.rounds[winner.get_playername()] = 0
-        else:
-            self.rounds[winner.get_playername()] += 1
-            if self.rounds[winner.get_playername()] == int(self.max_rounds):
+        else: 
+            self.rounds[winner.get_playername()] +=1 
+            if self.rounds[winner.get_playername()] >= int(self.max_rounds) -1:
                 self.set_match_winner(winner)
                 for i in range(len(matches)):
                     if matches[i].get_matchid() == self.matchid + self.winner_next_match_id:
