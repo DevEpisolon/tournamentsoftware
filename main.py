@@ -34,24 +34,37 @@ def create_tournament():
     # fix this part
     players = dummies[:]
     tournament.set_Players(players)
-    print([p.get_displayname() for p in players])
     tournament.createMatches()
     print()
-    #This shows only the match object because it is in a list
-    #print(tournament.get_Matches())
     print()
-    #This shows the match info from the __str__ method
     tournament.viewMatchesinTournament()
-    #print("Reached end")
-    while(tournament.get_tournamentWinner()is  None):
+    counter = 1
+    while (tournament.get_tournamentWinner() is None):
         mid = input("\nEnter Match ID you would like to view: ")
+        if int(mid) == len(tournament.get_Matches()):
+            print("---Final Match---\n")
         cm = tournament.get_MatchbyID(mid)
         print(cm)
-        pid = input("Enter player id you would like to promote(1 or 2): ")
-        cm.update_rounds(cm.get_players()[int(pid) - 1])
-        print(cm.get_match_winner())
-        print(f"\n {tournament.viewMatchesinTournament()}")
-    print(f"Winner of tournament: {tournament.get_tournamentWinner()}")
+        pid = ""
+        while (pid != "1") and (pid != "2"):
+            pid = input("Enter player id you would like to promote (1 or 2): ")
+            if (pid != "1") and (pid != "2"):
+                print("invalid player ID. Please try again")
+        if int(mid) == len(tournament.get_Matches()):
+            tournament.set_tournamentWinner(cm.get_players()[int(pid) - 1])
+            print()
+
+        else:
+            cm.set_round_winner(tournament.get_Matches(), cm.get_players()[int(pid) - 1])
+            tournament.viewMatchesinTournament()
+
+    print(f"Tournament {tournament.tournamentName} has ended\n")
+    print("---WINNER---")
+    print(tournament.get_tournamentWinner())
+    print("updating player info...\n")
+    # update player info with match history
+    print("Thank you for playing!!!")
+
 def main():
     create_tournament()
 
