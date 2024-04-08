@@ -29,6 +29,13 @@ def document_to_dummy(dummy_document):
         return dummy
     else:
         print("User not found.")
+        return None
+
+
+# Define a handler for the root URL
+@app.get("/")
+async def root():
+    return {"message": "Welcome to the Tournament Software!"}
 
 
 # FastAPI route to retrieve a dummy document from MongoDB then convert it into a dummy object
@@ -37,13 +44,21 @@ async def get_dummy(displayname: str):
     print("Step 2")
     dummy_document = db.dummies.find_one({"displayname": displayname})
     print("Step 3")
-    return document_to_dummy(dummy_document)
+    dummy = document_to_dummy(dummy_document)
+    print("Step 4")
 
+    if dummy:
+        return dummy
+    else:
+        return {"error": "Dummy not found"}
 
 async def main():
     print("Step 1")
     dummy1 = await get_dummy("Vegito")
-    print("Step 4")
+    print("Finish")
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
+
+# http://127.0.0.1:8000/dummy/Vegito
