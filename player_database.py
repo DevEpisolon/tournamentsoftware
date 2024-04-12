@@ -65,8 +65,10 @@ async def create_player():
     player_document = player_to_document(new_player)
 
     check = ("Add player to database? Y/N")
-    # Insert player into database
-    db.players.insert_one(player_document)
+
+    if check == "Y":
+        # Insert player into database
+        db.players.insert_one(player_document)
 
     print("Player created.")
 
