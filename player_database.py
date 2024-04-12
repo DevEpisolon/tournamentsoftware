@@ -14,14 +14,14 @@ MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftwa
 client = MongoClient(MONGODB_CONNECTION_STRING)
 db = client["tournamentsoftware"]
 
-
+# Convert player object to document
 def player_to_document(player):
     return {
         "playername": player.playername,
         "displayname": player.displayname,
     }
 
-# Convert the document into a dummy object
+# Convert document to player object
 def document_to_player(dummy_document):
     if dummy_document:
         player = Player(
@@ -54,7 +54,8 @@ async def get_player(displayname: str):
     else:
         return {"error": "Player not found"}
 
-@app.post("/player/")
+
+@app.post("/player")
 async def create_player():
     playername = input("Enter name: ")
     displayname = input("Enter display name: ")
@@ -64,7 +65,7 @@ async def create_player():
     # Convert player to document
     player_document = player_to_document(new_player)
 
-    check = ("Add player to database? Y/N")
+    check = input("Add player to database? Y/N")
 
     if check == "Y":
         # Insert player into database
