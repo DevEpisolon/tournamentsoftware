@@ -9,7 +9,10 @@ class Player:
         self.wins = wins
         self.losses = losses
         self.ties = ties
-        self.wlratio = wlratio
+        if wins+losses == 0:
+            self.wlratio = 0
+        else:
+            self.wlratio = round(wins/(wins+losses) * 100, 1)
         self.winstreaks = winstreaks
         self.match_history = match_history
         self.avatar = avatar
@@ -23,7 +26,7 @@ class Player:
         return f'''Dummy Player Info:
 Player: {self.displayname}-{self.playername} | ID: {self.uniqueid}
 Email: {self.email} | Join Date: {self.join_date}
-Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlratio}
+Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlratio}%
 '''
 
     @classmethod
@@ -149,3 +152,8 @@ Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlrat
         else:
             print("Error: Number of ties cannot be negative.")
 
+    def update_wl_ratio(self):
+        self.wlratio = round(self.wins/(self.wins+self.losses) * 100, 1)
+
+    def update_match_history(self, match):
+        pass

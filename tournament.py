@@ -1,7 +1,7 @@
 from datetime import datetime
 from match import Match
 class Tournament:
-    def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, matches=None, MaxSlotsCount=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None, Players=None, tournamentWinner = None, droppedPlayers = None):
+    def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, max_rounds, matches=None, MaxSlotsCount=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None, Players=None, tournamentWinner = None, droppedPlayers = None):
         self.tournamentName = tournamentName
         self.tournamentId = tournamentId
         self.STATUS = STATUS
@@ -18,6 +18,8 @@ class Tournament:
         self.tournamentWinner = tournamentWinner
         self.droppedPlayer = []
         self.maxSlotsPerMatch = 2
+        self.max_rounds = max_rounds
+
     # Getter and setter methods for each attribute
     def get_tournamentName(self):
         return self.tournamentName
@@ -52,7 +54,7 @@ class Tournament:
     def get_createdAt(self):
         return self.createdAt
     
-    def set_MaxSlotsPerMatch(self,count):
+    def set_MaxSlotsPerMatch(self, count):
         self.maxSlotsPerMatch = count
     
     def get_MaxSlotsPerMatch(self):
@@ -135,18 +137,8 @@ class Tournament:
     '''
     def viewMatchesinTournament(self):
         for x in self.get_Matches():
-            print(f"{x}\n")
+            print(f"{x}")
     
-    def isPlayerInTournament(self, displayname):
-        '''
-        To check if a player is in tournament based on Display Name
-        displayname = players display name
-        '''
-        for p in self.get_Players():
-            if p.get_displayname() == displayname:
-                return True
-            else:
-                return False
     '''
     To get the int of the players in the tournament
     '''
@@ -188,7 +180,7 @@ class Tournament:
                         playersInMatch.append(tempPlayers.pop())
                     #print("The Players in the match")
                     #print([p.get_displayname() for p in playersInMatch])
-                    m = Match(matchid=i, slots=self.get_MaxSlotsCount(), match_status=None, max_rounds=1,
+                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=None, max_rounds=self.max_rounds,
                       tournamentName=self.get_tournamentName(), players=playersInMatch,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
                       match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
@@ -196,7 +188,7 @@ class Tournament:
                     #print(m)
                 else:
                     #print("Detected no players in 2 count")
-                    m = Match(matchid=i, slots=self.get_MaxSlotsCount(), match_status=None, max_rounds=1,
+                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=None, max_rounds=self.max_rounds,
                       tournamentName=self.get_tournamentName(), players=None,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
                       match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
@@ -210,7 +202,7 @@ class Tournament:
                         playersInMatch.append(tempPlayers.pop())
                     #print("The players in the match")
                     #print([p.get_displayname() for p in playersInMatch])
-                    m = Match(matchid=i, slots=self.get_MaxSlotsCount(), match_status=None, max_rounds=1,
+                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=None, max_rounds=self.max_rounds,
                       tournamentName=self.get_tournamentName(), players=playersInMatch,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
                       match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
@@ -218,7 +210,7 @@ class Tournament:
                     #print(m)
                 else:
                     #print("Detected no players in other")
-                    m = Match(matchid=i, slots=self.get_MaxSlotsCount(), match_status=None, max_rounds=1,
+                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=None, max_rounds=self.max_rounds,
                       tournamentName=self.get_tournamentName(), players=None,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
                       match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
@@ -251,3 +243,4 @@ class Tournament:
         print("Team Boolean:", self.TeamBoolean)
         print("Alloted Match Time:", self.AllotedMatchTime)
         print("Players:", self.Players)
+
