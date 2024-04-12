@@ -149,5 +149,3 @@ Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlrat
         else:
             print("Error: Number of ties cannot be negative.")
 
-    def update_match_history(self):
-        pass
