@@ -99,7 +99,7 @@ Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlrat
         self.ties = ties
 
     def set_wlratio(self, wins, losses):
-        self.wlratio = wins/losses
+        return wins if losses == 0 else wins / losses
 
     def set_winstreaks(self, winstreaks):
         self.winstreaks = winstreaks
@@ -149,5 +149,3 @@ Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlrat
         else:
             print("Error: Number of ties cannot be negative.")
 
-    def update_match_history(self):
-        pass

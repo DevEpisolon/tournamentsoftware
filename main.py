@@ -1,8 +1,16 @@
 from tournament import Tournament
 from player import *
 from testing_player import *
+from player import Player
+from fastapi import FastAPI
+from pydantic import BaseModel
+from pymongo import MongoClient
+
+#need to change this to the mongodb with fastapi
+tournaments = []
 
 
+#redact it and update it 
 def add_players():
     # Create players for the tournament
     players = []
@@ -41,6 +49,7 @@ def create_tournament():
     #This shows only the match object because it is in a list
     #print(tournament.get_Matches())
     print()
+    tournaments.append(tournament)
     #This shows the match info from the __str__ method
     tournament.viewMatchesinTournament()
     #print("Reached end")
@@ -72,7 +81,36 @@ def create_tournament():
 
 
 def main():
-    create_tournament()
+    selection = 69
+    while(selection is not 0):
+        selection = input("Select what would you like to do?\n" +
+                 "1: Create a tournament\n" +
+                 "2: View tournaments\n" +
+                 "3: Add a player\n" +
+                 "4: Delete a player\n" +
+                 "5: Update player info\n" +
+                 "0: Quit")
+
+        if(selection ==1):
+           create_tournament()
+        elif(selection ==2):
+            # view the tournaments ongoing and update them?
+            print([tournament for tournament in tournaments])
+        elif(selection ==3):
+            #add a player
+            #This should be for the database but idk if its created or how we can do it     
+            name = input("Enter players name")
+            display = input("Enter players displayname")
+            player = Player(playername=playername,displayname=display)
+            print(f"Player {player.get_displayname()} has been created!")
+        elif(selection ==4):
+            #Delete a player
+        elif(selection ==5):
+            #update player info
+        else:
+             break
+
+
 
 if __name__ == "__main__":
     main()
