@@ -18,7 +18,7 @@ class Match:
         # best of 3, 5, etc
         self.max_rounds = max_rounds
         # keeps track of the players win
-        self.rounds = rounds = {player.get_playername(): 0 for player in self.players}
+        self.rounds = {player.get_playername(): 0 for player in self.players}
         self.startTime = startTime
         self.endTime = endTime
         # Should be made with the tournament class so no setters needed!
