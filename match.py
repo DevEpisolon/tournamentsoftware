@@ -84,7 +84,12 @@ class Match:
         self.slots = slots
 
     def set_match_status(self, match_status):
-        self.match_status = match_status
+        if (match_status == 0):
+            self.match_status = "In Progress"
+        elif (match_status == 1):
+            self.match_status = "Not Started"
+        elif (match_status == 2):
+            self.match_status = "Finished"
 
     def set_winner_next_match_id(self, winner_next_match_id):
         self.winner_next_match_id = winner_next_match_id
