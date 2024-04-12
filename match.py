@@ -22,7 +22,7 @@ class Match:
             if (i % 2) != 0:
                 self.num_wins += 1
         # keeps track of the players win
-        self.rounds = rounds = {player.get_playername(): 0 for player in self.players}
+        self.rounds = {player.get_playername(): 0 for player in self.players}
         self.startTime = startTime
         self.endTime = endTime
         # Should be made with the tournament class so no setters needed!
