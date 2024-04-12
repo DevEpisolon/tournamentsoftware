@@ -16,17 +16,16 @@ db = client["tournamentsoftware"]
 
 
 # Convert the document into a dummy object
-def document_to_dummy(dummy_document):
+def document_to_player(dummy_document):
     if dummy_document:
-        dummy = Player.create_dummy(
+        player = Player(
             playername=dummy_document.get("playername"),
             displayname=dummy_document.get("displayname"),
             wins=dummy_document.get("wins", 0),
             losses=dummy_document.get("losses", 0),
             ties=dummy_document.get("ties", 0)
         )
-        print(dummy)
-        return dummy
+        return player
     else:
         print("User not found.")
         return None
@@ -39,23 +38,22 @@ async def root():
 
 
 # FastAPI route to retrieve a dummy document from MongoDB then convert it into a dummy object
-@app.get("/dummy/{displayname}")
-async def get_dummy(displayname: str):
-    print("Step 2")
-    dummy_document = db.dummies.find_one({"displayname": displayname})
-    print("Step 3")
-    dummy = document_to_dummy(dummy_document)
-    print("Step 4")
+@app.get("/player/{displayname}")
+async def get_player(displayname: str):
+    player_document = db.dummies.find_one({"displayname": displayname})
+    player = document_to_player(player_document)
 
-    if dummy:
-        return dummy
+    if player:
+        return player
     else:
-        return {"error": "Dummy not found"}
+        return {"error": "Player not found"}
+
+@app.get("/player/{displayname}")
+async def create_player(displayname: str):
+    username = input("Enter username:")
 
 async def main():
-    print("Step 1")
-    dummy1 = await get_dummy("Vegito")
-    print("Finish")
+    player1 = await get_player("Vegito")
 
 
 if __name__ == "__main__":
