@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from pymongo import MongoClient
+from match import Match
+from tournament import Tournament
 
 app = FastAPI()
 
