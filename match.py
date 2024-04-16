@@ -17,8 +17,12 @@ class Match:
         self.players = players or []  # Initialize as empty list if not provided
         # best of 3, 5, etc
         self.max_rounds = max_rounds
+        self.num_wins = 0
+        for i in range(1,max_rounds+1):
+            if (i % 2) != 0:
+                self.num_wins += 1
         # keeps track of the players win
-        self.rounds = rounds = {player.get_playername(): 0 for player in self.players}
+        self.rounds = {player.get_playername(): 0 for player in self.players}
         self.startTime = startTime
         self.endTime = endTime
         # Should be made with the tournament class so no setters needed!
@@ -149,52 +153,39 @@ class Match:
         for player in self.players():
             print(player.get_playername)
     
-    def update_rounds(self, winner):
+    def update_rounds(self, winner, matches):
         """
         winner(Player): the winner of a round
 
         If this is a best of 3, then this function will update self.rounds to reflect the outcome.
         """
-        if winner.get_playername in self.rounds:
-            self.rounds[winner.get_playername()] += 1
-        else:
-            print(f"Error: {winner.get_playername()} is not a valid player in this match.")
+        self.rounds[winner.get_playername()] += 1
+        print(f"{winner.get_playername()} won this round")
+        for player in self.get_players():
+            if self.rounds[player.get_playername()] >= self.num_wins:
+                self.set_match_winner(player)
+                self.change_match_status(1)
+                player.increase_wins()
+                player.update_wl_ratio()
+                self.move_winner(matches)
+            elif self.match_winner is not None:
+                self.set_match_loser(player)
+                player.increase_losses()
+                player.update_wl_ratio()
 
-    '''
-    def set_round_winner(self, matches):
-        
-        matches(List[Match]): list of all matches in the tournament
-    
-        Sets the match_winner and match_loser and updates the player's win/lose.
-        If the next_match ID matches with the winner_next_match ID, then add_player into next_match.
-        Note: update later for double elimination
-        
-        for winner in self.get_players():
-            if self.rounds[winner.get_playername()] >= 2 and self.max_rounds == 3:
-                self.set_match_winner(winner)
-                winner.increase_wins()
-            elif self.rounds[winner.get_playername()] >= 3 and self.max_rounds == 5:
-                self.set_match_winner(winner)
-                winner.increase_wins()
-            elif self.rounds[winner.get_playername()] >= 1:
-                self.set_match_winner(winner)
-                winner.increase_wins()
-            else:
-                self.set_match_loser(winner)
-                winner.increase_losses()
-
+    def move_winner(self, matches):
         for next_match in matches:
-            if next_match.get_matchid() == self.winner_next_match_id:
+            if next_match.get_matchid() == self.matchid + self.winner_next_match_id:
                 next_match.add_players(self.match_winner)
                 break
-    '''
 
+    '''
     def set_round_winner(self, matches, winner):
         if winner.get_playername() not in self.rounds:
             self.rounds[winner.get_playername()] = 0
-        else: 
-            self.rounds[winner.get_playername()] +=1 
-            if self.rounds[winner.get_playername()] >= int(self.max_rounds) -1:
+        else:
+            self.rounds[winner.get_playername()] += 1
+            if self.rounds[winner.get_playername()] == int(self.max_rounds):
                 self.set_match_winner(winner)
                 for i in range(len(matches)):
                     if matches[i].get_matchid() == self.matchid + self.winner_next_match_id:
@@ -202,6 +193,7 @@ class Match:
                         self.change_match_status(1)
                         print(f"{self.get_match_winner().get_playername()} won the match and is moving onto match {matches[i].get_matchid()}")
                         break
+    '''
 
     def print_standings(self):
         """
@@ -270,5 +262,7 @@ class Match:
                   f" | Match Status: {self.get_match_status()}")
         for player in self.players:
             output += f" | Player: {player.get_playername()}"
+        if self.get_match_status() == "completed":
+            output += f" | Winner: {self.get_match_winner().playername} | Loser: {self.get_match_loser().playername}"
         return output
 
