@@ -9,10 +9,7 @@ class Player:
         self.wins = wins
         self.losses = losses
         self.ties = ties
-        if wins+losses == 0:
-            self.wlratio = 0
-        else:
-            self.wlratio = round(wins/(wins+losses) * 100, 1)
+        self.wlratio = wlratio
         self.winstreaks = winstreaks
         self.match_history = match_history
         self.avatar = avatar
