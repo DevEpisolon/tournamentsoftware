@@ -122,19 +122,18 @@ async def admin_create_player():
 
     print("Player created.")
 
-
+'''For testing purposes.'''
 @app.get("/players/tourney")
 async def tourney_players():
     playerlist = ["Vegito", "Epii", "Kayz", "songbaker",
                   "this_is_stupid", "Tim", "Devin", "Hotshot"]
 
-    players_data = []
+    players = []
     for player in playerlist:
         player_data = await get_player(player)
-        if "error" not in player_data:
-            players_data.append(player_data)
+        players.append(player_data)
 
-    return {"players": players_data}
+    return players
 
 
 '''For database testing via FastAPI and MongoDB.'''
@@ -142,6 +141,10 @@ async def main():
     player1 = await get_player("Vegito")
     print(player1)
 
+    players = await tourney_players()
+    print(players)
+    for i in players:
+        print(i.displayname)
 
 if __name__ == "__main__":
     asyncio.run(main())
