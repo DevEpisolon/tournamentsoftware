@@ -34,8 +34,13 @@ class Tournament:
         self.tournamentId = tournamentId
 
     def get_STATUS(self):
-        return self.STATUS
-
+        if (self.STATUS == 0 ):
+            return "In Progress"
+        elif(self.STATUS == 1):
+            return "Not Started"
+        elif(self.STATUS == 2):
+            return "Finished"
+    #gets set from 0-2
     def set_STATUS(self, STATUS):
         self.STATUS = STATUS
 
