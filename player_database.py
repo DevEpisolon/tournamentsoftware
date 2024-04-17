@@ -73,7 +73,7 @@ async def root():
 async def get_player(displayname):
     player_document = db.players.find_one({"displayname": displayname})
     player = document_to_player(player_document)
-
+    # add a .lower function for player and searching since displayname will be unique and case sensitivity won't matter
     if player:
         return player
     else:

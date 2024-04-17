@@ -84,7 +84,12 @@ class Match:
         self.slots = slots
 
     def set_match_status(self, match_status):
-        self.match_status = match_status
+        if (match_status == 0):
+            self.match_status = "In Progress"
+        elif (match_status == 1):
+            self.match_status = "Not Started"
+        elif (match_status == 2):
+            self.match_status = "Finished"
 
     def set_winner_next_match_id(self, winner_next_match_id):
         self.winner_next_match_id = winner_next_match_id
@@ -179,7 +184,7 @@ class Match:
                 next_match.add_players(self.match_winner)
                 break
 
-    '''
+
     def set_round_winner(self, matches, winner):
         if winner.get_playername() not in self.rounds:
             self.rounds[winner.get_playername()] = 0
@@ -193,7 +198,7 @@ class Match:
                         self.change_match_status(1)
                         print(f"{self.get_match_winner().get_playername()} won the match and is moving onto match {matches[i].get_matchid()}")
                         break
-    '''
+
 
     def print_standings(self):
         """
