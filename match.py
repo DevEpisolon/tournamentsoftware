@@ -184,7 +184,7 @@ class Match:
                 next_match.add_players(self.match_winner)
                 break
 
-    '''
+
     def set_round_winner(self, matches, winner):
         if winner.get_playername() not in self.rounds:
             self.rounds[winner.get_playername()] = 0
@@ -198,7 +198,7 @@ class Match:
                         self.change_match_status(1)
                         print(f"{self.get_match_winner().get_playername()} won the match and is moving onto match {matches[i].get_matchid()}")
                         break
-    '''
+
 
     def print_standings(self):
         """
