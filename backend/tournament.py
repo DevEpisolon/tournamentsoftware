@@ -9,7 +9,7 @@ app = APIRouter()
 # Connect to MongoDB
 client = MongoClient("mongodb://localhost:27017/")
 #databae name idk it yet
-db = client["tournament_database"]
+db = client["tournamentssoftware"]
 #probally called tournaments? yet to confirm
 tournaments_collection = db["tournaments"]
 
@@ -29,5 +29,7 @@ def create_tournament(tournament_input: TournamentInput):
 
 #to get a tournament to view should i incorporate a view all active tournaments?
 @router.get("/{item_id}")
-async def get_tournaments(item_id: int):
-    return {"item_id": item_id}
+def get_tournaments(item_id: int):
+    tournament_data = await fetch_tournament_data_from_database(item_id)
+    return tournament_data
+
