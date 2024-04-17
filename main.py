@@ -80,6 +80,7 @@ def play_tournament(tournament):
     print("Thank you for playing!!!")
 
 def update_player_info():
+   # i think we auto do it after every match we should probally store all the changes in an arraylist and publish at end of tournament?
     pass
 
 
