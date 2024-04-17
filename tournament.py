@@ -1,6 +1,7 @@
 from datetime import datetime
+from match import Match
 class Tournament:
-    def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, matches=None, MaxSlotsCount=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None, Players=None, tournamentWinner = None, droppedPlayers = None):       
+    def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, max_rounds, matches=None, MaxSlotsCount=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None, Players=None, tournamentWinner = None, droppedPlayers = None):
         self.tournamentName = tournamentName
         self.tournamentId = tournamentId
         self.STATUS = STATUS
@@ -16,6 +17,9 @@ class Tournament:
         self.Players = []
         self.tournamentWinner = tournamentWinner
         self.droppedPlayer = []
+        self.maxSlotsPerMatch = 2
+        self.max_rounds = max_rounds
+
     # Getter and setter methods for each attribute
     def get_tournamentName(self):
         return self.tournamentName
@@ -49,7 +53,13 @@ class Tournament:
 
     def get_createdAt(self):
         return self.createdAt
-
+    
+    def set_MaxSlotsPerMatch(self, count):
+        self.maxSlotsPerMatch = count
+    
+    def get_MaxSlotsPerMatch(self):
+        return self.maxSlotsPerMatch
+    
     def set_createdAt(self, createdAt):
         self.createdAt = createdAt
 
@@ -59,10 +69,10 @@ class Tournament:
     def set_updatedAt(self, updatedAt):
         self.updatedAt = updatedAt
 
-    def get_matches(self):
+    def get_Matches(self):
         return self.matches
 
-    def set_matches(self, matches):
+    def set_Matches(self, matches):
         self.matches = matches
 
     def get_MaxSlotsCount(self):
@@ -107,7 +117,7 @@ class Tournament:
     player = player to remove
     '''
     def removePlayerfromTournament(self,player):
-        get_Players().remove(playerid)  
+        self.get_Players().remove(player.playerid)  
     '''
     Add a singulaur player to the tournament
     player = player to add to tournament
@@ -125,9 +135,9 @@ class Tournament:
     To view the matches in the tournament
     tournament = tournament you would like to view
     '''
-    def viewMatchesinTournament(self,tournament):
-        for x in tournament.getMatches():
-            print(f"{x.toString()}")
+    def viewMatchesinTournament(self):
+        for x in self.get_Matches():
+            print(f"{x}")
     
     '''
     To get the int of the players in the tournament
@@ -139,9 +149,11 @@ class Tournament:
     matches is all the matches in tournament
     matchid is the match id
     '''
-    def get_match_by_id(matches, matchid):
-        for match in all_matches:
-            if match.id == match_id:
+    def get_MatchbyID(self, match_id):
+       # print([m for m in self.get_Matches()])
+        for match in self.get_Matches():
+            #print(f"Current matchID: {match.get_matchid()} Finding: {match_id}")
+            if int(match.get_matchid()) == int(match_id):
                 return match
         return None
     '''
@@ -150,26 +162,65 @@ class Tournament:
     def createMatches(self):
         matches = []
         matchCount = self.getPlayerCount() - 1
-        tempPlayers = self.get_Players()  # Assuming get_Players is a method of the Tournament class
+        tempPlayers = self.get_Players().copy()  
+        #print(f"temp players: {tempPlayers}")
         count = 0
         nextCountID = self.getPlayerCount()/2
         playersInMatch = []
-        for i in range(matchCount):
+        #print(f"Max slots count: {self.get_MaxSlotsCount()}")
+        for i in range(1,matchCount+1):
+            #print(f"Count: {count}")
             count +=1
+
+            #check count
             if(count == 2):
-                #createMatch
-                count = 0
-            else:
-                nextCountID -=1
-            for _ in range(self.get_MaxSlotsCount()):  # Assuming get_MaxSlotsCount is a method of the Tournament class
-                playersInMatch.append(tempPlayers.pop())
-            match = Match(matchid=i, slots=getSlots(), match_status=None, max_rounds=None,
+                #print("Came through the 2 end")
+                if (len(tempPlayers)> 0):
+                    for _ in range(self.get_MaxSlotsPerMatch()):
+                        playersInMatch.append(tempPlayers.pop())
+                    #print("The Players in the match")
+                    #print([p.get_displayname() for p in playersInMatch])
+                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=None, max_rounds=self.max_rounds,
                       tournamentName=self.get_tournamentName(), players=playersInMatch,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
                       match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
                       startTime=None, endTime=None)
-            matches.append(match)
-        set_matches(matches)
+                    #print(m)
+                else:
+                    #print("Detected no players in 2 count")
+                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=None, max_rounds=self.max_rounds,
+                      tournamentName=self.get_tournamentName(), players=None,
+                      winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
+                      match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
+                      startTime=None, endTime=None)
+                count = 0
+            #Uneven count
+            else:
+                #print("Came through the other end!")
+                if (len(tempPlayers) >0):
+                    for _ in range(self.get_MaxSlotsPerMatch()):
+                        playersInMatch.append(tempPlayers.pop())
+                    #print("The players in the match")
+                    #print([p.get_displayname() for p in playersInMatch])
+                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=None, max_rounds=self.max_rounds,
+                      tournamentName=self.get_tournamentName(), players=playersInMatch,
+                      winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
+                      match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
+                      startTime=None, endTime=None)
+                    #print(m)
+                else:
+                    #print("Detected no players in other")
+                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=None, max_rounds=self.max_rounds,
+                      tournamentName=self.get_tournamentName(), players=None,
+                      winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
+                      match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
+                      startTime=None, endTime=None)
+                nextCountID -=1
+
+            #Empty the players list to add other players
+            playersInMatch = []
+            matches.append(m)
+        self.set_Matches(matches)
             
 
 
