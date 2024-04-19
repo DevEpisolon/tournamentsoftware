@@ -1,5 +1,5 @@
 import asyncio
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pymongo import MongoClient
 from player import Player
 
@@ -77,7 +77,7 @@ async def get_player(displayname):
     if player:
         return player
     else:
-        return {"error": "Player not found"}
+        raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
 
 '''For regular users to register as a Player/create an account.'''
 @app.post("/players")
@@ -122,8 +122,22 @@ async def admin_create_player():
 
     print("Player created.")
 
+'''For removing a player from the database.'''
+@app.delete("/players/{displayname}")
+async def delete_player(displayname: str):
+    # Attempt to delete the player from the database
+    player = db.players.delete_one({"displayname": displayname})
+
+    # Check if the player was found and deleted
+    if player.deleted_count == 1:
+        return {"message": f"Player '{displayname}' deleted successfully."}
+    else:
+        # Player not found in the database
+        raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
+
+
 '''For testing purposes.'''
-@app.get("/players/tourney")
+@app.get("/players")
 async def tourney_players():
     playerlist = ["Vegito", "Epii", "Kayz", "songbaker",
                   "this_is_stupid", "Tim", "Devin", "Hotshot"]
