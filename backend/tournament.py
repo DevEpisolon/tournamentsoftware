@@ -30,6 +30,8 @@ def create_tournament(tournament_input: TournamentInput):
 #to get a tournament to view should i incorporate a view all active tournaments?
 @router.get("/{item_id}")
 def get_tournaments(item_id: int):
-    tournament_data = await fetch_tournament_data_from_database(item_id)
+    tournament_data = fetch_tournament_data_from_database(item_id)
+    if tournament_data is None:
+        raise HTTPException(status_code=404, detail="Tournament not found!")
     return tournament_data
 
