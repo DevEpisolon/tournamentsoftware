@@ -1,19 +1,8 @@
-import asyncio
-from fastapi import APIRouter
-from pymongo import MongoClient
 from player import Player
+from database import player_collection
+from fastapi import APIRouter, HTTPException
 
-# Initialize FastAPI app
-app = APIRouter()
-
-# MongoDB Atlas connection string
-MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftware.l9dyjo7.mongodb.net/?retryWrites=true&w=majority&appName=tournamentsoftware"
-# Replace <username>, <password>, <cluster-url>, and <dbname> with your actual MongoDB Atlas credentials and database name
-
-# Establish connection to MongoDB Atlas
-client = MongoClient(MONGODB_CONNECTION_STRING)
-db = client["tournamentsoftware"]
-
+player_router = APIRouter()
 
 # Convert player object to player document
 def player_to_document(player):
@@ -62,25 +51,18 @@ def document_to_player(player_document):
         return None
 
 
-# Define a handler for the root URL
-@app.get("/")
-async def root():
-    return {"message": "Welcome to the Tournament Software!"}
-
-
-'''FastAPI route to retrieve a player document from MongoDB then convert it to player object'''
-@app.get("/players/{displayname}")
+@player_router.get("/players/{displayname}")
 async def get_player(displayname):
-    player_document = db.players.find_one({"displayname": displayname})
+    player_document = player_collection.find_one({"displayname": displayname})
     player = document_to_player(player_document)
     # add a .lower function for player and searching since displayname will be unique and case sensitivity won't matter
     if player:
         return player
     else:
-        return {"error": "Player not found"}
+        raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
 
-'''For regular users to register as a Player/create an account.'''
-@app.post("/players")
+
+@player_router.post("/players")
 async def register_player():
     playername = input("Enter name: ")
     displayname = input("Enter display name: ")
@@ -94,63 +76,6 @@ async def register_player():
 
     if check == "Y":
         # Insert player into database
-        db.players.insert_one(player_document)
+        player_collection.insert_one(player_document)
 
     print("Player created and registered.")
-
-
-@app.post("/players")
-async def admin_create_player():
-    playername = input("Enter name: ")
-    displayname = input("Enter display name: ")
-    wins = int(input("Enter wins: "))
-    losses = int(input("Enter losses: "))
-    ties = int(input("Enter ties: "))
-
-    # new_player = Player(playername=playername, displayname=displayname)
-
-    new_player = Player(playername=playername, displayname=displayname, wins=wins, losses=losses, ties=ties)
-
-    # Convert player to document
-    player_document = player_to_document(new_player)
-
-    check = input("Add player to database? (Y/N): ")
-
-    if check == "Y":
-        # Insert player into database
-        db.players.insert_one(player_document)
-
-    print("Player created.")
-
-'''For testing purposes.'''
-@app.get("/players/tourney")
-async def tourney_players():
-    playerlist = ["Vegito", "Epii", "Kayz", "songbaker",
-                  "this_is_stupid", "Tim", "Devin", "Hotshot"]
-
-    players = []
-    for player in playerlist:
-        player_data = await get_player(player)
-        players.append(player_data)
-
-    return players
-
-# Define a route to fetch all players from the database
-@app.get("/viewplayers")
-async def view_players():
-    players_data = list(players_collection.find({}))  # Fetch all players from the collection
-    players = [Player(**player_data) for player_data in players_data]  # Convert player documents to Player objects
-    return players
-
-'''For database testing via FastAPI and MongoDB.'''
-async def main():
-    player1 = await get_player("Vegito")
-    print(player1)
-
-    players = await tourney_players()
-    print(players)
-    for i in players:
-        print(i.displayname)
-
-if __name__ == "__main__":
-    asyncio.run(main())
