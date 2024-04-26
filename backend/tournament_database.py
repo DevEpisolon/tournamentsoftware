@@ -5,8 +5,9 @@ from pymongo import MongoClient
 app = APIRouter()
 
 # Connect to MongoDB
-client = MongoClient("mongodb://localhost:27017/")
-db = client["tournamentssoftware"]
+MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftware.l9dyjo7.mongodb.net/?retryWrites=true&w=majority&appName=tournamentsoftware"
+client = MongoClient(MONGODB_CONNECTION_STRING)
+db = client["tournamentsoftware"]
 tournaments_collection = db["tournaments"]
 
 # Function to fetch tournament data from the database by ID

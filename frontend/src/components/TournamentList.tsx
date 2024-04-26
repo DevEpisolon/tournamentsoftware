@@ -4,7 +4,7 @@ interface Tournament {
   _id: string;
   tournamentName: string;
   maxSlots: number;
-  // Add more properties as needed
+  state: string;
 }
 
 const TournamentsList: React.FC = () => {
@@ -26,13 +26,14 @@ const TournamentsList: React.FC = () => {
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Tournaments</h2>
+      <h2 className="hover:shadow text-2xl font-bold mb-4">Tournaments</h2>
       <div className="grid gap-4">
         {tournaments.map((tournament) => (
           <div
             key={tournament._id}
             className="bg-gray-100 p-4 rounded-lg shadow-md"
-          >
+            style = {{width: '200px',height: '100px'}}	
+	   >
             <h3 className="text-xl font-semibold mb-2">{tournament.tournamentName}</h3>
             <p>Max Slots: {tournament.maxSlots}</p>
             {/* Add more tournament details here as needed */}

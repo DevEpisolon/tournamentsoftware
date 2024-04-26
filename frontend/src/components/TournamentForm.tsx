@@ -1,18 +1,28 @@
-// TournamentForm.js
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 
-import React, { useState } from 'react';
+interface FormData {
+  tournamentName: string;
+  tournamentSize: string;
+}
 
-function TournamentForm({ onSubmit }) {
-  const [formData, setFormData] = useState({
+interface Props {
+  onSubmit: (formData: FormData) => void;
+}
+
+const TournamentForm: React.FC<Props> = ({ onSubmit }) => {
+  const [formData, setFormData] = useState<{
+    tournamentName: string;
+    tournamentSize: string;
+  }>({
     tournamentName: '',
     tournamentSize: '',
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onSubmit(formData);
   };
@@ -45,7 +55,7 @@ function TournamentForm({ onSubmit }) {
       </button>
     </form>
   );
-}
+};
 
 export default TournamentForm;
 

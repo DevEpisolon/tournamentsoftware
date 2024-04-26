@@ -138,7 +138,7 @@ async def tourney_players():
 # Define a route to fetch all players from the database
 @app.get("/viewplayers")
 async def view_players():
-    players_data = list(players_collection.find({}))  # Fetch all players from the collection
+    players_data = list(db.players.find({}))  # Fetch all players from the collection
     players = [Player(**player_data) for player_data in players_data]  # Convert player documents to Player objects
     return players
 
@@ -154,3 +154,6 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+    #i inserted this so that i can view the databasenames so i can grab all tournaments so i can display it on the frontend
+    databases = client.list_database_names()
+    print(databases)
