@@ -10,18 +10,30 @@ import LoadingBracket from './components/loading';
 import SingleElimination from './components/single-elimination';
 
 function App(): JSX.Element {
+  const [playerCount, setPlayerCount] = React.useState(0); // Initialize playerCount state
+
+  // Function to update playerCount
+  const updatePlayerCount = (newCount: number) => {
+    setPlayerCount(newCount);
+  };
   // Define state variable to control the visibility of the form
   const [showForm, setShowForm] = useState<boolean>(false);
-
+  //initialize tournament data variable equal to tournament form
+  let tournament_size: number = 0;
   // Function to handle form submission
   const handleFormSubmit = (data: any): void => {
     // Send data to backend to create tournament
     console.log('Tournament Data:', data);
+    const tournament_data = data
+    //set tournament size to the value of the tournament form
+    tournament_size = parseInt(tournament_data.tournamentSize);
+    console.log(tournament_size)
     // Reset form state to hide the form after submission
     setShowForm(false);
-  };
-
-  return (
+    updatePlayerCount(tournament_size);
+    };
+  
+  return(
     <div className="app"> {/* Container for the entire application */}
       {/* Header */}
       <header className="header relative flex justify-between items-center"> {/* Header section */}
@@ -54,14 +66,15 @@ function App(): JSX.Element {
       <div className="main"> {/* Main content area */}
         {/* Main Content Area */}
         <div className="content"> {/* Content section */}
+          <TournamentList /> {/* Render TournamentList component */}
           <h3>Single Elimination</h3>
           <hr />
-          <SingleElimination player_count={8} />
+          {/*Conditionally renders the brackets based on player count*/}
+          {playerCount > 0 ? <SingleElimination player_count={playerCount} key={playerCount} /> : null}
           <h3>Double Elimination</h3>
           <hr />
           <DoubleElimination/>
           {/* Add content for your main screen here */}
-          <TournamentList /> {/* Render TournamentList component */}
         </div>
 
         {/* Sidebar */}
