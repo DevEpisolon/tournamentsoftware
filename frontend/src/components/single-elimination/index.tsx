@@ -1,60 +1,40 @@
-import React from 'react';
-import { Bracket, Seed, SeedItem, SeedTeam, SeedTime, IRoundProps, IRenderSeedProps } from 'react-brackets';
+//Makes a bracket for Single elimination and assumes each round has 2 players/teams
+//Need 
 
-const rounds: IRoundProps[] = [
-  {
-    title: 'Round 1',
-    seeds: [
-      {},
-      {
+import React from 'react';
+import { Bracket, Seed, SeedItem, SeedTeam, SeedTime, IRoundProps, IRenderSeedProps, ISeedProps } from 'react-brackets';
+
+const generated_rounds = (player_count: number): IRoundProps[] => {
+  const rounds: IRoundProps[] = [];
+  let round_amount = Math.log(player_count)/Math.log(2);
+  let player_per_round = player_count/2
+
+  for (let i = 1; i <= round_amount; i++){
+    const round: IRoundProps = {
+      title: `Round ${i}`,
+      seeds: [],
+    };
+    
+    for (let j = 1; j <= player_per_round; j++){
+      const seed: ISeedProps = {
         id: 1,
-        date: new Date().toDateString(),
-        teams: [
-          { id: 1, name: 'The Leons', score: 2 },
-          // { id: 3, name: 'Kitties', score: 6 },
-        ],
-      },
-      {},
-      {
-        id: 1,
-        date: new Date().toDateString(),
-        teams: [
-          { id: 1, name: 'The Leons', score: 2 },
-          // { id: 3, name: 'Kitties', score: 6 },
-        ],
-      },
-    ],
-  },
-  {
-    title: 'Round 2',
-    seeds: [...new Array(2)].fill({
-      id: 1,
-      date: new Date().toDateString(),
-      teams: [
-        { id: 1, name: 'The Leons', score: 2 },
-        { id: 3, name: 'Kitties', score: 6 },
-      ],
-    }),
-  },
-  {
-    title: 'Round 3',
-    seeds: [...new Array(1)].fill({
-      id: 1,
-      date: new Date().toDateString(),
-      teams: [
-        { id: 1, name: 'The Leons', score: 2 },
-        { id: 3, name: 'Kitties', score: 6 },
-      ],
-    }),
-  },
-];
+        teams: [],
+        date: new Date().toDateString()
+      }
+      round.seeds.push(seed)
+    }
+    player_per_round = player_per_round/2
+    rounds.push(round);
+  }
+  return rounds;
+};
 
 const RenderSeed = ({ breakpoint, seed }: IRenderSeedProps) => {
   return (
     <Seed mobileBreakpoint={breakpoint}>
       <SeedItem style={{ width: '100%' }}>
         <div>
-          <SeedTeam>{seed.teams?.[0].name || '-----------'}</SeedTeam>
+          <SeedTeam>{seed.teams?.[0]?.name || '-----------'}</SeedTeam>
           <div style={{ height: 1, backgroundColor: '#707070' }}></div>
           <SeedTeam>{seed.teams?.[1]?.name || '-----------'}</SeedTeam>
         </div>
@@ -66,11 +46,15 @@ const RenderSeed = ({ breakpoint, seed }: IRenderSeedProps) => {
   );
 };
 
-const SingleElimination = () => {
+interface player_count_type{
+  player_count: number
+}
+
+const SingleElimination: React.FC<player_count_type> = ({player_count}) => {
   return (
     <Bracket
       mobileBreakpoint={767}
-      rounds={rounds}
+      rounds={generated_rounds(player_count)} //Makes rounds bracket based on player size
       renderSeedComponent={RenderSeed}
       swipeableProps={{ enableMouseEvents: true, animateHeight: true }}
     />

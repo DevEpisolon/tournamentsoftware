@@ -16,15 +16,12 @@ const App = () => {
 
       <div className="main">
         <div className="content">
-          <h3>Loading Skeleton</h3>
-          <hr />
-          <LoadingBracket />
           <h3>Single Elimination</h3>
           <hr />
-          <SingleElimination />
+          <SingleElimination player_count={8} />
           <h3>Double Elimination</h3>
           <hr />
-          <DoubleElimination />
+          <DoubleElimination/>
       </div>
 
         <div className="sidebar">
