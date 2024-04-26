@@ -5,6 +5,9 @@ import './App.css'; // Importing CSS file for styling
 import TournamentForm from './components/TournamentForm'; // Importing TournamentForm component
 import TournamentList from './components/TournamentList'; // Importing TournamentList component
 import PlayerList from './components/PlayerList'; // Importing PlayerList component
+import DoubleElimination from './components/double-elimination';
+import LoadingBracket from './components/loading';
+import SingleElimination from './components/single-elimination';
 
 function App(): JSX.Element {
   // Define state variable to control the visibility of the form
@@ -51,7 +54,12 @@ function App(): JSX.Element {
       <div className="main"> {/* Main content area */}
         {/* Main Content Area */}
         <div className="content"> {/* Content section */}
-          <h2>Main Content</h2>
+          <h3>Single Elimination</h3>
+          <hr />
+          <SingleElimination player_count={8} />
+          <h3>Double Elimination</h3>
+          <hr />
+          <DoubleElimination/>
           {/* Add content for your main screen here */}
           <TournamentList /> {/* Render TournamentList component */}
         </div>

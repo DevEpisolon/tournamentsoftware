@@ -15,3 +15,7 @@
 
 /* Optionally include your own custom utility styles here */
 
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
