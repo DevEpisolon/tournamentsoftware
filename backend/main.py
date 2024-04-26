@@ -1,10 +1,12 @@
 from auth import verify_firebase_token
-from tournament import router
 from typing import Union
 from fastapi import FastAPI, Request, HTTPException
+from player_database import player_router
+from match_database import match_router
 
 app = FastAPI()
-app.include_router(router, prefix="/tournament", tags=["tournament"])
+app.include_router(player_router)
+app.include_router(match_router)
 
 #3rd root one in fastapi and one in player_database
 @app.get("/")
