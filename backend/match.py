@@ -210,10 +210,6 @@ class Match:
         for items in self.rounds:
             print(f"{items.key}: {items.value}\n")
 
-    
-
-        
-    
     def start_match(self):
         """
         Uses time library to get the time when the function is called and prints out the time.

@@ -226,11 +226,6 @@ class Tournament:
             playersInMatch = []
             matches.append(m)
         self.set_Matches(matches)
-            
-
-
-    
-
 
 
     # Helper function to print tournament details
