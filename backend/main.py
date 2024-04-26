@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request, HTTPException
 app = FastAPI()
 app.include_router(router, prefix="/tournament", tags=["tournament"])
 
-
+#3rd root one in fastapi and one in player_database
 @app.get("/")
 async def read_root(request: Request):
 

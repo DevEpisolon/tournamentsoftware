@@ -36,7 +36,12 @@ class Match:
         return self.slots
 
     def get_match_status(self):
-        return self.match_status
+        if (self_match_status == 0):
+            return "In Progress"
+        elif (self_match_status == 1):
+            return "Not Started"
+        elif (self_match_status == 2 ):
+            return "Finished"
 
     def get_winner_next_match_id(self):
         return self.winner_next_match_id
@@ -82,7 +87,10 @@ class Match:
 
     def set_slots(self, slots):
         self.slots = slots
-
+    
+    # 0: In Progress
+    # 1: Not Started
+    # 2: Finished 
     def set_match_status(self, match_status):
         self.match_status = match_status
 
@@ -164,7 +172,7 @@ class Match:
         for player in self.get_players():
             if self.rounds[player.get_playername()] >= self.num_wins:
                 self.set_match_winner(player)
-                self.change_match_status(1)
+                self.set_match_status(2)
                 player.increase_wins()
                 player.update_wl_ratio()
                 self.move_winner(matches)
@@ -179,7 +187,7 @@ class Match:
                 next_match.add_players(self.match_winner)
                 break
 
-    '''
+
     def set_round_winner(self, matches, winner):
         if winner.get_playername() not in self.rounds:
             self.rounds[winner.get_playername()] = 0
@@ -190,10 +198,10 @@ class Match:
                 for i in range(len(matches)):
                     if matches[i].get_matchid() == self.matchid + self.winner_next_match_id:
                         matches[i].add_players(self.get_match_winner())
-                        self.change_match_status(1)
+                        self.set_match_status(2)
                         print(f"{self.get_match_winner().get_playername()} won the match and is moving onto match {matches[i].get_matchid()}")
                         break
-    '''
+
 
     def print_standings(self):
         """
@@ -203,19 +211,8 @@ class Match:
             print(f"{items.key}: {items.value}\n")
 
     
-    def change_match_status(self, status):
-        """
-        status(int)
-    
-        Changes the status of the match.
-        """
-        if status == 1:
-            self.set_match_status("completed")
-        elif status == 2:
-            self.set_match_status("in progress")
-        elif status == 3:
-            self.set_match_status("inactive")
 
+        
     
     def start_match(self):
         """

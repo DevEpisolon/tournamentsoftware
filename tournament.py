@@ -34,8 +34,13 @@ class Tournament:
         self.tournamentId = tournamentId
 
     def get_STATUS(self):
-        return self.STATUS
-
+        if (self.STATUS == 0 ):
+            return "In Progress"
+        elif(self.STATUS == 1):
+            return "Not Started"
+        elif(self.STATUS == 2):
+            return "Finished"
+    #gets set from 0-2
     def set_STATUS(self, STATUS):
         self.STATUS = STATUS
 
@@ -184,7 +189,7 @@ class Tournament:
                       tournamentName=self.get_tournamentName(), players=playersInMatch,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
                       match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
-                      startTime=None, endTime=None)
+                      startTime=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), endTime=None)
                     #print(m)
                 else:
                     #print("Detected no players in 2 count")
@@ -206,7 +211,7 @@ class Tournament:
                       tournamentName=self.get_tournamentName(), players=playersInMatch,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
                       match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
-                      startTime=None, endTime=None)
+                      startTime= datetime.now().strftime("%Y-%m-%d %H:%M:%S"), endTime=None)
                     #print(m)
                 else:
                     #print("Detected no players in other")
