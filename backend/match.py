@@ -172,7 +172,7 @@ class Match:
         for player in self.get_players():
             if self.rounds[player.get_playername()] >= self.num_wins:
                 self.set_match_winner(player)
-                self.change_match_status(1)
+                self.set_match_status(2)
                 player.increase_wins()
                 player.update_wl_ratio()
                 self.move_winner(matches)
@@ -198,7 +198,7 @@ class Match:
                 for i in range(len(matches)):
                     if matches[i].get_matchid() == self.matchid + self.winner_next_match_id:
                         matches[i].add_players(self.get_match_winner())
-                        self.change_match_status(1)
+                        self.set_match_status(2)
                         print(f"{self.get_match_winner().get_playername()} won the match and is moving onto match {matches[i].get_matchid()}")
                         break
 
@@ -211,19 +211,8 @@ class Match:
             print(f"{items.key}: {items.value}\n")
 
     
-    def change_match_status(self, status):
-        """
-        status(int)
-    
-        Changes the status of the match.
-        """
-        if status == 1:
-            self.set_match_status("completed")
-        elif status == 2:
-            self.set_match_status("in progress")
-        elif status == 3:
-            self.set_match_status("inactive")
 
+        
     
     def start_match(self):
         """
