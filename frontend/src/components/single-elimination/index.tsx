@@ -46,24 +46,16 @@ const RenderSeed = ({ breakpoint, seed }: IRenderSeedProps) => {
   );
 };
 
-interface player_count_type{
+interface tourny_type{
   player_count: number
-  key: number
 }
 
-const SingleElimination: React.FC<player_count_type> = ({player_count, key}) => {
-
-  const [player_amount, set_player_amount] = useState(player_count);
-
-  React.useEffect(() => {
-    set_player_amount(player_count);
-  }, [player_count]);
-
+const SingleElimination: React.FC<tourny_type> = ({player_count}) => {
   return (
     <div>
       <Bracket
       mobileBreakpoint={767}
-      rounds={generated_rounds(player_amount)} //Makes rounds bracket based on player size
+      rounds={generated_rounds(player_count)} //Makes rounds bracket based on player size
       renderSeedComponent={RenderSeed}
       swipeableProps={{ enableMouseEvents: true, animateHeight: true }}
       />

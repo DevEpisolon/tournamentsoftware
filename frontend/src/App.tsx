@@ -11,26 +11,31 @@ import SingleElimination from './components/single-elimination';
 
 function App(): JSX.Element {
   const [playerCount, setPlayerCount] = React.useState(0); // Initialize playerCount state
+  const [tournyName, setTournyName] = React.useState('') //Initialize tourny name state
 
   // Function to update playerCount
   const updatePlayerCount = (newCount: number) => {
     setPlayerCount(newCount);
   };
+  //Function to update the tournament name
+  const updateTournyName = (newName: string) => {
+    setTournyName(newName);
+  }
   // Define state variable to control the visibility of the form
   const [showForm, setShowForm] = useState<boolean>(false);
   //initialize tournament data variable equal to tournament form
-  let tournament_size: number = 0;
   // Function to handle form submission
   const handleFormSubmit = (data: any): void => {
     // Send data to backend to create tournament
     console.log('Tournament Data:', data);
     const tournament_data = data
     //set tournament size to the value of the tournament form
-    tournament_size = parseInt(tournament_data.tournamentSize);
+    let tournament_size:number = parseInt(tournament_data.tournamentSize);
     console.log(tournament_size)
     // Reset form state to hide the form after submission
     setShowForm(false);
     updatePlayerCount(tournament_size);
+    updateTournyName(tournament_data.tournamentName);
     };
   
   return(
@@ -67,13 +72,10 @@ function App(): JSX.Element {
         {/* Main Content Area */}
         <div className="content"> {/* Content section */}
           <TournamentList /> {/* Render TournamentList component */}
-          <h3>Single Elimination</h3>
+          <h1>{tournyName}</h1> {/* Render tournament name */}
           <hr />
           {/*Conditionally renders the brackets based on player count*/}
-          {playerCount > 0 ? <SingleElimination player_count={playerCount} key={playerCount} /> : null}
-          <h3>Double Elimination</h3>
-          <hr />
-          <DoubleElimination/>
+          {playerCount > 0 ? <SingleElimination player_count={playerCount} /> : null}
           {/* Add content for your main screen here */}
         </div>
 
