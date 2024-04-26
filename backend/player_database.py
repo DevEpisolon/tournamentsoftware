@@ -136,7 +136,8 @@ async def delete_player(displayname: str):
         raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
 
 
-'''For testing purposes.'''
+'''Currently for testing purposes. Players will be able to add
+themselves to the tourney list, playerlist, which will then be used by this function'''
 @app.get("/players")
 async def tourney_players():
     playerlist = ["Vegito", "Epii", "Kayz", "songbaker",
@@ -149,15 +150,21 @@ async def tourney_players():
 
     return players
 
+
 # Define a route to fetch all players from the database
-@app.get("/viewplayers")
-async def view_players():
+@app.get("/players/all")
+async def grab_ALLplayers():
     players_data = list(db.players.find({}))  # Fetch all players from the collection
-    players = [Player(**player_data) for player_data in players_data]  # Convert player documents to Player objects
+    players = [document_to_player(player_data) for player_data in players_data]  # Convert player documents to Player objects
     return players
+
 
 '''For database testing via FastAPI and MongoDB.'''
 async def main():
+    all_players = await grab_ALLplayers()
+    for i in all_players:
+        print(i.displayname)
+
     player1 = await get_player("Vegito")
     print(player1)
 
@@ -168,6 +175,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-    #i inserted this so that i can view the databasenames so i can grab all tournaments so i can display it on the frontend
-    databases = client.list_database_names()
-    print(databases)
