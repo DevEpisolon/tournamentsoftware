@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-interface Player {
-  uniqueid: string;
-  displayname: string;
-  email: string;
+export interface Player {
+  id: string; //Unique identifier for the player
+  name: string; //Name of the player
+  email: string; //Email of the player
 }
 
 const PlayersList: React.FC = () => {
@@ -28,8 +28,8 @@ const PlayersList: React.FC = () => {
       <h2 className="text-xl font-bold mb-4">Players List</h2>
       <ul>
         {players.map((player) => (
-          <li key={player.uniqueid} className="mb-2">
-            <span className="font-semibold">{player.displayname}</span> - {player.email}
+          <li key={player.id} className="mb-2">
+            <span className="font-semibold">{player.name}</span> - {player.email}
           </li>
         ))}
       </ul>
@@ -38,4 +38,5 @@ const PlayersList: React.FC = () => {
 };
 
 export default PlayersList;
+
 

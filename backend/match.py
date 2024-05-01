@@ -36,11 +36,11 @@ class Match:
         return self.slots
 
     def get_match_status(self):
-        if (self_match_status == 0):
+        if (self.match_status == 0):
             return "In Progress"
-        elif (self_match_status == 1):
+        elif (self.match_status == 1):
             return "Not Started"
-        elif (self_match_status == 2 ):
+        elif (self.match_status == 2 ):
             return "Finished"
 
     def get_winner_next_match_id(self):
@@ -210,10 +210,6 @@ class Match:
         for items in self.rounds:
             print(f"{items.key}: {items.value}\n")
 
-    
-
-        
-    
     def start_match(self):
         """
         Uses time library to get the time when the function is called and prints out the time.

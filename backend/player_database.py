@@ -1,5 +1,5 @@
 import asyncio
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pymongo import MongoClient
 from player import Player
 
@@ -77,7 +77,7 @@ async def get_player(displayname):
     if player:
         return player
     else:
-        return {"error": "Player not found"}
+        raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
 
 '''For regular users to register as a Player/create an account.'''
 @app.post("/players")
@@ -122,8 +122,23 @@ async def admin_create_player():
 
     print("Player created.")
 
-'''For testing purposes.'''
-@app.get("/players/tourney")
+'''For removing a player from the database.'''
+@app.delete("/players/{displayname}")
+async def delete_player(displayname: str):
+    # Attempt to delete the player from the database
+    player = db.players.delete_one({"displayname": displayname})
+
+    # Check if the player was found and deleted
+    if player.deleted_count == 1:
+        return {"message": f"Player '{displayname}' deleted successfully."}
+    else:
+        # Player not found in the database
+        raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
+
+
+'''Currently for testing purposes. Players will be able to add
+themselves to the tourney list, playerlist, which will then be used by this function'''
+@app.get("/players")
 async def tourney_players():
     playerlist = ["Vegito", "Epii", "Kayz", "songbaker",
                   "this_is_stupid", "Tim", "Devin", "Hotshot"]
@@ -135,15 +150,21 @@ async def tourney_players():
 
     return players
 
+
 # Define a route to fetch all players from the database
-@app.get("/viewplayers")
-async def view_players():
+@app.get("/players/all")
+async def grab_ALLplayers():
     players_data = list(db.players.find({}))  # Fetch all players from the collection
-    players = [Player(**player_data) for player_data in players_data]  # Convert player documents to Player objects
+    players = [document_to_player(player_data) for player_data in players_data]  # Convert player documents to Player objects
     return players
+
 
 '''For database testing via FastAPI and MongoDB.'''
 async def main():
+    all_players = await grab_ALLplayers()
+    for i in all_players:
+        print(i.displayname)
+
     player1 = await get_player("Vegito")
     print(player1)
 
@@ -154,6 +175,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-    #i inserted this so that i can view the databasenames so i can grab all tournaments so i can display it on the frontend
-    databases = client.list_database_names()
-    print(databases)

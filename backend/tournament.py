@@ -185,7 +185,7 @@ class Tournament:
                         playersInMatch.append(tempPlayers.pop())
                     #print("The Players in the match")
                     #print([p.get_displayname() for p in playersInMatch])
-                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=None, max_rounds=self.max_rounds,
+                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=0, max_rounds=self.max_rounds,
                       tournamentName=self.get_tournamentName(), players=playersInMatch,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
                       match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
@@ -193,7 +193,7 @@ class Tournament:
                     #print(m)
                 else:
                     #print("Detected no players in 2 count")
-                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=None, max_rounds=self.max_rounds,
+                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=1, max_rounds=self.max_rounds,
                       tournamentName=self.get_tournamentName(), players=None,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
                       match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
@@ -207,7 +207,7 @@ class Tournament:
                         playersInMatch.append(tempPlayers.pop())
                     #print("The players in the match")
                     #print([p.get_displayname() for p in playersInMatch])
-                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=None, max_rounds=self.max_rounds,
+                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=0, max_rounds=self.max_rounds,
                       tournamentName=self.get_tournamentName(), players=playersInMatch,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
                       match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
@@ -215,7 +215,7 @@ class Tournament:
                     #print(m)
                 else:
                     #print("Detected no players in other")
-                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=None, max_rounds=self.max_rounds,
+                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=1, max_rounds=self.max_rounds,
                       tournamentName=self.get_tournamentName(), players=None,
                       winner_next_match_id=nextCountID, previous_match_id=None, match_winner=None,
                       match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
@@ -226,11 +226,6 @@ class Tournament:
             playersInMatch = []
             matches.append(m)
         self.set_Matches(matches)
-            
-
-
-    
-
 
 
     # Helper function to print tournament details
