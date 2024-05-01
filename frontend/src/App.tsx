@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import './App.css'; // Importing CSS file for styling
 import TournamentForm from './components/TournamentForm'; // Importing TournamentForm component
 import TournamentList from './components/TournamentList'; // Importing TournamentList component
-import PlayerList from './components/PlayerList'; // Importing PlayerList component
+import PlayerList, {Player} from './components/PlayerList'; // Importing PlayerList component
 import DoubleElimination from './components/double-elimination';
 import LoadingBracket from './components/loading';
 import SingleElimination from './components/single-elimination';
@@ -12,14 +12,27 @@ import SingleElimination from './components/single-elimination';
 function App(): JSX.Element {
   const [playerCount, setPlayerCount] = React.useState(0); // Initialize playerCount state
   const [tournyName, setTournyName] = React.useState('') //Initialize tourny name state
-
+  const [player, setPlayer] = React.useState<Player[]>([]) //Initialize player state
+  
   // Function to update playerCount
   const updatePlayerCount = (newCount: number) => {
     setPlayerCount(newCount);
   };
   //Function to update the tournament name
+  const updatePlayer = (newPlayerList: Player[]) => {
+    setPlayer(newPlayerList)
+  }
+  //Function to update the tournament name
   const updateTournyName = (newName: string) => {
-    setTournyName(newName);
+    setTournyName(newName)
+  }
+  // Function to create player list
+  const createPlayerList = (playerCount: number) => {
+    let playerList: Player[] = [{uniqueid: '0', displayname: 'Player 0', email: ''}]
+    for (let i = 0; i < playerCount; i++){
+      playerList.push({uniqueid: 'i', displayname: `Player ${i}`, email: ''})
+    }
+    updatePlayer(playerList)
   }
   // Define state variable to control the visibility of the form
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -36,6 +49,7 @@ function App(): JSX.Element {
     setShowForm(false);
     updatePlayerCount(tournament_size);
     updateTournyName(tournament_data.tournamentName);
+    createPlayerList(tournament_size);
     };
   
   return(
@@ -75,7 +89,7 @@ function App(): JSX.Element {
           <h1>{tournyName}</h1> {/* Render tournament name */}
           <hr />
           {/*Conditionally renders the brackets based on player count*/}
-          {playerCount > 0 ? <SingleElimination player_count={playerCount} /> : null}
+          {playerCount > 0 ? <SingleElimination playerCount={playerCount} players={player}/> : null}
           {/* Add content for your main screen here */}
         </div>
 

@@ -3,8 +3,9 @@
 
 import React, { useState } from 'react';
 import { Bracket, Seed, SeedItem, SeedTeam, SeedTime, IRoundProps, IRenderSeedProps, ISeedProps } from 'react-brackets';
+import {Player} from '../PlayerList';
 
-const generated_rounds = (player_count: number): IRoundProps[] => {
+const GeneratedRounds = (player_count: number): IRoundProps[] => {
   const rounds: IRoundProps[] = [];
   let round_amount = Math.log(player_count)/Math.log(2);
   let player_per_round = player_count/2
@@ -29,6 +30,35 @@ const generated_rounds = (player_count: number): IRoundProps[] => {
   return rounds;
 };
 
+//Function to generate player names in the bracket seeds
+const GeneratePlayers = (rounds: IRoundProps[], players: Player[]) => {
+  let player_index = 0;
+  let round = rounds[0]; //Grabs first round
+
+  //Calculate the next power of 2
+  const nextPowerOf2 = Math.pow(2, Math.ceil(Math.log(players.length) / Math.log(2)));
+
+  // Calculate the number of byes
+  const byes = nextPowerOf2 - players.length;
+
+  for (let i = 0; i < round.seeds.length; i++){
+    for (let j = 0; j < 2; j++){
+      if (i < byes) {
+        // Assign a bye
+        round.seeds[i].teams.push({ name: 'Bye', id: 0 });
+      } else {
+        // Assign a player
+        round.seeds[i].teams.push(players[player_index]);
+        player_index++;
+      }
+    }
+  }
+
+  rounds[0] = round;
+  
+  return rounds;
+}
+
 const RenderSeed = ({ breakpoint, seed }: IRenderSeedProps) => {
   return (
     <Seed mobileBreakpoint={breakpoint}>
@@ -46,16 +76,19 @@ const RenderSeed = ({ breakpoint, seed }: IRenderSeedProps) => {
   );
 };
 
-interface tourny_type{
-  player_count: number
+interface tourny_props{
+  playerCount: number
+  players: Player[]
 }
 
-const SingleElimination: React.FC<tourny_type> = ({player_count}) => {
+const SingleElimination: React.FC<tourny_props> = ({playerCount, players}) => {
+  let rounds = GeneratedRounds(playerCount)
+  rounds = GeneratePlayers(rounds, players)
   return (
     <div>
       <Bracket
       mobileBreakpoint={767}
-      rounds={generated_rounds(player_count)} //Makes rounds bracket based on player size
+      rounds={rounds} //Makes rounds bracket based on player size
       renderSeedComponent={RenderSeed}
       swipeableProps={{ enableMouseEvents: true, animateHeight: true }}
       />

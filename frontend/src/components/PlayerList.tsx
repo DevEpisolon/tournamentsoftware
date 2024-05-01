@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-interface Player {
+export interface Player {
   uniqueid: string;
   displayname: string;
   email: string;
@@ -38,4 +38,5 @@ const PlayersList: React.FC = () => {
 };
 
 export default PlayersList;
+
 
