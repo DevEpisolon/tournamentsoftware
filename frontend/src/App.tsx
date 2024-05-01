@@ -28,9 +28,9 @@ function App(): JSX.Element {
   }
   // Function to create player list
   const createPlayerList = (playerCount: number) => {
-    let playerList: Player[] = [{uniqueid: '0', displayname: 'Player 0', email: ''}]
+    let playerList: Player[] = []
     for (let i = 0; i < playerCount; i++){
-      playerList.push({uniqueid: 'i', displayname: `Player ${i}`, email: ''})
+      playerList.push({id: 'i', name: `Player ${i}`, email: ''})
     }
     updatePlayer(playerList)
   }
