@@ -43,13 +43,13 @@ const GeneratePlayers = (rounds: IRoundProps[], players: Player[]) => {
 
   for (let i = 0; i < round.seeds.length; i++){
     for (let j = 0; j < 2; j++){
-      if (i < byes) {
-        // Assign a bye
-        round.seeds[i].teams.push({ name: 'Bye', id: 0 });
-      } else {
+      if (player_index < players.length) {
         // Assign a player
         round.seeds[i].teams.push(players[player_index]);
         player_index++;
+      } else {
+        // Assign a bye
+        round.seeds[i].teams.push({ name: 'Bye', id: 0 });
       }
     }
   }
