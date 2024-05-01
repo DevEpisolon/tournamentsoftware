@@ -61,10 +61,13 @@ async def collect_players():
 
 def play_tournament(tournament):
 
+    print("step 1")
     tournament.createMatches()
     # This shows the match info from the __str__ method
+    print("step 2")
     tournament.viewMatchesinTournament()
     # print("Reached end")
+    print("step 3")
     while (tournament.get_tournamentWinner() is None):
         mid = input("\nEnter Match ID you would like to view: ")
         if int(mid) == len(tournament.get_Matches()):
@@ -108,7 +111,7 @@ async def main():
         choice = int(input("Select what you would like to do?\n"
                            "1: Create a tournament\n"
                            "2: Collect players for tournament\n"
-                           "3: View tournaments\n"
+                           "3: Play tournament\n"
                            "4: Update player info\n"
                            "5: Create new Player\n"
                            "0: Quit\n"
