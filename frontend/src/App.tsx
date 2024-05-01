@@ -1,76 +1,71 @@
-//Added chat gpt comments so that we can follow along and not get lost this shit is confusing
-
 import React, { useState } from 'react';
-import './App.css'; // Importing CSS file for styling
-import TournamentForm from './components/TournamentForm'; // Importing TournamentForm component
-import TournamentList from './components/TournamentList'; // Importing TournamentList component
-import PlayerList from './components/PlayerList'; // Importing PlayerList component
+import './App.css';
+import TournamentForm from './components/TournamentForm';
+import TournamentList from './components/TournamentList';
+import PlayerList from './components/PlayerList';
 
-function App(): JSX.Element {
-  // Define state variable to control the visibility of the form
+interface FormData {
+  // Define the shape of your form data
+}
+
+const App: React.FC = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
 
-  // Function to handle form submission
-  const handleFormSubmit = (data: any): void => {
+  const handleFormSubmit = (data: FormData): void => {
     // Send data to backend to create tournament
     console.log('Tournament Data:', data);
-    // Reset form state to hide the form after submission
+    // Reset form
     setShowForm(false);
   };
 
   return (
-    <div className="app"> {/* Container for the entire application */}
-      {/* Header */}
-      <header className="header relative flex justify-between items-center"> {/* Header section */}
-        {/* Wrapper for the form and create tournament button */}
-        <div className="flex items-center"> {/* Flex container for aligning items */}
-          {/* Button to toggle Tournament Form */}
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="rounded-md bg-blue-500 text-white px-4 py-2 hover:bg-blue-600 mr-2"
-          >
-            {showForm ? 'Close Form' : 'Create Tournament'} {/* Conditional rendering of button text */}
-          </button>
-          
-          {/* Tournament Form */}
-          {showForm && <TournamentForm onSubmit={handleFormSubmit} />} {/* Render form when showForm is true */}
-        </div>
+    <div className="app">
+      {/* Create Tournament Button */}
+      <button
+        onClick={() => setShowForm(true)}
+        className="rounded-md bg-blue-500 text-white px-4 py-2 mt-4 ml-4 absolute top-0 left-0 z-10"
+      >
+        Create Tournament
+      </button>
 
-        {/* Wrapper for the rounded text box */}
-        <div> {/* Container for rounded text box */}
-          {/* Rounded input text field */}
-          <input
-            type="text"
-            className="rounded-full bg-gray-300 text-gray-800 py-2 px-4"
-            placeholder="Rounded Text Box"
-          />
-        </div>
+      {/* Header */}
+      <header className="header relative pl-20">
+        <h1 className="text-white">Header</h1>
+        {/* Rounded input text field */}
+        <input
+          type="text"
+          className="rounded-full bg-gray-300 text-gray-800 py-2 px-4 absolute top-1/2 right-4 transform -translate-y-1/2"
+          placeholder="Search for player"
+        />
       </header>
 
       {/* Main Content */}
-      <div className="main"> {/* Main content area */}
+      <div className="main">
         {/* Main Content Area */}
-        <div className="content"> {/* Content section */}
+        <div className="content">
           <h2>Main Content</h2>
           {/* Add content for your main screen here */}
-          <TournamentList /> {/* Render TournamentList component */}
+          <TournamentList />
         </div>
 
         {/* Sidebar */}
-        <div className="sidebar"> {/* Sidebar section */}
+        <div className="sidebar">
           <h2>Players in tournament</h2>
-          <PlayerList /> {/* Render PlayerList component */}
+          <PlayerList />
           {/* Add component of rounded names for players which, when clicked, takes you to their profile */}
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="footer"> {/* Footer section */}
-        <p>&copy; {new Date().getFullYear()} Your Website Footer</p> {/* Render footer content */}
+      <footer className="footer">
+        <p>&copy; {new Date().getFullYear()} Your Website Footer</p>
       </footer>
+
+      {/* Tournament Form */}
+      {showForm && <TournamentForm onSubmit={handleFormSubmit} />}
     </div>
   );
 }
 
-export default App; // Export App component as default
+export default App;
 
