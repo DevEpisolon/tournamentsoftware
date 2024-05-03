@@ -139,8 +139,11 @@ async def delete_player(displayname: str):
 '''For updating player stats after tourney.'''
 def update_tourney_results(round_wins, round_losses, tourney_list):
     for player in tourney_list:
-        updated_wins = player.get_wins() + round_wins.get(player.displayname)
-        players_collection.update_one({"displayname": player.displayname}, {"$set": {"wins": updated_wins}})
+        if player in tourney_list:
+            updated_wins = player.get_wins() + round_wins.get(player.displayname)
+            players_collection.update_one({"displayname": player.displayname}, {"$set": {"wins": updated_wins}})
+        else:
+            continue
 
 '''For updating a single player's stats..'''
 
