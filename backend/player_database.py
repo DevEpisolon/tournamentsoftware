@@ -13,6 +13,7 @@ MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftwa
 # Establish connection to MongoDB Atlas
 client = MongoClient(MONGODB_CONNECTION_STRING)
 db = client["tournamentsoftware"]
+players_collection = db["players"]
 
 
 # Convert player object to player document
@@ -69,7 +70,7 @@ async def root():
 
 
 '''FastAPI route to retrieve a player document from MongoDB then convert it to player object'''
-@app.get("/players/{displayname}")
+@app.get("/players/get_player/{displayname}")
 async def get_player(displayname):
     player_document = db.players.find_one({"displayname": displayname})
     player = document_to_player(player_document)
@@ -80,7 +81,7 @@ async def get_player(displayname):
         raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
 
 '''For regular users to register as a Player/create an account.'''
-@app.post("/players")
+@app.post("/players/register_player")
 async def register_player():
     playername = input("Enter name: ")
     displayname = input("Enter display name: ")
@@ -99,7 +100,7 @@ async def register_player():
     print("Player created and registered.")
 
 
-@app.post("/players")
+@app.post("/players/admin_create_player")
 async def admin_create_player():
     playername = input("Enter name: ")
     displayname = input("Enter display name: ")
@@ -123,7 +124,7 @@ async def admin_create_player():
     print("Player created.")
 
 '''For removing a player from the database.'''
-@app.delete("/players/{displayname}")
+@app.delete("/players/delete_player/{displayname}")
 async def delete_player(displayname: str):
     # Attempt to delete the player from the database
     player = db.players.delete_one({"displayname": displayname})
@@ -135,10 +136,18 @@ async def delete_player(displayname: str):
         # Player not found in the database
         raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
 
+'''For updating player stats after tourney.'''
+def update_tourney_results(round_wins, round_losses, tourney_list):
+    for player in tourney_list:
+        updated_wins = player.get_wins() + round_wins.get(player.displayname)
+        players_collection.update_one({"displayname": player.displayname}, {"$set": {"wins": updated_wins}})
+
+'''For updating a single player's stats..'''
+
 
 '''Currently for testing purposes. Players will be able to add
 themselves to the tourney list, playerlist, which will then be used by this function'''
-@app.get("/players")
+@app.get("/players/tourney_players")
 async def tourney_players():
     playerlist = ["Vegito", "Epii", "Kayz", "songbaker",
                   "this_is_stupid", "Tim", "Devin", "Hotshot"]
