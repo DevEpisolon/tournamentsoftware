@@ -1,6 +1,9 @@
 import asyncio
 from fastapi import FastAPI, HTTPException
 from pymongo import MongoClient
+from match_database import match_router
+from tournament_database import tournament_router
+from player_database import player_router
 
 # Initialize FastAPI app
 app = FastAPI
@@ -12,3 +15,10 @@ MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftwa
 # Establish connection to MongoDB Atlas
 client = MongoClient(MONGODB_CONNECTION_STRING)
 db = client["tournamentsoftware"]
+
+
+# Include the match router in the main application
+app.include_router(match_router, prefix="/api")
+app.include_router(player_router,prefix="/api")
+app.include_router(tournament_router,prefix="/api")
+

@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from player import Player
 
 # Initialize FastAPI app
-app = APIRouter()
+player_router = APIRouter()
 
 # MongoDB Atlas connection string
 MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftware.l9dyjo7.mongodb.net/?retryWrites=true&w=majority&appName=tournamentsoftware"
@@ -64,13 +64,13 @@ def document_to_player(player_document):
 
 
 # Define a handler for the root URL
-@app.get("/")
+@player_router.get("/")
 async def root():
     return {"message": "Welcome to the Tournament Software!"}
 
 
 '''FastAPI route to retrieve a player document from MongoDB then convert it to player object'''
-@app.get("/players/get_player/{displayname}")
+@player_router.get("/players/get_player/{displayname}")
 async def get_player(displayname):
     player_document = db.players.find_one({"displayname": displayname})
     player = document_to_player(player_document)
@@ -81,7 +81,7 @@ async def get_player(displayname):
         raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
 
 '''For regular users to register as a Player/create an account.'''
-@app.post("/players/register_player")
+@player_router.post("/players/register_player")
 async def register_player():
     playername = input("Enter name: ")
     displayname = input("Enter display name: ")
@@ -100,7 +100,7 @@ async def register_player():
     print("Player created and registered.")
 
 
-@app.post("/players/admin_create_player")
+@player_router.post("/players/admin_create_player")
 async def admin_create_player():
     playername = input("Enter name: ")
     displayname = input("Enter display name: ")
@@ -124,7 +124,7 @@ async def admin_create_player():
     print("Player created.")
 
 '''For removing a player from the database.'''
-@app.delete("/players/delete_player/{displayname}")
+@player_router.delete("/players/delete_player/{displayname}")
 async def delete_player(displayname: str):
     # Attempt to delete the player from the database
     player = db.players.delete_one({"displayname": displayname})
@@ -150,7 +150,7 @@ def update_tourney_results(round_wins, round_losses, tourney_list):
 
 '''Currently for testing purposes. Players will be able to add
 themselves to the tourney list, playerlist, which will then be used by this function'''
-@app.get("/players/tourney_players")
+@player_router.get("/players/tourney_players")
 async def tourney_players():
     playerlist = ["Vegito", "Epii", "Kayz", "songbaker",
                   "this_is_stupid", "Tim", "Devin", "Hotshot"]
@@ -164,7 +164,7 @@ async def tourney_players():
 
 
 # Define a route to fetch all players from the database
-@app.get("/players/all")
+@player_router.get("/players/all")
 async def grab_ALLplayers():
     players_data = list(db.players.find({}))  # Fetch all players from the collection
     players = [document_to_player(player_data) for player_data in players_data]  # Convert player documents to Player objects

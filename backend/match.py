@@ -1,6 +1,6 @@
 import time
 
-class Match:
+class Match_database:
     def __init__(self, matchid, slots, match_status, max_rounds, tournamentName, winner_next_match_id=None, previous_match_id=None,
                  match_winner=None, match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
                  players=None, startTime=None, endTime=None):
