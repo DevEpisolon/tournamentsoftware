@@ -137,11 +137,17 @@ async def delete_player(displayname: str):
         raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
 
 '''For updating player stats after tourney.'''
-def update_tourney_results(round_wins, round_losses, tourney_list):
+def update_tourney_results(round_wins, round_losses, round_ties, tourney_list):
     for player in tourney_list:
         if round_wins.get(player.displayname) != None:
             updated_wins = player.get_wins() + round_wins.get(player.displayname)
             players_collection.update_one({"displayname": player.displayname}, {"$set": {"wins": updated_wins}})
+        if round_losses.get(player.displayname) != None:
+            updated_losses = player.get_losses() + round_losses.get(player.displayname)
+            players_collection.update_one({"displayname": player.displayname}, {"$set": {"losses": updated_losses}})
+        if round_ties.get(player.displayname) != None:
+            updated_ties = player.get_ties() + round_ties.get(player.displayname)
+            players_collection.update_one({"displayname": player.displayname}, {"$set": {"ties": updated_ties}})
         else:
             continue
 
