@@ -3,15 +3,15 @@ import time
 
 class Match:
     def __init__(self, matchid, slots, max_rounds, winner_next_match_id, match_status=1, tournamentName="temp",
-                 previous_match_id=None, players=None,
-                 match_winner=None, match_loser=None, loser_next_match_id=None, start_date=None, end_date=None,
-                 startTime=None, endTime=None, round_wins=None, round_losses=None, round_ties=None):
+                 previous_match_id=None, players=None, match_winner=None, match_loser=None, loser_next_match_id=None,
+                 start_date=None, end_date=None, startTime=None, endTime=None, round_wins=None, round_losses=None,
+                 round_ties=None):
         self.matchid = matchid
         self.slots = slots
         self.match_status = match_status
         self.winner_next_match_id = winner_next_match_id
         self.previous_match_id = previous_match_id
-        self.match_winner = None
+        self.match_winner = match_winner
         self.match_loser = match_loser
         self.loser_next_match_id = loser_next_match_id
         self.start_date = start_date
@@ -118,7 +118,9 @@ class Match:
         self.previous_match_id = previous_match_id
 
     def set_match_winner(self, match_winner):
-        self.match_winner = match_winner
+        for player in self.players:
+            if player.displayname == match_winner.displayname:
+                self.match_winner = player
 
     def set_match_loser(self):
         for player in self.players:
@@ -188,15 +190,15 @@ class Match:
         """
         self.set_match_status(0)
         print(f"{winner.get_playername()} won this round")
+        print(self)
+        print("\n")
         for player in self.get_players():
             if winner.displayname == player.displayname:
                 self.round_wins[player.displayname] = self.round_wins.get(player.displayname, 0) + 1
-                player.increase_wins()
-                player.set_wlratio(player.wins, player.losses)
+                player.set_current_tournament_wins(player.get_current_tournament_wins() + 1)
             else:
                 self.round_losses[player.displayname] = self.round_losses.get(player.displayname, 0) + 1
-                player.increase_losses()
-                player.set_wlratio(player.wins, player.losses)
+                player.set_current_tournament_losses(player.get_current_tournament_losses() + 1)
         if self.round_wins[winner.displayname] >= self.num_wins:
             self.set_match_winner(winner)
             self.set_match_loser()
@@ -223,13 +225,6 @@ class Match:
                         print(
                             f"{self.get_match_winner().get_playername()} won the match and is moving onto match {matches[i].get_matchid()}")
                         break
-
-    def print_standings(self):
-        """
-        Prints the current round standings.
-        """
-        for items in self.rounds:
-            print(f"{items.key}: {items.value}\n")
 
     def start_match(self):
         """
