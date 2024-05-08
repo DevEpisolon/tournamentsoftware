@@ -1,21 +1,26 @@
 from match import Match
 from database import match_collection
 from fastapi import APIRouter, HTTPException, status
-import asyncio
 from player_database import*
 
 match_router = APIRouter()
 
 def match_to_document(match):
     serialized_players = [player_to_document(player) for player in match.players]
+    serialized_winner = None
+    serialized_loser = None
+    if match.match_winner is not None:
+        serialized_winner = player_to_document(match.match_winner)
+    if match.match_loser is not None:
+        serialized_loser = player_to_document(match.match_loser)
     return {
         "matchid": match.matchid,
         "slots": match.slots,
         "match_status": match.match_status,
         "winner_next_match_id": match.winner_next_match_id,
         "previous_match_id": match.previous_match_id,
-        "match_winner": match.match_winner,
-        "match_loser": match.match_loser,
+        "match_winner": serialized_winner,
+        "match_loser": serialized_loser,
         "loser_next_match_id": match.loser_next_match_id,
         "start_date": match.start_date,
         "end_date": match.end_date,
@@ -80,22 +85,18 @@ async def get_all_matches():
     for match_document in match_documents:
         match = document_to_match(match_document)
         matches.append(match)
-
     return matches
 
 
 @match_router.post("/create_match")
-async def create_match():
-    matchid = int(input("Enter matchid: "))
-    slots = int(input("Enter number of slots: "))
-    max_rounds = int(input("Enter max number of rounds: "))
-    winner_next_match = int(input("Enter winner's next matchid: "))
-    new_match = Match(matchid=matchid, slots=slots, max_rounds=max_rounds, winner_next_match_id=winner_next_match)
+async def create_match(matchid, slots, max_rounds, tournament_name, players, winner_next_match):
+    new_match = Match(matchid=matchid, slots=slots, max_rounds=max_rounds, winner_next_match_id=winner_next_match,
+                      tournamentName=tournament_name, players=players)
     match_document = match_to_document(new_match)
     match_collection.insert_one(match_document)
 
 
-@match_router.put("/match/{matchid}/add_player/{displayname")
+@match_router.put("/match/{matchid}/add_player/{displayname}")
 async def add_player(matchid, displayname):
     match = await get_match(matchid)
     player = await get_player(displayname)
@@ -109,32 +110,16 @@ async def add_player(matchid, displayname):
 @match_router.put("/match/{matchid}/update_round/{winner}")
 async def update_round(matchid, displayname):
     match = await get_match(matchid)
-    match.match_status = "in progress"
+    matches = await get_all_matches()
+    winner = await get_player(displayname)
+    match.update_rounds(winner, matches)
     for player in match.players:
-        if player.displayname != displayname:
-            match.round_losses[player.displayname] = match.round_losses.get(player.displayname, 0) + 1
-            match.players[match.players.index(player)].increase_losses()
-            match.players[match.players.index(player)].set_wlratio(player.wins, player.losses)
-            loser = await get_player(player.displayname)
-            updated_loss = loser.losses + 1
-            updated_wl = loser.wins if updated_loss == 0 else loser.wins / updated_loss
-            player_collection.update_one({"displayname": loser.displayname}, {"$set": {"losses": updated_loss, "wlratio": updated_wl}})
-        else:
-            match.round_wins[player.displayname] = match.round_wins.get(player.displayname, 0) + 1
-            match.players[match.players.index(player)].increase_wins()
-            match.players[match.players.index(player)].set_wlratio(player.wins, player.losses)
-            winner = await get_player(player.displayname)
-            updated_win = winner.wins + 1
-            updated_wl = updated_win if winner.losses == 0 else updated_win / winner.losses
-            player_collection.update_one({"displayname": winner.displayname}, {"$set": {"wins": updated_win, "wlratio": updated_wl}})
+        updated_player = player_to_document(player)
+        player_collection.replace_one({"displayname": player.displayname}, updated_player)
     updated_match = match_to_document(match)
     match_collection.replace_one({"matchid": int(matchid)}, updated_match)
-
-    matches = await get_all_matches()
-    if match.round_wins[displayname] >= match.num_wins:
-        match_collection.update_one({"matchid": int(matchid)}, {"$set": {"match_status": "completed"}})
-        for next_match in matches:
-            if next_match.matchid == match.winner_next_match_id:
-                await add_player(match.winner_next_match_id, displayname)
-                print(f"{displayname} won this match and is moving to match {match.winner_next_match_id}.")
-
+    for other_match in matches:
+        if other_match.get_matchid() == match.matchid + match.winner_next_match_id:
+            other_updated_match = match_to_document(other_match)
+            match_collection.replace_one({"matchid": int(other_match.matchid)}, other_updated_match)
+            break
