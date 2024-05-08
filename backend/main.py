@@ -61,13 +61,10 @@ async def collect_players():
 
 def play_tournament(tournament):
 
-    print("step 1")
     tournament.createMatches()
     # This shows the match info from the __str__ method
-    print("step 2")
     tournament.viewMatchesinTournament()
     # print("Reached end")
-    print("step 3")
     while (tournament.get_tournamentWinner() is None):
         mid = input("\nEnter Match ID you would like to view: ")
         if int(mid) == len(tournament.get_Matches()):
@@ -100,8 +97,21 @@ def play_tournament(tournament):
     # update player info with match history
     print("Thank you for playing!!!")
 
-def update_player_info():
-   # i think we auto do it after every match we should probally store all the changes in an arraylist and publish at end of tournament?
+def update_player_info_after(tournament):
+    # work in progress
+    round_wins = {"Vegito": 2, "Kayz": 1}
+    round_losses = {"Epii": 1, "Tim": 2}
+    round_ties = {"songbaker": 2, "this_is_stupid": 3}
+    for i in tournament.Players:
+        print(i.displayname)
+        print(round_wins.get(i.displayname))
+        print(round_losses.get(i.displayname))
+        print(round_ties.get(i.displayname))
+    print("updating")
+    update_tourney_results(round_wins, round_losses, round_ties, tournament.Players)
+    print("info_updated")
+
+def update_player_info_sep():
     pass
 
 async def main():
@@ -112,8 +122,10 @@ async def main():
                            "1: Create a tournament\n"
                            "2: Collect players for tournament\n"
                            "3: Play tournament\n"
-                           "4: Update player info\n"
+                           "4: Update player info (after tournament)\n"
                            "5: Create new Player\n"
+                           "6: Update Player info(seperate) \n"
+                           "7: Delete player\n"
                            "0: Quit\n"
                            "Your choice: "))
         if choice == 1:
@@ -134,9 +146,15 @@ async def main():
             else:
                 print("\nError: No tournament created yet. Please create a tournament first.\n")
         elif choice == 4:
-            update_player_info()
+            update_player_info_after(current_tournament)
         elif choice == 5:
             await register_player()
+        elif choice == 6:
+            update_player_info_sep()
+        elif choice == 7:
+            del_player = input("Enter player's display name: ")
+            await delete_player(del_player)
+            print("Player successfully deleted.\n")
         elif choice == 0:
             running = False
 
