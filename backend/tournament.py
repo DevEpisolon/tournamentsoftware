@@ -1,7 +1,10 @@
 from datetime import datetime
 from match import Match_database
 class Tournament:
-    def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, max_rounds, matches=None, MaxSlotsCount=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None, Players=None, tournamentWinner = None, droppedPlayers = None):
+    def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, max_rounds,
+                 matches=None, MaxSlotsCount=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None,
+                 Players=None, tournamentWinner = None, droppedPlayers = None, wins_dict = {}, losses_dict = {},
+                 ties_dict = {}):
         self.tournamentName = tournamentName
         self.tournamentId = tournamentId
         self.STATUS = STATUS
@@ -19,6 +22,10 @@ class Tournament:
         self.droppedPlayer = []
         self.maxSlotsPerMatch = 2
         self.max_rounds = max_rounds
+        self.wins_dict = wins_dict
+        self.losses_dict = losses_dict
+        self. ties_dict = ties_dict
+
 
     # Getter and setter methods for each attribute
     def get_tournamentName(self):
