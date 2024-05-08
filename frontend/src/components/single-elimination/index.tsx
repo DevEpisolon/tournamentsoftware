@@ -4,8 +4,10 @@
 import React, { useState } from 'react';
 import { Bracket, Seed, SeedItem, SeedTeam, SeedTime, IRoundProps, IRenderSeedProps, ISeedProps } from 'react-brackets';
 import {Player} from '../PlayerList';
+import './index.css'; // Importing tailwin CSS file for styling
 
 const GeneratedRounds = (player_count: number): IRoundProps[] => {
+  //Generates the rounds based on the number of players
   const rounds: IRoundProps[] = [];
   let round_amount = Math.log(player_count)/Math.log(2);
   let player_per_round = player_count/2
@@ -60,15 +62,29 @@ const GeneratePlayers = (rounds: IRoundProps[], players: Player[]) => {
 }
 
 const RenderSeed = ({ breakpoint, seed }: IRenderSeedProps) => {
+  const [selectedSeed, setSelectedSeed] = useState({} as ISeedProps);
   return (
     <Seed mobileBreakpoint={breakpoint}>
-      <SeedItem style={{ width: '100%' }}>
-        <div>
-          <SeedTeam>{seed.teams?.[0]?.name || '-----------'}</SeedTeam>
-          <div style={{ height: 1, backgroundColor: '#707070' }}></div>
-          <SeedTeam>{seed.teams?.[1]?.name || '-----------'}</SeedTeam>
-        </div>
-      </SeedItem>
+      <div className='flex w-full'>
+        <button className={'w-full'} onClick={() => {
+            if (selectedSeed === seed) {
+              setSelectedSeed({} as ISeedProps); // Set to undefined to hide the new component
+            } else {
+              setSelectedSeed(seed);
+            }
+          }
+        }>
+          <SeedItem>
+            <div>
+              <SeedTeam>
+                {seed.teams?.[0]?.name || '-----------'}
+              </SeedTeam>
+              <div style={{ height: 1, backgroundColor: '#707070' }}></div>
+              <SeedTeam>{seed.teams?.[1]?.name || '-----------'}</SeedTeam>
+            </div>
+          </SeedItem>
+        </button>
+      </div>
       <SeedTime mobileBreakpoint={breakpoint} style={{ fontSize: 9 }}>
         {seed.date}
       </SeedTime>
@@ -80,6 +96,15 @@ interface tourny_props{
   playerCount: number
   players: Player[]
 }
+
+interface NewInterfaceProps {
+  children?: React.ReactNode;
+  className?: string;
+}
+
+const NewInterface: React.FC<NewInterfaceProps> = ({ children, className }) => {
+  return <div className={className}>{children}</div>;
+};
 
 const SingleElimination: React.FC<tourny_props> = ({playerCount, players}) => {
   let rounds = GeneratedRounds(playerCount)
