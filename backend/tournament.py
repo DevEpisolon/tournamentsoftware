@@ -1,18 +1,25 @@
 from datetime import datetime
+
+from backend.match import Match
+class Tournament:
+    def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, max_rounds, MaxSlotsCount, matches=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None, Players=None, tournamentWinner = None, droppedPlayers = None):
+
 from match import Match_database
 class Tournament:
     def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, max_rounds,
                  matches=None, MaxSlotsCount=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None,
                  Players=None, tournamentWinner = None, droppedPlayers = None, wins_dict = {}, losses_dict = {},
                  ties_dict = {}):
+      
         self.tournamentName = tournamentName
-        self.tournamentId = tournamentId
+        self.tournamentId = None
         self.STATUS = STATUS
         self.STARTDATE = STARTDATE
         self.ENDDATE = ENDDATE
         self.createdAt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.updatedAt = updatedAt
         self.matches = []
+        #overall slots in the whole tournament
         self.MaxSlotsCount = MaxSlotsCount
         self.TournamentType = TournamentType
         self.TeamBoolean = TeamBoolean
@@ -25,7 +32,6 @@ class Tournament:
         self.wins_dict = wins_dict
         self.losses_dict = losses_dict
         self. ties_dict = ties_dict
-
 
     # Getter and setter methods for each attribute
     def get_tournamentName(self):
