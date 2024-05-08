@@ -6,3 +6,4 @@ db = client.tournament_software
 
 player_collection = db["player"]
 match_collection = db["match"]
+tournament_collection = db["tournament"]
