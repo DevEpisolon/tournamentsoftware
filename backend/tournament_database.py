@@ -68,13 +68,6 @@ def create_tournament(tournament_name: str, max_slots: int):
     # Return the generated tournament ID
     return str(tournament_data["_id"])
 
-# Function to add a test tournament to the database
-def add_test_tournament():
-    # Call create_tournament function with predefined values
-    return create_tournament(tournament_name="Blood and Guts", max_slots=16)
-
-# Add a test tournament to the database
-add_test_tournament()
 
 # Function to add a player to a tournament by display name
 @tournament_router.put("/add_player/{tournament_id}/{player_display_name}")
@@ -135,4 +128,18 @@ def remove_player_from_tournament_by_display_name(tournament_id: str, player_dis
     )
 
     return {"message": f"Player {player_display_name} removed from tournament successfully"}
+@tournament_router.put("/tournament_remove/{tournament_id}")
+def delete_tournament_by_id(tournament_id: str):
+    # Convert tournament_id to ObjectId
+    tournament_id_obj = ObjectId(tournament_id)
+    
+    # Delete the tournament from the database
+    result = tournaments_collection.delete_one({"_id": tournament_id_obj})
+    
+    # Check if the deletion was successful
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Tournament not found!")
+    else:
+        return {"message": "Tournament deleted successfully"}
 
+create_tournament("Test of tournamnet database",16)

@@ -228,7 +228,6 @@ class Tournament:
     # Helper function to print tournament details
     def print_details(self):
         print("Tournament Name:", self.tournamentName)
-        print("Tournament ID:", self.tournamentId)
         print("Status:", self.STATUS)
         print("Start Date:", self.STARTDATE)
         print("End Date:", self.ENDDATE)
@@ -245,7 +244,6 @@ class Tournament:
     def to_dict(self):
         return {
             "tournamentName": self.tournamentName,
-            "tournamentId": self.tournamentId,
             "STATUS": self.STATUS,
             "STARTDATE": self.STARTDATE,
             "ENDDATE": self.ENDDATE,
