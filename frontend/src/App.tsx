@@ -10,9 +10,16 @@ import LoadingBracket from './components/loading';
 import SingleElimination from './components/single-elimination';
 
 function App(): JSX.Element {
+  const [showForm, setShowForm] = useState<boolean>(false);
   const [playerCount, setPlayerCount] = React.useState(0); // Initialize playerCount state
   const [tournyName, setTournyName] = React.useState('') //Initialize tourny name state
   const [player, setPlayer] = React.useState<Player[]>([]) //Initialize player state
+
+  //Delete tournament
+  const deleteTournament = () => {
+    updatePlayerCount(0)
+    updateTournyName('')
+  }
   
   // Function to update playerCount
   const updatePlayerCount = (newCount: number) => {
@@ -34,8 +41,6 @@ function App(): JSX.Element {
     }
     updatePlayer(playerList)
   }
-  // Define state variable to control the visibility of the form
-  const [showForm, setShowForm] = useState<boolean>(false);
   //initialize tournament data variable equal to tournament form
   // Function to handle form submission
   const handleFormSubmit = (data: any): void => {
@@ -98,6 +103,7 @@ function App(): JSX.Element {
           <h2>Players in tournament</h2>
           <PlayerList /> {/* Render PlayerList component */}
           {/* Add component of rounded names for players which, when clicked, takes you to their profile */}
+          <button className="rounded-full bg-blue-500 text-white px-4 py-2 hover:bg-blue-600 mr-2" onClick={() => deleteTournament()}>Delete Tournament</button>
         </div>
       </div>
 
