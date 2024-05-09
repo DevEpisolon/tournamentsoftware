@@ -1,37 +1,33 @@
 from datetime import datetime
-
-from backend.match import Match
+from match import Match
 class Tournament:
-    def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, max_rounds, MaxSlotsCount, matches=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None, Players=None, tournamentWinner = None, droppedPlayers = None):
-
-from match import Match_database
-class Tournament:
-    def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, max_rounds,
-                 matches=None, MaxSlotsCount=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None,
-                 Players=None, tournamentWinner = None, droppedPlayers = None, wins_dict = {}, losses_dict = {},
-                 ties_dict = {}):
+    def __init__(self, tournamentName, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, max_rounds,
+                 maxSlotsPerMatch, MaxSlotsCount, matches=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None,
+                 Players=None, tournamentWinner=None, droppedPlayers=None, wins_dict=None, losses_dict=None,
+                 ties_dict=None):
       
         self.tournamentName = tournamentName
-        self.tournamentId = None
         self.STATUS = STATUS
         self.STARTDATE = STARTDATE
         self.ENDDATE = ENDDATE
-        self.createdAt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.createdAt = createdAt if createdAt else datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.updatedAt = updatedAt
-        self.matches = []
+        self.matches = matches if matches else []
         #overall slots in the whole tournament
         self.MaxSlotsCount = MaxSlotsCount
         self.TournamentType = TournamentType
         self.TeamBoolean = TeamBoolean
         self.AllotedMatchTime = AllotedMatchTime
-        self.Players = []
+        self.Players = Players if Players else []
         self.tournamentWinner = tournamentWinner
-        self.droppedPlayer = []
-        self.maxSlotsPerMatch = 2
+        self.droppedPlayers = droppedPlayers if droppedPlayers else []
+        self.maxSlotsPerMatch = maxSlotsPerMatch if maxSlotsPerMatch else 2
         self.max_rounds = max_rounds
-        self.wins_dict = wins_dict
-        self.losses_dict = losses_dict
-        self. ties_dict = ties_dict
+        self.wins_dict = wins_dict if wins_dict else {}
+        self.losses_dict = losses_dict if losses_dict else {}
+        self.ties_dict = ties_dict if ties_dict else {}
+
+
 
     # Getter and setter methods for each attribute
     def get_tournamentName(self):
@@ -39,12 +35,6 @@ class Tournament:
 
     def set_tournamentName(self, tournamentName):
         self.tournamentName = tournamentName
-
-    def get_tournamentId(self):
-        return self.tournamentId
-
-    def set_tournamentId(self, tournamentId):
-        self.tournamentId = tournamentId
 
     def get_STATUS(self):
         if (self.STATUS == 0 ):
@@ -130,12 +120,6 @@ class Tournament:
         self.tournamentWinner = Player
 
 #Functions
-    '''
-    Remove a player from a tournament
-    player = player to remove
-    '''
-    def removePlayerfromTournament(self,player):
-        self.get_Players().remove(player.playerid)  
     '''
     Add a singulaur player to the tournament
     player = player to add to tournament
@@ -244,7 +228,6 @@ class Tournament:
     # Helper function to print tournament details
     def print_details(self):
         print("Tournament Name:", self.tournamentName)
-        print("Tournament ID:", self.tournamentId)
         print("Status:", self.STATUS)
         print("Start Date:", self.STARTDATE)
         print("End Date:", self.ENDDATE)
@@ -256,4 +239,26 @@ class Tournament:
         print("Team Boolean:", self.TeamBoolean)
         print("Alloted Match Time:", self.AllotedMatchTime)
         print("Players:", self.Players)
-
+    
+    # Method to convert the Tournament object to a dictionary
+    def to_dict(self):
+        return {
+            "tournamentName": self.tournamentName,
+            "STATUS": self.STATUS,
+            "STARTDATE": self.STARTDATE,
+            "ENDDATE": self.ENDDATE,
+            "createdAt": self.createdAt,
+            "updatedAt": self.updatedAt,
+            "max_rounds": self.max_rounds,
+            "maxSlotsPerMatch": self.maxSlotsPerMatch,
+            "MaxSlotsCount": self.MaxSlotsCount,
+            "TournamentType": self.TournamentType,
+            "TeamBoolean": self.TeamBoolean,
+            "AllotedMatchTime": self.AllotedMatchTime,
+            "Players": self.Players,
+            "tournamentWinner": self.tournamentWinner,
+            "droppedPlayers": self.droppedPlayers,
+            "wins_dict": self.wins_dict,
+            "losses_dict": self.losses_dict,
+            "ties_dict": self.ties_dict
+        }
