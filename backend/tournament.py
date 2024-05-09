@@ -2,12 +2,8 @@ from datetime import datetime
 
 from backend.match import Match
 class Tournament:
-    def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, max_rounds, MaxSlotsCount, matches=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None, Players=None, tournamentWinner = None, droppedPlayers = None):
-
-from match import Match_database
-class Tournament:
     def __init__(self, tournamentName, tournamentId, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, max_rounds,
-                 matches=None, MaxSlotsCount=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None,
+                 matches=None, maxSlotsPerMatch, MaxSlotsCount, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None,
                  Players=None, tournamentWinner = None, droppedPlayers = None, wins_dict = {}, losses_dict = {},
                  ties_dict = {}):
       
