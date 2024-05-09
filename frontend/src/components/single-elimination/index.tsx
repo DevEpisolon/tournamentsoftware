@@ -81,9 +81,9 @@ const RenderSeed = ({ breakpoint, seed}: IRenderSeedProps) => {
                 {seed.teams?.[0]?.name || '-----------'}
               </SeedTeam>
               <div style={{ height: 1, backgroundColor: '#707070' }}>
-                {selectedSeed ? <AiOutlineCaretUp className='absolute inset-y-6 right-0'/> 
+                {selectedSeed ? <AiOutlineCaretUp className='absolute inset-y-12 inset-x-20'/> 
                 : 
-                <AiOutlineCaretDown className='absolute inset-y-6 right-0'/>}
+                <AiOutlineCaretDown className='absolute inset-y-12 inset-x-20'/>}
               </div>
               <SeedTeam>{seed.teams?.[1]?.name || '-----------'}</SeedTeam>
             </div>

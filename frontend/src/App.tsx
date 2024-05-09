@@ -58,7 +58,7 @@ function App(): JSX.Element {
   return(
     <div className="app"> {/* Container for the entire application */}
       {/* Header */}
-      <header className="header relative flex justify-between items-center"> {/* Header section */}
+      <header className="header relative flex justify-between items-center"/> {/* Header section */}
         {/* Wrapper for the form and create tournament button */}
         <div className="flex items-center"> {/* Flex container for aligning items */}
           {/* Button to toggle Tournament Form */}
