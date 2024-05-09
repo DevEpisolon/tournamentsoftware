@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from datetime import datetime
 from pymongo import MongoClient
+from bson import ObjectId  # Import ObjectId from bson module
 from tournament import Tournament
+from player import Player
 
 tournament_router = APIRouter()
 
@@ -12,20 +14,18 @@ db = client["tournamentsoftware"]
 tournaments_collection = db["tournaments"]
 
 # Function to fetch tournament data from the database by ID
-def fetch_tournament_data_from_database(tournament_id: int):
-    return tournaments_collection.find_one({"_id": tournament_id})
+def fetch_tournament_data_from_database(tournament_id: str):
+    # Convert tournament_id to ObjectId
+    tournament_id_obj = ObjectId(tournament_id)
+    return tournaments_collection.find_one({"_id": tournament_id_obj})
 
 # Router to get a specific tournament by ID
 @tournament_router.get("/{item_id}")
-def get_tournament(item_id: int):
+def get_tournament(item_id: str):
     tournament_data = fetch_tournament_data_from_database(item_id)
     if tournament_data is None:
         raise HTTPException(status_code=404, detail="Tournament not found!")
     return tournament_data
-
-# Function to set the tournament ID
-def set_tournament_id():
-    return tournaments_collection.count_documents({}) + 1
 
 # Router to fetch all tournaments
 @tournament_router.get("/tournaments")
@@ -35,43 +35,111 @@ def view_tournaments():
         raise HTTPException(status_code=404, detail="No tournaments found")
     return tournaments_data
 
-# Router to create a new tournament
-@tournament_router.post("/create_tournament/")
+# Function to create a new tournament
 def create_tournament(tournament_name: str, max_slots: int):
-    tournament_data = Tournament(
+    # Create a Tournament object with provided data
+    tournament = Tournament(
         tournamentName=tournament_name,
-        tournamentID=set_tournament_id(),
-        max_slots=max_slots,
-        STATUS="New",  # default status
-        STARTDATE=datetime.now(),  # default start date
-        ENDDATE=None,  # default end date
-        createdAt=datetime.now(),  # default creation date
-        updatedAt=None,  # default update date
-        max_rounds=0,  # default max rounds
-        matches=[],  # default empty matches
-        MaxSlotsCount=None,  # default max slots count
-        TournamentType=None,  # default tournament type
-        TeamBoolean=None,  # default team boolean
-        AllotedMatchTime=None,  # default alloted match time
-        Players=[],  # default empty players list
-        tournamentWinner=None,  # default tournament winner
-        droppedPlayers=[]  # default empty dropped players list
+        STATUS=0,
+        STARTDATE=datetime.now(),
+        ENDDATE=None,
+        createdAt=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        updatedAt=None,
+        max_rounds=1,
+        maxSlotsPerMatch=2,  # Ensure maxSlotsPerMatch is always 2
+        MaxSlotsCount=max_slots,
+        TournamentType=None,
+        TeamBoolean=None,
+        AllotedMatchTime=None,
+        Players=[],
+        tournamentWinner=None,
+        droppedPlayers=[],
+        wins_dict={},
+        losses_dict={},
+        ties_dict={}
     )
-    tournament_data_dict = tournament_data.__dict__
-    result = tournaments_collection.insert_one(tournament_data_dict)
-    return {"message": "Tournament created successfully", "tournament_id": str(result.inserted_id)}
 
-@tournament_router.get("/tournamentplayers/{tournament_id}")
-def get_tournament_players(tournament_id: str):
+    # Convert Tournament object to dictionary
+    tournament_data = tournament.to_dict()
+
+    # Insert tournament data into the database
+    tournaments_collection.insert_one(tournament_data)
+
+    # Return the generated tournament ID
+    return str(tournament_data["_id"])
+
+
+# Function to add a player to a tournament by display name
+@tournament_router.put("/add_player/{tournament_id}/{player_display_name}")
+def add_player_to_tournament_by_display_name(tournament_id: str, player_display_name: str):
     # Fetch tournament data from the database by ID
-    tournament_data = tournaments_collection.find_one({"_id": tournament_id})
+    tournament_data = tournaments_collection.find_one({"_id": ObjectId(tournament_id)})
     if tournament_data is None:
         raise HTTPException(status_code=404, detail="Tournament not found!")
+
+    # Fetch player data from the database by display name
+    player_data = players_collection.find_one({"display_name": player_display_name})
+    if player_data is None:
+        raise HTTPException(status_code=404, detail=f"Player with display name {player_display_name} not found!")
 
     # Instantiate Tournament class with fetched data
     tournament = Tournament(**tournament_data)
 
-    # Get the players from the tournament
-    tournament_players = tournament.get_Players()
+    # Instantiate Player class with fetched data
+    player = Player(**player_data)
+
+    # Add player to the tournament
+    tournament.addPlayertoTournament(player)
+
+    # Update tournament data in the database
+    tournaments_collection.update_one(
+        {"_id": ObjectId(tournament_id)},
+        {"$set": {"Players": tournament.get_Players()}}
+    )
+
+    return {"message": f"Player {player_display_name} added to tournament successfully"}
+
+# Function to remove a player from a tournament by display name
+@tournament_router.put("/remove_player/{tournament_id}/{player_display_name}")
+def remove_player_from_tournament_by_display_name(tournament_id: str, player_display_name: str):
+    # Fetch tournament data from the database by ID
+    tournament_data = tournaments_collection.find_one({"_id": ObjectId(tournament_id)})
+    if tournament_data is None:
+        raise HTTPException(status_code=404, detail="Tournament not found!")
+
+    # Fetch player data from the database by display name
+    player_data = players_collection.find_one({"display_name": player_display_name})
+    if player_data is None:
+        raise HTTPException(status_code=404, detail=f"Player with display name {player_display_name} not found!")
+
+    # Instantiate Tournament class with fetched data
+    tournament = Tournament(**tournament_data)
+
+    # Instantiate Player class with fetched data
+    player = Player(**player_data)
+
+    # Remove player from the tournament
+    tournament.removePlayerfromTournament(player)
+
+    # Update tournament data in the database
+    tournaments_collection.update_one(
+        {"_id": ObjectId(tournament_id)},
+        {"$set": {"Players": tournament.get_Players()}}
+    )
+
+    return {"message": f"Player {player_display_name} removed from tournament successfully"}
+@tournament_router.put("/tournament_remove/{tournament_id}")
+def delete_tournament_by_id(tournament_id: str):
+    # Convert tournament_id to ObjectId
+    tournament_id_obj = ObjectId(tournament_id)
     
-    return tournament_players
+    # Delete the tournament from the database
+    result = tournaments_collection.delete_one({"_id": tournament_id_obj})
+    
+    # Check if the deletion was successful
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Tournament not found!")
+    else:
+        return {"message": "Tournament deleted successfully"}
+
+create_tournament("Test of tournamnet database",16)
