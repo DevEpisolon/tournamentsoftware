@@ -225,6 +225,18 @@ class Tournament:
         self.set_Matches(matches)
 
 
+    # call it when tournament ended so it can fetch players' wins, losses, and ties
+    def update_dict(self):
+        for match in self.get_Matches():
+            for player in match.get_players():
+                if match.round_wins.get(player.displayname) is not None:
+                    self.wins_dict[player.displayname] = self.wins_dict.get(player.displayname, 0) + match.round_wins.get(player.displayname)
+                if match.round_losses.get(player.displayname) is not None:
+                    self.losses_dict[player.displayname] = self.losses_dict.get(player.displayname, 0) + match.round_lossess.get(player.displayname)
+                if match.round_ties.get(player.displayname) is not None:
+                    self.ties_dict[player.displayname] = self.ties_dict.get(player.displayname, 0) + match.round_ties.get(player.displayname)
+
+    
     # Helper function to print tournament details
     def print_details(self):
         print("Tournament Name:", self.tournamentName)
