@@ -1,10 +1,13 @@
+// App.tsx
+
 import React, { useState } from 'react';
 import './App.css'; // Importing CSS file for styling
 import TournamentForm from './components/TournamentForm'; // Importing TournamentForm component
 import TournamentList from './components/TournamentList'; // Importing TournamentList component
 import PlayerList, { Player } from './components/PlayerList'; // Importing PlayerList component
 import SingleElimination from './components/single-elimination';
-
+import SearchPlayerForm from './components/searchPlayerForm'; // Importing SearchPlayerForm component
+import axios from 'axios'
 function App(): JSX.Element {
   const [playerCount, setPlayerCount] = useState(0); // Initialize playerCount state
   const [tournyName, setTournyName] = useState(''); // Initialize tournament name state
