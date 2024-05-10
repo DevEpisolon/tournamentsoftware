@@ -102,9 +102,8 @@ def update_player_info_after(tournament):
     tournament.update_dict()
     for i in tournament.Players:
         print(i.displayname)
-    print("updating")
     update_tourney_results(tournament.wins_dict, tournament.losses_dict, tournament.ties_dict, tournament.Players)
-    print("info_updated")
+    print("\nInfo Updated\n")
 
 def update_player_info_sep():
     pass
