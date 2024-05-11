@@ -35,7 +35,7 @@ def view_tournaments():
     # Find all tournaments 
     tournaments_data = list(tournaments_collection.find())
     if not tournaments_data:
-        raise HTTPException(status_code=404, detail="No tournaments found")
+        raise HTTPException(status_code=404, detail="No tournaments found custom error?@!")
     return tournaments_data
 
 
@@ -147,4 +147,3 @@ def delete_tournament_by_id(tournament_id: str):
     else:
         return {"message": "Tournament deleted successfully"}
 
-create_tournament("Test of tournamnet database",16)
