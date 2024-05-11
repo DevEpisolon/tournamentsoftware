@@ -15,9 +15,12 @@ tournaments_collection = db["tournaments"]
 
 # Function to fetch tournament data from the database by ID
 def fetch_tournament_data_from_database(tournament_id: str):
-    # Convert tournament_id to ObjectId
-    tournament_id_obj = ObjectId(tournament_id)
-    return tournaments_collection.find_one({"_id": tournament_id_obj})
+    try:
+        # Convert tournament_id to ObjectId
+        tournament_id_obj = ObjectId(tournament_id)
+        return tournaments_collection.find_one({"_id": tournament_id_obj})
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid tournament ID")
 
 # Router to get a specific tournament by ID
 @tournament_router.get("/{item_id}")
@@ -27,20 +30,22 @@ def get_tournament(item_id: str):
         raise HTTPException(status_code=404, detail="Tournament not found!")
     return tournament_data
 
-# Router to fetch all tournaments
 @tournament_router.get("/tournaments")
 def view_tournaments():
+    # Find all tournaments 
     tournaments_data = list(tournaments_collection.find())
     if not tournaments_data:
         raise HTTPException(status_code=404, detail="No tournaments found")
     return tournaments_data
 
+
+@tournament_router.post("/tournaments/{tournament_name}")
 # Function to create a new tournament
-def create_tournament(tournament_name: str, max_slots: int):
+async def create_tournament(tournament_name: str, max_slots: int):
     # Create a Tournament object with provided data
     tournament = Tournament(
         tournamentName=tournament_name,
-        STATUS=0,
+        STATUS=1,
         STARTDATE=datetime.now(),
         ENDDATE=None,
         createdAt=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),

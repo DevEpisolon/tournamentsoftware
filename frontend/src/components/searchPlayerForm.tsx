@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-function searchPlayerForm() {
+function SearchPlayerForm() {
   const [displayName, setDisplayName] = useState('');
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDisplayName(event.target.value);
@@ -12,7 +12,7 @@ function searchPlayerForm() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // Navigate to stats page with display name as parameter
-    history.push(`/stats/${displayName}`);
+    navigate(`/stats/${displayName}`);
   };
 
   return (
@@ -28,5 +28,5 @@ function searchPlayerForm() {
   );
 }
 
-export default searchPlayerForm;
+export default SearchPlayerForm;
 

@@ -1,5 +1,5 @@
 from fastapi import HTTPException, APIRouter
-from Match import Match  # Import the Match class
+from match import Match  # Import the Match class
 
 
 # Router for match-related endpoints
