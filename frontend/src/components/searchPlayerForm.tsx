@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function SearchPlayerForm() {
   const [displayName, setDisplayName] = useState('');
@@ -9,21 +10,29 @@ function SearchPlayerForm() {
     setDisplayName(event.target.value);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Navigate to stats page with display name as parameter
-    navigate(`/stats/${displayName}`);
+    try {
+      const response = await axios.get(`http://localhost:8000/api/players/${displayName}`);
+      const playerData = response.data;
+      navigate(`/player/${displayName}`, { state: { playerData } });
+    } catch (error) {
+      console.error('Error fetching player data:', error);
+      // Handle error (e.g., display error message to user)
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="flex items-center w-full" style={{ maxWidth: '300px' }}>
       <input
         type="text"
         value={displayName}
         onChange={handleChange}
         placeholder="Enter Display Name"
+        className="rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 px-4 py-2 w-full mr-2"
+        style={{ color: 'black' }} // Set text color to black
       />
-      <button type="submit">Submit</button>
+      {/* Remove the submit button */}
     </form>
   );
 }
