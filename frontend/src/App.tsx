@@ -13,7 +13,8 @@ function App(): JSX.Element {
   const [tournaments, setTournaments] = useState<any[]>([]);
 
   useEffect(() => {
-    axios.get('/api/tournaments')
+    // Fetch tournaments data from FastAPI when component mounts
+    axios.get('http://localhost:8000/api/tournaments')
       .then(response => {
         console.log('Tournament Data:', response.data);
         setTournaments(response.data);
@@ -49,9 +50,11 @@ function App(): JSX.Element {
       </header>
 
       <div className="main">
-        <div className="content">
+        <div className="content w-3/4">
+	<div className="content-container w-4/5">
           <TournamentsList tournaments={tournaments} />
         </div>
+	</div>
         <div className="sidebar">
           <h2>Players in tournament</h2>
           <PlayersList />
@@ -62,8 +65,7 @@ function App(): JSX.Element {
         <p> TAS-32 &copy; {new Date().getFullYear()} </p>
       </footer>
     </div>
-  
-);
+  );
 }
 
 export default App;
