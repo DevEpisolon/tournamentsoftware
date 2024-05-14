@@ -47,7 +47,8 @@ def view_tournaments():
     tournament_data = list(tournaments_collection.find({}))
     if not tournament_data:
         raise HTTPException(status_code=404, detail="No tournaments found")
-    tournaments = [create_tournament_object(tournament) for tournament in tournament_data]
+    # Include the MongoDB _id in the response
+    tournaments = [{"_id": str(tournament.pop("_id")), **tournament} for tournament in tournament_data]
     return tournaments
 
 @tournament_router.post("/tournaments/{tournament_name}")
