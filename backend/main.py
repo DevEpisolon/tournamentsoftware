@@ -21,8 +21,8 @@ def create_tournament():
     slot_count = 2
     max_rounds_per_match = 1
     tournament = Tournament(
+        maxSlotsPerMatch= 2,
         tournamentName=tournament_name,
-        tournamentId=None,
         STATUS=None,
         STARTDATE=None,
         ENDDATE=None,
@@ -104,17 +104,11 @@ def play_tournament(tournament):
 
 def update_player_info_after(tournament):
     # work in progress
-    round_wins = {"Vegito": 2, "Kayz": 1}
-    round_losses = {"Epii": 1, "Tim": 2}
-    round_ties = {"songbaker": 2, "this_is_stupid": 3}
+    tournament.update_dict()
     for i in tournament.Players:
         print(i.displayname)
-        print(round_wins.get(i.displayname))
-        print(round_losses.get(i.displayname))
-        print(round_ties.get(i.displayname))
-    print("updating")
-    update_tourney_results(round_wins, round_losses, round_ties, tournament.Players)
-    print("info_updated")
+    update_tourney_results(tournament.wins_dict, tournament.losses_dict, tournament.ties_dict, tournament.Players)
+    print("\nInfo Updated\n")
 
 def update_player_info_sep():
     pass

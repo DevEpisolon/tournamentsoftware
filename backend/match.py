@@ -35,7 +35,7 @@ class Match:
         else:
             self.round_losses = round_losses
         if round_ties is None:
-            self.round_ties = 0
+            self.round_ties = {}
         else:
             self.round_ties = round_ties
         self.startTime = startTime
