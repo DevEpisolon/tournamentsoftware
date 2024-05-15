@@ -11,6 +11,11 @@ from pymongo import MongoClient
 from player_database import *
 import asyncio
 
+import firebase_admin
+from firebase_admin import credentials
+cred = credentials.Certificate("./firebase_key.json")
+firebase_admin.initialize_app(cred)
+
 def create_tournament():
     tournament_name = input("Enter a tournament name: ")
     slot_count = 2
