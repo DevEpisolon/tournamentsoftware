@@ -31,11 +31,6 @@ function SignUp() {
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
     alert("Sign Up");
-    setLoading(true);
-
-    await sleep(2000);
-    setLoading(false);
-    return;
 
     try {
       const result = await createUserWithEmailAndPassword(
