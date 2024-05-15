@@ -4,7 +4,6 @@
         "required": ["tournamentName", "STATUS", "maxSlotsCount"],
         "properties": {
             "tournamentName": {"bsonType": "string"},
-            "tournamentId": {"bsonType": "string"},
             "STATUS": {"bsonType": "string"},
             "STARTDATE": {"bsonType": ["string", "null"]},
             "ENDDATE": {"bsonType": ["string", "null"]},

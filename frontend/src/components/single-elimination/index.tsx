@@ -1,11 +1,21 @@
+
+//I commented it out as it was giving me errors i think you need to grab a fastapi call to grab all the players in a certain tournament id which is sent to you 
+
+
+
+/*
 //Makes a bracket for Single elimination and assumes each round has 2 players/teams
 //Need 
 
 import React, { useState } from 'react';
 import { Bracket, Seed, SeedItem, SeedTeam, SeedTime, IRoundProps, IRenderSeedProps, ISeedProps } from 'react-brackets';
+<<<<<<< HEAD
 import {Player} from '../PlayerList';
 import './index.css'; // Importing tailwin CSS file for styling
 import {AiOutlineCaretUp, AiOutlineCaretDown} from 'react-icons/ai';
+=======
+import {Player} from '../PlayersList';
+>>>>>>> origin/Develop
 
 const GeneratedRounds = (player_count: number): IRoundProps[] => {
   //Generates the rounds based on the number of players
@@ -132,3 +142,4 @@ const SingleElimination: React.FC<tourny_props> = ({playerCount, players}) => {
 };
 
 export default SingleElimination;
+*/

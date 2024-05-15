@@ -71,7 +71,7 @@ async def root():
 
 '''FastAPI route to retrieve a player document from MongoDB then convert it to player object'''
 @player_router.get("/players/get_player/{displayname}")
-async def get_player(displayname):
+async def get_player(displayname: str):
     player_document = db.players.find_one({"displayname": displayname})
     player = document_to_player(player_document)
     # add a .lower function for player and searching since displayname will be unique and case sensitivity won't matter
