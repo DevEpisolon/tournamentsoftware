@@ -10,9 +10,9 @@ import { auth } from "../../utils/FirbaseConfig";
 import { toast } from "react-toastify";
 import { Spinner } from "@material-tailwind/react";
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+// function sleep(ms: number) {
+//   return new Promise((resolve) => setTimeout(resolve, ms));
+// }
 
 function SignUp() {
   const emailRef = useRef("");
@@ -38,6 +38,7 @@ function SignUp() {
         emailRef.current,
         passwordRef.current
       );
+      console.log(result);
     } catch (error) {
       if (error == null) {
         return;
@@ -58,6 +59,7 @@ function SignUp() {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
+      console.log(result);
     } catch (error) {
       if (error == null) {
         return;
