@@ -3,6 +3,7 @@ from mongo import MongoDB
 from pymongo import MongoClient
 from match import Match 
 from utils import format
+from player_database import *
 
 # Router for match-related endpoints
 match_router = APIRouter()
@@ -96,4 +97,34 @@ async def get_match(matchid):
         return match
     else:
         raise HTTPException(status_code=404, detail=f"Match '{matchid}' not found.")
+
+def match_to_document(match):
+    serialized_players = [player_to_document(player) for player in match.players]
+    serialized_winner = None
+    serialized_loser = None
+    if match.match_winner is not None:
+        serialized_winner = player_to_document(match.match_winner)
+    if match.match_loser is not None:
+        serialized_loser = player_to_document(match.match_loser)
+    return {
+        "matchid": match.matchid,
+        "slots": match.slots,
+        "match_status": match.match_status,
+        "winner_next_match_id": match.winner_next_match_id,
+        "previous_match_id": match.previous_match_id,
+        "match_winner": serialized_winner,
+        "match_loser": serialized_loser,
+        "loser_next_match_id": match.loser_next_match_id,
+        "start_date": match.start_date,
+        "end_date": match.end_date,
+        "players": serialized_players,
+        "max_rounds": match.max_rounds,
+        "num_wins": match.num_wins,
+        "round_wins": match.round_wins,
+        "round_losses": match.round_losses,
+        "round_ties": match.round_ties,
+        "start_time": match.startTime,
+        "end_time": match.endTime,
+        "tournament_name": match.tournamentName,
+    }
 
