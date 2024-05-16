@@ -10,7 +10,7 @@ ReactDOM.render(
     <Routes>
       <Route path="/" element={<App />} />
       <Route path="/stats/:displayName" element={<PlayerProfilePage />} />
-      <Route path="/tournament/663ebbbddc53254338df8862" element={<SingleElimination />} />
+      <Route path="/tournament/663ebe3ec4a0dc08c9da61c6" element={<SingleElimination />} />
     </Routes>
   </Router>,
   document.getElementById('root')
