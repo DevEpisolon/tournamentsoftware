@@ -1,6 +1,8 @@
 from fastapi import HTTPException, APIRouter
-from match import Match  # Import the Match class
-
+from mongo import MongoDB
+from pymongo import MongoClient
+from match import Match 
+from utils import format
 
 # Router for match-related endpoints
 match_router = APIRouter()
@@ -20,8 +22,42 @@ class MatchDatabase:
         self.matches[match.matchid] = match
         return match
     
-
+MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftware.l9dyjo7.mongodb.net/?retryWrites=true&w=majority"
+client = MongoClient(MONGODB_CONNECTION_STRING)
+db = client["tournamentSoftware"]
+match_collection = db["matches"]
+    
 match_db = MatchDatabase()
+
+@match_router.get("/matches/tournament/{tournamentName}")
+async def get_matches_by_tournament(tournamentName: int):
+    matches = match_collection.find({"tournamentName": tournamentName})
+    if not matches:
+        raise HTTPException(status_code=404, detail="Matches not found")
+    return format(matches)
+
+@match_router.get("/matches/players/{displayname}")
+def get_matches_by_player(displayname: str):
+    matches = match_collection.find({"players.player_id": displayname})
+    if not matches:
+        raise HTTPException(status_code=404, detail="Matches not found")
+    return format(matches)
+
+@match_router.post("/match")
+def post_match(match: dict):
+    match_collection.insert_one(match)
+    return "Successfully added match"
+
+@match_router.patch("/matches/{match_id}")
+async def update_match(match_id: str, update_fields: dict):
+    result = match_collection.find_one_and_update(
+        {"matchid": match_id},
+        {"$set": update_fields},
+        return_document=True
+    )
+    if not result:
+        raise HTTPException(status_code=404, detail="Match not found")
+    return "Successfully updated match"
 
 @match_router.post("/matches/")
 async def create_match(match_data: dict):
@@ -31,7 +67,6 @@ async def create_match(match_data: dict):
 async def read_match(matchid: int):
     return match_db.get_match(matchid)
 
-#change this so it calls your promote player should be player displayname
 @match_router.put("/match/{matchid}/promote_player/{winner}")
 async def promote_player(matchid, displayname):
     match = await get_match(matchid)
@@ -61,4 +96,4 @@ async def get_match(matchid):
         return match
     else:
         raise HTTPException(status_code=404, detail=f"Match '{matchid}' not found.")
-    
+

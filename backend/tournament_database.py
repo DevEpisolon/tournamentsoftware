@@ -1,3 +1,4 @@
+from mongo import MongoDB
 from fastapi import APIRouter, HTTPException
 from datetime import datetime
 from pymongo import MongoClient
@@ -12,6 +13,11 @@ MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftwa
 client = MongoClient(MONGODB_CONNECTION_STRING)
 db = client["tournamentsoftware"]
 tournaments_collection = db["tournaments"]
+
+#db = MongoDB().getDb()
+#tournaments_collection = db["tournaments"]
+#players_collection = db["players"]
+
 
 def document_to_tournament(tournament_document):
     if tournament_document:
