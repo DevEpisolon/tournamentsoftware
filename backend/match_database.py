@@ -62,7 +62,7 @@ async def update_match(match_id: str, update_fields: dict):
 
 @match_router.post("/matches/")
 async def create_match(match_data: dict):
-    return match_db.create_match(match_data)
+    return await match_db.create_match(match_data)
 
 @match_router.get("/matches/{matchid}/")
 async def read_match(matchid: int):
