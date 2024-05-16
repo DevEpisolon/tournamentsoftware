@@ -13,7 +13,7 @@ function SearchPlayerForm() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const response = await axios.get(`http://localhost:8000/api/players/${displayName}`);
+      const response = await axios.get(`http://localhost:8000/api/players/get_player/${displayName}`);
       const playerData = response.data;
       navigate(`/player/${displayName}`, { state: { playerData } });
     } catch (error) {
