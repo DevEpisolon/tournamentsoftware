@@ -29,6 +29,7 @@ const TournamentForm: React.FC<Props> = ({ onSubmit }) => {
       );
       console.log('Tournament created:', response.data);
       onSubmit(formData);
+      window.location.reload();
     } catch (error) {
       console.error('Error creating tournament:', error);
     }
