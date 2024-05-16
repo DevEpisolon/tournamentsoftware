@@ -166,7 +166,7 @@ def tournament_to_document(tournament):
 
 @tournament_router.put("/create_matches/{tournament_id}")
 async def create_matches(tournament_id):
-    tournament = await get_tournament(tournament_id)
+    tournament = await get_tournament_byid(tournament_id)
     tournament.createMatches()
     updated_tournament = tournament_to_document(tournament)
     tournament_collection.replace_one({"_id": ObjectId(tournament_id)}, updated_tournament)
