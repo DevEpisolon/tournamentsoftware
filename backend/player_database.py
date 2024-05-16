@@ -65,12 +65,6 @@ def document_to_player(player_document):
         return None
 
 
-# Define a handler for the root URL
-@player_router.get("/")
-async def root():
-    return {"message": "Welcome to the Tournament Software!"}
-
-
 @player_router.get("/players/get_player/{displayname}")
 async def get_player(displayname: str):
     player_document = db.players.find_one({"displayname": displayname})
