@@ -1,17 +1,47 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams} from 'react-router-dom';
 import axios from 'axios';
+import { History } from 'history'; 
 
 interface Player {
   displayname: string;
   playername: string;
-  // Add other properties as needed
+  uniqueid?: string;
+  email?: string;
+  wins: number;
+  losses: number;
+  ties: number;
+  wlratio: number;
+  winstreaks: number;
+  match_history: any[];
+  avatar?: string;
+  join_date?: string;
+  current_tournament_wins: number;
+  current_tournament_losses: number;
+  current_tournament_ties: number;
 }
 
 interface Tournament {
   _id: string;
   tournamentName: string;
-  // Add other properties as needed
+  STATUS: string;
+  STARTDATE: string;
+  ENDDATE: string;
+  createdAt: string;
+  updatedAt: string;
+  max_rounds: number;
+  maxSlotsPerMatch: number;
+  MaxSlotsCount: number;
+  matches: any[];
+  TournamentType?: any;
+  TeamBoolean?: any;
+  AllotedMatchTime?: any;
+  Players: Player[];
+  tournamentWinner?: any;
+  droppedPlayers: any[];
+  wins_dict: any;
+  losses_dict: any;
+  ties_dict: any;
 }
 
 const PlayerComponent: React.FC<{ player: Player; onClick: () => void }> = ({ player, onClick }) => (
@@ -62,20 +92,24 @@ const TournamentPage: React.FC = () => {
     setAvailablePlayers([...availablePlayers, player]);
   };
 
-  const deleteTournament = () => {
-    // Placeholder function, replace with actual implementation
-    console.log('Deleting tournament...');
-  };
+const deleteTournament = async () => {
+  try {
+    await axios.put(`http://localhost:8000/api/tournament_remove/${tournamentId}`);
+    console.log('Tournament deleted successfully.');
+    window.history.back();
+   } catch (error) {
+    console.error('Error deleting tournament:', error);
+    // Handle any errors that occur during deletion.
+  }
+};
 
   const startTournament = () => {
-    /*
-	if (playersInTournament.length === tournament?.MaxSlotsCount) {
-      // Start the tournament
+    if (playersInTournament.length === tournament?.MaxSlotsCount) {
       console.log('Starting tournament...');
+      // Implement start functionality
     } else {
       alert('The tournament lobby is not full. Please add more players before starting the tournament.');
-    }i
-*/
+    }
   };
 
   return (
@@ -91,7 +125,7 @@ const TournamentPage: React.FC = () => {
       </div>
       <div className="flex">
         <div className="w-1/2 pr-4">
-          <h2 className="text-lg font-semibold">Players in Tournament</h2>
+          <h2 className="text-lg font-semibold">Players in Tournament ({playersInTournament.length} / {tournament?.MaxSlotsCount})</h2>
           <ul className="border border-gray-700 rounded p-2">
             {playersInTournament.map(player => (
               <PlayerComponent key={player.displayname} player={player} onClick={() => removePlayerFromTournament(player)} />
