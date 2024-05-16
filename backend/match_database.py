@@ -1,5 +1,7 @@
 from fastapi import HTTPException, APIRouter
+from backend.mongo import MongoDB
 from match import Match  # Import the Match class
+from utils import format
 
 
 # Router for match-related endpoints
@@ -21,7 +23,42 @@ class MatchDatabase:
         return match
     
 
+client = MongoDB().getDb()
+db = client["tournamentSoftware"]
+match_collection = db["matches"]
+    
+
 match_db = MatchDatabase()
+
+@match_router.get("/matches/tournament/{tournamentName}")
+async def get_matches_by_tournament(tournamentName: int):
+    matches = match_collection.find({"tournamentName": tournamentName})
+    if not matches:
+        raise HTTPException(status_code=404, detail="Matches not found")
+    return format(matches)
+
+@match_router.get("/matches/players/{displayname}")
+def get_matches_by_player(displayname: str):
+    matches = match_collection.find({"players.player_id": displayname})
+    if not matches:
+        raise HTTPException(status_code=404, detail="Matches not found")
+    return format(matches)
+
+@match_router.post("/match")
+def post_match(match: dict):
+    match_collection.insert_one(match)
+    return "Successfully added match"
+
+@match_router.patch("/matches/{match_id}", response_model=Match)
+async def update_match(match_id: str, update_fields: dict):
+    result = match_collection.find_one_and_update(
+        {"matchid": match_id},
+        {"$set": update_fields},
+        return_document=True
+    )
+    if not result:
+        raise HTTPException(status_code=404, detail="Match not found")
+    return "Successfully updated match"
 
 @match_router.post("/matches/")
 async def create_match(match_data: dict):

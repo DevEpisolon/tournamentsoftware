@@ -53,7 +53,7 @@ const TournamentsList: React.FC<Props> = ({ tournaments }) => {
   return (
     <div className="tournament-scroll-pane">
       {tournaments.map((tournament) => (
-        <Link key={tournament._id} to={`/tournament/${tournament.tournamentName}`} className="tournament-link">
+        <Link key={tournament._id} to={`/tournament/${tournament._id}`} className="tournament-link">
           <div className="bg-white rounded-lg p-4 mb-4 relative cursor-pointer border-2 border-black">
             {/* MongoDB ID */}
             <p className="text-md text-blue-900 absolute top-2 right-2">{tournament._id}</p>
