@@ -1,9 +1,12 @@
+from mongo import MongoDB
 from fastapi import APIRouter, HTTPException
 from datetime import datetime
 from pymongo import MongoClient
 from bson import ObjectId
 from tournament import Tournament
 from player import Player
+from player_database import *
+from match_database import *
 import asyncio
 
 tournament_router = APIRouter()
@@ -12,6 +15,11 @@ MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftwa
 client = MongoClient(MONGODB_CONNECTION_STRING)
 db = client["tournamentsoftware"]
 tournaments_collection = db["tournaments"]
+
+#db = MongoDB().getDb()
+#tournaments_collection = db["tournaments"]
+#players_collection = db["players"]
+
 
 def document_to_tournament(tournament_document):
     if tournament_document:
@@ -133,4 +141,34 @@ def delete_tournament_by_id(tournament_id: str):
     else:
         return {"message": "Tournament deleted successfully"}
 
+def tournament_to_document(tournament):
 
+    serialized_players = [player_to_document(player) for player in tournament.Players]
+    serialized_matches = [match_to_document(match) for match in tournament.matches]
+    return {
+        "tournament_name": tournament.tournamentName,
+        "status": tournament.STATUS,
+        "start_date": tournament.STARTDATE,
+        "end_date": tournament.ENDDATE,
+        "created_at": tournament.createdAt,
+        "updated_at": tournament.updatedAt,
+        "matches": serialized_matches,
+        "max_slots_count": tournament.MaxSlotsCount,
+        "tournament_type": tournament.TournamentType,
+        "team_boolean": tournament.TeamBoolean,
+        "alloted_match_time": tournament.AllotedMatchTime,
+        "players": serialized_players,
+        "tournament_winner": tournament.tournamentWinner,
+        "dropped_players": tournament.droppedPlayers,
+        "max_slots_per_match": tournament.maxSlotsPerMatch,
+        "max_rounds": tournament.max_rounds,
+    }
+
+@tournament_router.put("/create_matches/{tournament_id}")
+async def create_matches(tournament_id):
+    tournament = await get_tournament(tournament_id)
+    tournament.createMatches()
+    updated_tournament = tournament_to_document(tournament)
+    tournament_collection.replace_one({"_id": ObjectId(tournament_id)}, updated_tournament)
+    for match in tournament.matches:
+        await post_match(match_to_document(match))

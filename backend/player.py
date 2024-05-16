@@ -6,6 +6,7 @@ class Player:
         self.displayname = displayname
         self.uniqueid = uniqueid
         self.email = email
+        self.avatar = avatar
         self.wins = wins
         self.losses = losses
         self.ties = ties
@@ -17,14 +18,15 @@ class Player:
         self.current_tournament_wins = current_tournament_wins
         self.current_tournament_losses = current_tournament_losses
         self.current_tournament_ties = current_tournament_ties
+        
 
     # for calling print() on a player
     def __str__(self):
         return f'''Dummy Player Info:
-Player: {self.displayname}-{self.playername} | ID: {self.uniqueid}
-Email: {self.email} | Join Date: {self.join_date}
-Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlratio}%
-'''
+            Player: {self.displayname}-{self.playername} | ID: {self.uniqueid}
+            Email: {self.email} | Join Date: {self.join_date}
+            Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlratio}%
+            '''
 
     @classmethod
     def create_dummy(cls, playername, displayname, wins=0, losses=0, ties=0):

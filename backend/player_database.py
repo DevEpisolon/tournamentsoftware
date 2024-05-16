@@ -1,17 +1,19 @@
 import asyncio
 from fastapi import APIRouter, HTTPException
 from pymongo import MongoClient
+from mongo import MongoDB
 from player import Player
 
 # Initialize FastAPI app
 player_router = APIRouter()
 
-# MongoDB Atlas connection string
+# # MongoDB Atlas connection string
 MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftware.l9dyjo7.mongodb.net/?retryWrites=true&w=majority&appName=tournamentsoftware"
-# Replace <username>, <password>, <cluster-url>, and <dbname> with your actual MongoDB Atlas credentials and database name
+# # Replace <username>, <password>, <cluster-url>, and <dbname> with your actual MongoDB Atlas credentials and database name
 
-# Establish connection to MongoDB Atlas
+# # Establish connection to MongoDB Atlas
 client = MongoClient(MONGODB_CONNECTION_STRING)
+#client = MongoDB().getDb()
 db = client["tournamentsoftware"]
 players_collection = db["players"]
 
@@ -63,22 +65,16 @@ def document_to_player(player_document):
         return None
 
 
-# Define a handler for the root URL
-@player_router.get("/")
-async def root():
-    return {"message": "Welcome to the Tournament Software!"}
-
-
-'''FastAPI route to retrieve a player document from MongoDB then convert it to player object'''
 @player_router.get("/players/get_player/{displayname}")
 async def get_player(displayname: str):
     player_document = db.players.find_one({"displayname": displayname})
     player = document_to_player(player_document)
-    # add a .lower function for player and searching since displayname will be unique and case sensitivity won't matter
     if player:
-        return player
+        # Return player object including avatar
+        return player.__dict__
     else:
         raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
+
 
 '''For regular users to register as a Player/create an account.'''
 @player_router.post("/players/register_player")

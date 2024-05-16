@@ -1,0 +1,6 @@
+firebase_admin
+fastapi
+asyncio
+pymongo
+pydantic
+python-dotenv
