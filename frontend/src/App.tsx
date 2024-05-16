@@ -60,7 +60,7 @@ function App(): JSX.Element {
           </div>
         </div>
         <div className="sidebar">
-          <h2>Players in tournament</h2>
+          <h2>Players in database</h2>
           <PlayersList />
         </div>
       </div>

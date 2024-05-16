@@ -6,6 +6,7 @@ class Player:
         self.displayname = displayname
         self.uniqueid = uniqueid
         self.email = email
+        self.avatar = avatar
         self.wins = wins
         self.losses = losses
         self.ties = ties

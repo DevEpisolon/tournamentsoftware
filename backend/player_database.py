@@ -71,16 +71,16 @@ async def root():
     return {"message": "Welcome to the Tournament Software!"}
 
 
-'''FastAPI route to retrieve a player document from MongoDB then convert it to player object'''
 @player_router.get("/players/get_player/{displayname}")
 async def get_player(displayname: str):
     player_document = db.players.find_one({"displayname": displayname})
     player = document_to_player(player_document)
-    # add a .lower function for player and searching since displayname will be unique and case sensitivity won't matter
     if player:
-        return player
+        # Return player object including avatar
+        return player.__dict__
     else:
         raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
+
 
 '''For regular users to register as a Player/create an account.'''
 @player_router.post("/players/register_player")
