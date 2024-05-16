@@ -72,3 +72,6 @@ async def handle_document_too_large(_, __):
         content={"message": "The document you are trying to save is too large."},
     )
 
+@app.get("/")
+async def root():
+    return {"message": "Welcome to the Tournament Software!"}
