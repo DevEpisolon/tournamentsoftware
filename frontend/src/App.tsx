@@ -7,6 +7,7 @@ import Tournament from './components/Tournament';
 import TournamentsList from './components/TournamentsList';
 import SearchPlayerForm from './components/searchPlayerForm';
 import PlayerProfilePage from './components/PlayerProfilePage';
+import { Routes, Route } from 'react-router-dom'; // Remove BrowserRouter import
 
 function App(): JSX.Element {
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -51,10 +52,13 @@ function App(): JSX.Element {
 
       <div className="main">
         <div className="content w-3/4">
-	<div className="content-container w-4/5">
-          <TournamentsList tournaments={tournaments} />
+          <div className="content-container w-4/5">
+            <Routes> {/* Define routes for main content */}
+              <Route path="/" element={<TournamentsList tournaments={tournaments} />} />
+              <Route path="/player/:playername" element={<PlayerProfilePage />} /> {/* Route for player profile page */}
+            </Routes>
+          </div>
         </div>
-	</div>
         <div className="sidebar">
           <h2>Players in tournament</h2>
           <PlayersList />
@@ -69,3 +73,4 @@ function App(): JSX.Element {
 }
 
 export default App;
+

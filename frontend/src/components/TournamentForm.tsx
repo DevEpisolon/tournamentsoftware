@@ -1,4 +1,5 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
+import axios from 'axios';
 
 interface FormData {
   tournamentName: string;
@@ -10,10 +11,7 @@ interface Props {
 }
 
 const TournamentForm: React.FC<Props> = ({ onSubmit }) => {
-  const [formData, setFormData] = useState<{
-    tournamentName: string;
-    tournamentSize: string;
-  }>({
+  const [formData, setFormData] = useState<FormData>({
     tournamentName: '',
     tournamentSize: '',
   });
@@ -22,9 +20,18 @@ const TournamentForm: React.FC<Props> = ({ onSubmit }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSubmit(formData);
+    try {
+      const response = await axios.post(
+        `http://localhost:8000/api/tournaments/create/${formData.tournamentName}:${formData.tournamentSize}`,
+        {}
+      );
+      console.log('Tournament created:', response.data);
+      onSubmit(formData);
+    } catch (error) {
+      console.error('Error creating tournament:', error);
+    }
   };
 
   return (
