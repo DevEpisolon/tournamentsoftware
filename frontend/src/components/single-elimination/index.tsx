@@ -29,7 +29,7 @@ const GeneratedRounds = (player_count: number): IRoundProps[] => {
     
     for (let j = 1; j <= player_per_round; j++){
       const seed: ISeedProps = {
-        id: 1,
+        id: j,
         teams: [],
         date: new Date().toDateString()
       }
@@ -91,7 +91,21 @@ const GeneratePlayers = (rounds: IRoundProps[], players: string[]) => {
   return rounds;
 };
 
-const RenderSeed = ({ breakpoint, seed, selectedSeed, setSelectedSeed}: IExtendedRenderSeedProps) => {
+const RenderSeed = ({ breakpoint, seed, selectedSeed, setSelectedSeed, roundIndex, rounds, promotePlayerCallback}: IExtendedRenderSeedProps) => {
+  const promotePlayer = (winner: { [key: string]: any; name?: string | undefined; } | undefined) => {
+    if (winner) {
+      const nextRound = rounds?.[roundIndex + 1];
+      if (nextRound) {
+        const nextSeed = nextRound.seeds[0];
+        const newTeam = { [(winner.id)]: winner }; // Create a new object with the winner's id as the key
+        nextSeed.teams.push(newTeam);
+        console.log('Promoted player:', winner);
+        promotePlayerCallback(winner); // Call the callback function
+      }
+    }
+    console.log('Button Clicked')
+  };
+
   return (
     <Seed mobileBreakpoint={breakpoint} className='relative flex items-center'>
       <SeedTime mobileBreakpoint={breakpoint} style={{ fontSize: 9 }}>
@@ -130,9 +144,9 @@ const RenderSeed = ({ breakpoint, seed, selectedSeed, setSelectedSeed}: IExtende
         ) : (
           <div className='relative top-5'>
             <div className='visible flex flex-col items-center'>
-              <button className='outline outline-2 outline-offset-2 w-[160px] mb-2 mx-2 hover:bg-lime-400'>
+              <button className='outline outline-2 outline-offset-2 w-[160px] mb-2 mx-2 hover:bg-lime-400' onClick={() => promotePlayer(seed.teams?.[0])}>
                 Promote: {seed.teams?.[0]?.name}</button>
-              <button className='outline outline-2 outline-offset-2 w-[160px] mb-2 mx-2 hover:bg-lime-400'>
+              <button className='outline outline-2 outline-offset-2 w-[160px] mb-2 mx-2 hover:bg-lime-400' onClick={() => promotePlayer(seed.teams?.[1])}>
                 Promote: {seed.teams?.[1]?.name}</button>
             </div>
           </div>
@@ -144,6 +158,7 @@ const RenderSeed = ({ breakpoint, seed, selectedSeed, setSelectedSeed}: IExtende
 interface IExtendedRenderSeedProps extends IRenderSeedProps {
   selectedSeed: boolean;
   setSelectedSeed: (value: boolean) => void;
+  promotePlayerCallback: (winner: { [key: string]: any; name?: string | undefined; } | undefined) => void;
 }
 
 const SingleElimination: React.FC = () => {
@@ -167,6 +182,12 @@ const SingleElimination: React.FC = () => {
     fetchPlayers();
   }, []);
 
+  const promotePlayerCallback = (winner: { [key: string]: any; name?: string | undefined; } | undefined) => {
+    if (winner && winner.name) {
+      setPlayers((prevPlayers) => [...prevPlayers, winner.name!]); // Add '!' to assert that winner.name is not undefined
+    }
+  };
+
   let rounds = GeneratedRounds(players.length);
   rounds = GeneratePlayers(rounds, players);
   
@@ -183,6 +204,8 @@ const SingleElimination: React.FC = () => {
           seedIndex={props.seedIndex}
           selectedSeed={selectedSeed}
           setSelectedSeed={(value) => setSelectedSeed(value) }
+          rounds={rounds} // Pass the rounds array as a prop
+          promotePlayerCallback={promotePlayerCallback}
         />
       )}
       swipeableProps={{ enableMouseEvents: true, animateHeight: true }}
