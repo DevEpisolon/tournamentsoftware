@@ -3,14 +3,14 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const PlayerProfilePage: React.FC = () => {
-  const { playerId } = useParams<{ playerId: string }>();
+  const { playername } = useParams<{ playername: string }>();
   const [playerData, setPlayerData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchPlayerData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/players/${playerId}`);
+        const response = await axios.get(`http://localhost:8000/api/players/${playername}`);
         setPlayerData(response.data);
         setLoading(false);
       } catch (error) {
@@ -20,7 +20,7 @@ const PlayerProfilePage: React.FC = () => {
     };
 
     fetchPlayerData();
-  }, [playerId]);
+  }, [playername]);
 
   if (loading) {
     return <div className="container mx-auto mt-8 text-center">Loading...</div>;

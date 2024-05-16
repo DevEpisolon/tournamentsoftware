@@ -5,6 +5,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 from tournament import Tournament
 from player import Player
+import asyncio
 
 tournament_router = APIRouter()
 
@@ -33,7 +34,6 @@ def create_tournament_object(tournament_data):
         print("Tournament data is None.")
         return None
 
-
 def fetch_tournament_data_from_database(tournament_id: str):
     try:
         tournament_id_obj = ObjectId(tournament_id)
@@ -41,7 +41,7 @@ def fetch_tournament_data_from_database(tournament_id: str):
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid tournament ID")
 
-@tournament_router.get("tournaments/{item_id}")
+@tournament_router.get("/tournaments/{item_id}")
 def get_tournament_byid(item_id: str):
     tournament_data = fetch_tournament_data_from_database(item_id)
     if tournament_data is None:
@@ -57,8 +57,8 @@ def view_tournaments():
     tournaments = [{"_id": str(tournament.pop("_id")), **tournament} for tournament in tournament_data]
     return tournaments
 
-@tournament_router.post("/tournaments/{tournament_name}")
-async def create_tournament(tournament_name: str, max_slots: int):
+@tournament_router.post("/tournaments/create/{tournament_name}:{max_slots}")
+def create_tournament(tournament_name: str, max_slots: int):
     tournament = Tournament(
         tournamentName=tournament_name,
         STATUS=1,
@@ -82,11 +82,11 @@ async def create_tournament(tournament_name: str, max_slots: int):
 
     tournament_data = tournament.to_dict()
 
+    # Insert tournament data into collection
     tournaments_collection.insert_one(tournament_data)
 
-    return create_tournament_object(tournament_data)
 
-@tournament_router.put("/add_player/{tournament_id}/{player_display_name}")
+tournament_router.put("/add_player/{tournament_id}/{player_display_name}")
 def add_player_to_tournament_by_display_name(tournament_id: str, player_display_name: str):
     tournament_data = tournaments_collection.find_one({"_id": ObjectId(tournament_id)})
     if tournament_data is None:
@@ -139,4 +139,4 @@ def delete_tournament_by_id(tournament_id: str):
     else:
         return {"message": "Tournament deleted successfully"}
 
-# print(view_tournaments())
+
