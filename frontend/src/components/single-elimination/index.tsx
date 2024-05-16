@@ -83,8 +83,6 @@ const GeneratePlayers = (rounds: IRoundProps[], players: string[]) => {
             let player_to_add = { name: players[player_index], id: player_index + 1 };
             seed.teams.push(player_to_add);
             player_index++;
-          } else {
-            seed.teams.push({ name: 'Bye', id: 0 });
           }
         }
       });
@@ -131,9 +129,11 @@ const RenderSeed = ({ breakpoint, seed, selectedSeed, setSelectedSeed}: IExtende
         </div>
         ) : (
           <div className='relative top-5'>
-            <div className='visible'>
-              <p>Promote: {seed.teams?.[0]?.name}</p>
-              <p>Promote: {seed.teams?.[1]?.name}</p>
+            <div className='visible flex flex-col items-center'>
+              <button className='outline outline-2 outline-offset-2 w-[160px] mb-2 mx-2 hover:bg-lime-400'>
+                Promote: {seed.teams?.[0]?.name}</button>
+              <button className='outline outline-2 outline-offset-2 w-[160px] mb-2 mx-2 hover:bg-lime-400'>
+                Promote: {seed.teams?.[1]?.name}</button>
             </div>
           </div>
         )}
