@@ -27,6 +27,10 @@ const Index = () => {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/registerPlayer" element={<RegisterPlayer />} />
+          <Route
+            path="/tournament/:tournamentId/bracket"
+            element={<SingleElimination />}
+          />
         </Routes>
       </Router>
     </AuthProvider>

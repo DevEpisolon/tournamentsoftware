@@ -25,6 +25,10 @@ const PlayerProfilePage: React.FC = () => {
     fetchPlayerData();
   }, [playername]);
 
+  const handleGoBack = () => {
+    window.history.back();
+  };
+
   if (loading) {
     return <div className="container mx-auto mt-8 text-center">Loading...</div>;
   }
@@ -37,7 +41,10 @@ const PlayerProfilePage: React.FC = () => {
   const playerImage = playerData.avatar || DEFAULT_IMAGE_URL;
 
   return (
-    <div className="container mx-auto mt-8">
+    <div className="container mx-auto mt-8 relative">
+      <button className="absolute top-3 left-4 bg-pink-700 font-bold text-white px-3 py-2 rounded" onClick={handleGoBack}>
+        Back
+      </button>
       <header className="text-center mb-8">
         <img src={playerImage} alt="Player Avatar" className="rounded-full w-32 h-32 mx-auto mb-4" />
         <h1 className="text-4xl font-bold">{playerData.displayname}</h1>
