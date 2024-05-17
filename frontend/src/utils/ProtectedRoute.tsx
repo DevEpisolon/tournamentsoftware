@@ -4,6 +4,7 @@ import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const ProtectedRouter = () => {
+  // alert("ProtectedRouter");
   let { currentUser, isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
@@ -12,7 +13,7 @@ const ProtectedRouter = () => {
   const checkIfPlayerExists = async (email: string) => {
     try {
       const result = await axios.get(
-        `http://localhost:8000/api/players/${email}`
+        `http://localhost:8000/api/player/email/${email}`
       );
       if (result.status === 200) {
         setLoading(false);
@@ -29,13 +30,18 @@ const ProtectedRouter = () => {
     if (currentUser != null && isLoggedIn == true) {
       checkIfPlayerExists(currentUser.email!);
     } else {
+      // alert("You need to be logged in to access this page");
       setLoading(false);
     }
   }, [currentUser]);
 
   if (isLoading) return <p>Loading...</p>;
 
-  return currentUser !== null ? <Outlet /> : <Navigate to="/signin" />;
+  return currentUser !== null && isLoggedIn == true ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/signin" />
+  );
 };
 
 export default ProtectedRouter;

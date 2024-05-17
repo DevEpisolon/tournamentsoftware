@@ -8,6 +8,7 @@ import TournamentsList from "./components/TournamentsList";
 import SearchPlayerForm from "./components/searchPlayerForm";
 import PlayerProfilePage from "./components/PlayerProfilePage";
 import { Routes, Route } from "react-router-dom"; // Remove BrowserRouter import
+import { auth } from "./utils/FirbaseConfig";
 
 function App(): JSX.Element {
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -34,25 +35,30 @@ function App(): JSX.Element {
 
   return (
     <div className="app">
-      <header
-        className="header relative flex justify-between items-center"
-        style={{ height: "80px" }}
-      >
-        <div className="flex items-center">
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="rounded-md bg-blue-500 text-white px-4 py-2 mt-4 ml-4 absolute top-0 left-0 z-10"
-          >
-            {showForm ? "Close Form" : "Create Tournament"}
-          </button>
-          {showForm && <TournamentForm onSubmit={handleFormSubmit} />}
-        </div>
-        {!showForm && (
-          <div className="relative">
-            <SearchPlayerForm />
+      <div className="flex flex-row w-full">
+        <header
+          className="header relative flex justify-between items-center w-full"
+          style={{ height: "80px" }}
+        >
+          <div className="flex items-center">
+            <button
+              onClick={() => setShowForm(!showForm)}
+              className="rounded-md bg-blue-500 text-white px-4 py-2 mt-4 ml-4 absolute top-0 left-0 z-10"
+            >
+              {showForm ? "Close Form" : "Create Tournament"}
+            </button>
+            {showForm && <TournamentForm onSubmit={handleFormSubmit} />}
           </div>
-        )}
-      </header>
+          {!showForm && (
+            <div className="relative">
+              <SearchPlayerForm />
+            </div>
+          )}
+        </header>
+        <button className="w-[100px] bg-red-600" onClick={() => auth.signOut()}>
+          Sign Out
+        </button>
+      </div>
 
       <div className="main">
         <div className="content w-3/4">

@@ -26,13 +26,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       setCurrentUser(user);
 
       if (user) {
-        if (isLoggedIn === false) {
-          setIsLoggedIn(true);
-        }
+        setIsLoggedIn(true);
       } else {
-        if (isLoggedIn === true) {
-          setIsLoggedIn(false);
-        }
+        setIsLoggedIn(false);
       }
     });
 
