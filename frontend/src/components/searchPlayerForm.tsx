@@ -19,8 +19,9 @@ function SearchPlayerForm() {
       navigate(`/player/${displayName}`, { state: { playerData } });
     } catch (error) {
       console.error('Error fetching player data:', error);
-      // Handle error (e.g., display error message to user)
-    }
+      alert('Player not found');
+		}
+	
   };
 
   return (
