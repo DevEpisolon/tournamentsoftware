@@ -58,12 +58,6 @@ async def collect_players():
         else:
             print("Player not found. Please try again.")
     return temp_players
-    '''
-    players = await tourney_players()
-    for i in players:
-        print(i.displayname)
-    
-    '''
 
 def play_tournament(tournament):
 
