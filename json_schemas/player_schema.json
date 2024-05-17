@@ -1,0 +1,30 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": ["playername", "displayname", "uniqueid", "email", "join_date", "stats", "match_history"],
+    "properties": {
+      "playername": {"bsonType": "string"},
+      "displayname": {"bsonType": "string"},
+      "uniqueid": {"bsonType": "string"},
+      "email": {"bsonType": "string"},
+      "avatar": {"bsonType": ["string", "null"]}, 
+      "join_date": {"bsonType": ["date", "null"]},
+      "stats": {
+        "bsonType": "object",
+        "required": ["wins", "losses", "ties", "wlratio", "winstreaks", "current_tournament_wins", "current_tournament_losses", "current_tournament_ties"],
+        "properties": {
+          "wins": {"bsonType": "int"},
+          "losses": {"bsonType": "int"},
+          "ties": {"bsonType": "int"},
+          "wlratio": {"bsonType": "double"},
+          "winstreaks": {"bsonType": "int"},
+          "current_tournament_wins": {"bsonType": "int"},
+          "current_tournament_losses": {"bsonType": "int"},
+          "current_tournament_ties": {"bsonType": "int"}
+        }
+      },
+      "match_history": {"bsonType": "array", "items": {"bsonType": "string"}}
+    }
+  }
+}
+
