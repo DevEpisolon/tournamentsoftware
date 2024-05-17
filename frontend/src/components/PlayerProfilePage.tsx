@@ -1,23 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 
 // Default blank image URL
-const DEFAULT_IMAGE_URL = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+const DEFAULT_IMAGE_URL =
+  "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
 
 const PlayerProfilePage: React.FC = () => {
   const { playername } = useParams<{ playername: string }>();
   const [playerData, setPlayerData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPlayerData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/players/get_player/${playername}`);
+        const response = await axios.get(
+          `http://localhost:8000/api/players/get_player/${playername}`
+        );
         setPlayerData(response.data);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching player data:', error);
+        console.error("Error fetching player data:", error);
         setLoading(false);
       }
     };
@@ -26,7 +30,7 @@ const PlayerProfilePage: React.FC = () => {
   }, [playername]);
 
   const handleGoBack = () => {
-    window.history.back();
+    navigate("/");
   };
 
   if (loading) {
@@ -34,7 +38,9 @@ const PlayerProfilePage: React.FC = () => {
   }
 
   if (!playerData) {
-    return <div className="container mx-auto mt-8 text-center">Player not found</div>;
+    return (
+      <div className="container mx-auto mt-8 text-center">Player not found</div>
+    );
   }
 
   // Use the player's image if available, otherwise use the default blank image
@@ -42,11 +48,18 @@ const PlayerProfilePage: React.FC = () => {
 
   return (
     <div className="container mx-auto mt-8 relative">
-      <button className="absolute top-3 left-4 bg-pink-700 font-bold text-white px-3 py-2 rounded" onClick={handleGoBack}>
+      <button
+        className="absolute top-3 left-4 bg-pink-700 font-bold text-white px-3 py-2 rounded"
+        onClick={handleGoBack}
+      >
         Back
       </button>
       <header className="text-center mb-8">
-        <img src={playerImage} alt="Player Avatar" className="rounded-full w-32 h-32 mx-auto mb-4" />
+        <img
+          src={playerImage}
+          alt="Player Avatar"
+          className="rounded-full w-32 h-32 mx-auto mb-4"
+        />
         <h1 className="text-4xl font-bold">{playerData.displayname}</h1>
         <p className="text-sm italic">Joined: {playerData.join_date}</p>
       </header>
@@ -77,4 +90,3 @@ const PlayerProfilePage: React.FC = () => {
 };
 
 export default PlayerProfilePage;
-

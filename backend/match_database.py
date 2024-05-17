@@ -25,7 +25,7 @@ class MatchDatabase:
     
 MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftware.l9dyjo7.mongodb.net/?retryWrites=true&w=majority"
 client = MongoClient(MONGODB_CONNECTION_STRING)
-db = client["tournamentSoftware"]
+db = client["tournamentsoftware"]
 match_collection = db["matches"]
     
 match_db = MatchDatabase()
@@ -45,7 +45,7 @@ def get_matches_by_player(displayname: str):
     return format(matches)
 
 @match_router.post("/match")
-def post_match(match: dict):
+async def post_match(match: dict):
     match_collection.insert_one(match)
     return "Successfully added match"
 
@@ -62,11 +62,12 @@ async def update_match(match_id: str, update_fields: dict):
 
 @match_router.post("/matches/")
 async def create_match(match_data: dict):
-    return await match_db.create_match(match_data)
+    print(match_data)
+    return match_db.create_match(match_data)
 
 @match_router.get("/matches/{matchid}/")
 async def read_match(matchid: int):
-    return match_db.get_match(matchid)
+    return await match_db.get_match(matchid)
 
 @match_router.put("/match/{matchid}/promote_player/{winner}")
 async def promote_player(matchid, displayname):

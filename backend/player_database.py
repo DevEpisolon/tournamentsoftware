@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException
 from pymongo import MongoClient
 from mongo import MongoDB
 from player import Player
+from utils import format
 
 # Initialize FastAPI app
 player_router = APIRouter()
@@ -76,22 +77,42 @@ async def get_player(displayname: str):
         raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
 
 
+@player_router.get("/player/email/{email}")
+async def get_player_by_email(email: str):
+    player_document = db.players.find_one({"email": email})
+    if player_document:
+        return format(player_document)
+    else:
+        raise HTTPException(status_code=404, detail=f"Player with email '{email}' not found.")
+
+
 '''For regular users to register as a Player/create an account.'''
 @player_router.post("/players/register_player")
-async def register_player():
-    playername = input("Enter name: ")
-    displayname = input("Enter display name: ")
+async def register_player(body: dict):
+    # playername = input("Enter name: ")
+    # displayname = input("Enter display name: ")
 
-    new_player = Player(playername=playername, displayname=displayname)
+    playername = body.get("playername")
+    displayname = body.get("displayname")   
+    email = body.get("email")
+
+    new_player = Player(playername=playername, displayname=displayname, email=email)
 
     # Convert player to document
     player_document = player_to_document(new_player)
 
-    check = input("Add player to database? (Y/N): ")
+    # check = input("Add player to database? (Y/N): ")
 
-    if check == "Y":
-        # Insert player into database
-        db.players.insert_one(player_document)
+    cursor = db.players.find_one({"displayname": displayname})
+
+    if cursor: 
+        raise HTTPException(status_code=400, detail="Player already exists")
+
+    # if check == "Y":
+    #     # Insert player into database
+    db.players.insert_one(player_document)
+
+    return "Player created an registered"
 
     print("Player created and registered.")
 
