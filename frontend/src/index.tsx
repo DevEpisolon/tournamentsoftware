@@ -9,6 +9,7 @@ import { AuthProvider } from "./utils/AuthContext";
 import ProtectedRouter from "./utils/ProtectedRoute";
 import SignIn from "./components/SignIn";
 import SignUp from "./SignUp";
+import RegisterPlayer from "./components/RegisterPlayer";
 
 const Index = () => {
   return (
@@ -25,6 +26,7 @@ const Index = () => {
           </Route>
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/registerPlayer" element={<RegisterPlayer />} />
         </Routes>
       </Router>
     </AuthProvider>
