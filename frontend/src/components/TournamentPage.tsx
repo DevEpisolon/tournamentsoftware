@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams} from 'react-router-dom';
 import axios from 'axios';
 import { History } from 'history'; 
+import { useNavigate } from 'react-router-dom';
 
 interface Player {
   displayname: string;
@@ -55,6 +56,7 @@ const TournamentPage: React.FC = () => {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [playersInTournament, setPlayersInTournament] = useState<Player[]>([]);
   const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTournamentData = async () => {
@@ -107,6 +109,7 @@ const deleteTournament = async () => {
     if (playersInTournament.length === tournament?.MaxSlotsCount) {
       console.log('Starting tournament...');
       // Implement start functionality
+      navigate(`/tournament/${tournamentId}/bracket`);
     } else {
       alert('The tournament lobby is not full. Please add more players before starting the tournament.');
     }
