@@ -84,14 +84,16 @@ const TournamentPage: React.FC = () => {
     fetchPlayers();
   }, []);
 
-  const addPlayerToTournament = (player: Player) => {
+  const addPlayerToTournament = async (player: Player) => {
     setPlayersInTournament([...playersInTournament, player]);
+    await axios.put(`http://localhost:8000/api/add_player/${tournamentId}/${player.displayname}`);
     setAvailablePlayers(availablePlayers.filter(p => p.displayname !== player.displayname));
   };
 
-  const removePlayerFromTournament = (player: Player) => {
+  const removePlayerFromTournament = async (player: Player) => {
     setPlayersInTournament(playersInTournament.filter(p => p.displayname !== player.displayname));
     setAvailablePlayers([...availablePlayers, player]);
+    await axios.put(`http://localhost:8000/api/remove_player/${tournamentId}/${player.displayname}`);
   };
 
 const deleteTournament = async () => {
