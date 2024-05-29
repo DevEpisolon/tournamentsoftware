@@ -18,7 +18,7 @@ tournaments_collection = db["tournaments"]
 
 #db = MongoDB().getDb()
 #tournaments_collection = db["tournaments"]
-#players_collection = db["players"]
+players_collection = db["players"]
 
 
 def document_to_tournament(tournament_document):
@@ -88,7 +88,7 @@ def create_tournament(tournament_name: str, max_slots: int):
     tournaments_collection.insert_one(tournament_data)
 
 
-tournament_router.put("/add_player/{tournament_id}/{player_display_name}")
+@tournament_router.put("/add_player/{tournament_id}/{player_display_name}")
 def add_player_to_tournament_by_display_name(tournament_id: str, player_display_name: str):
     tournament_data = tournaments_collection.find_one({"_id": ObjectId(tournament_id)})
     if tournament_data is None:
