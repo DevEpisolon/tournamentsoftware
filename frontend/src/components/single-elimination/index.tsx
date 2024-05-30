@@ -1,13 +1,4 @@
-
-//I commented it out as it was giving me errors i think you need to grab a fastapi call to grab all the players in a certain tournament id which is sent to you 
-
-
-
-
 //Makes a bracket for Single elimination and assumes each round has 2 players/teams
-//Need 
-
-
 import React, { useState, useEffect } from 'react';
 import { Bracket, Seed, SeedItem, SeedTeam, SeedTime, IRoundProps, IRenderSeedProps, ISeedProps } from 'react-brackets';
 import './index.css'; // Importing tailwin CSS file for styling
@@ -29,7 +20,7 @@ const GeneratedRounds = (player_count: number): IRoundProps[] => {
     
     for (let j = 1; j <= player_per_round; j++){
       const seed: ISeedProps = {
-        id: 1,
+        id: j,
         teams: [],
         date: new Date().toDateString()
       }
@@ -41,38 +32,6 @@ const GeneratedRounds = (player_count: number): IRoundProps[] => {
   return rounds;
 };
 
-//Function to generate player names in the bracket seeds
-/*
-const GeneratePlayers = (rounds: IRoundProps[], players: string[]) => {
-  let player_index = 0;
-  let round = rounds[0]; //Grabs first round
-
-  //Calculate the next power of 2
-  const nextPowerOf2 = Math.pow(2, Math.ceil(Math.log(players.length) / Math.log(2)));
-
-  // Calculate the number of byes
-  const byes = nextPowerOf2 - players.length;
-
-  for (let i = 0; i < round.seeds.length; i++){
-    for (let j = 0; j < 2; j++){
-      if (player_index < players.length) {
-        // Assign a player
-        let player_to_add = { name: players[player_index], id: player_index + 1 };
-        round.seeds[i].teams.push(player_to_add);
-        player_index++;
-      } else {
-        // Assign a bye
-        round.seeds[i].teams.push({ name: 'Bye', id: 0 });
-      }
-    }
-  }
-
-  rounds[0] = round;
-  
-  return rounds;
-};
-*/
-
 const GeneratePlayers = (rounds: IRoundProps[], players: string[]) => {
   let player_index = 0;
   rounds.forEach((round) => {
@@ -83,8 +42,6 @@ const GeneratePlayers = (rounds: IRoundProps[], players: string[]) => {
             let player_to_add = { name: players[player_index], id: player_index + 1 };
             seed.teams.push(player_to_add);
             player_index++;
-          } else {
-            seed.teams.push({ name: 'Bye', id: 0 });
           }
         }
       });
@@ -93,7 +50,12 @@ const GeneratePlayers = (rounds: IRoundProps[], players: string[]) => {
   return rounds;
 };
 
-const RenderSeed = ({ breakpoint, seed, selectedSeed, setSelectedSeed}: IExtendedRenderSeedProps) => {
+const RenderSeed = ({ breakpoint, seed, selectedSeed, setSelectedSeed, roundIndex, seedIndex, promotePlayerCallback}: IExtendedRenderSeedProps) => {
+
+  const promotePlayer = (winner: { [key: string]: any; name?: string | undefined; } | undefined) => {
+    promotePlayerCallback(winner, roundIndex, seedIndex);
+  };
+
   return (
     <Seed mobileBreakpoint={breakpoint} className='relative flex items-center'>
       <SeedTime mobileBreakpoint={breakpoint} style={{ fontSize: 9 }}>
@@ -131,9 +93,11 @@ const RenderSeed = ({ breakpoint, seed, selectedSeed, setSelectedSeed}: IExtende
         </div>
         ) : (
           <div className='relative top-5'>
-            <div className='visible'>
-              <p>Promote: {seed.teams?.[0]?.name}</p>
-              <p>Promote: {seed.teams?.[1]?.name}</p>
+            <div className='visible flex flex-col items-center'>
+              <button className='outline outline-2 outline-offset-2 w-[160px] mb-2 mx-2 hover:bg-lime-400' onClick={() => promotePlayer(seed.teams?.[0])}>
+                Promote: {seed.teams?.[0]?.name}</button>
+              <button className='outline outline-2 outline-offset-2 w-[160px] mb-2 mx-2 hover:bg-lime-400' onClick={() => promotePlayer(seed.teams?.[1])}>
+                Promote: {seed.teams?.[1]?.name}</button>
             </div>
           </div>
         )}
@@ -144,18 +108,27 @@ const RenderSeed = ({ breakpoint, seed, selectedSeed, setSelectedSeed}: IExtende
 interface IExtendedRenderSeedProps extends IRenderSeedProps {
   selectedSeed: boolean;
   setSelectedSeed: (value: boolean) => void;
+  promotePlayerCallback: (winner: { [key: string]: any; name?: string | undefined; } | undefined, roundIndex: number, seedIndex: number) => void;
 }
 
 const SingleElimination: React.FC = () => {
-  //const { tournamentId } = useParams<{ tournamentId: string }>();
+  const { tournamentId } = useParams<{ tournamentId: string }>();
   const [players, setPlayers] = useState<string[]>([]);
   const [selectedSeed, setSelectedSeed] = useState(false);
+  const [rounds, setRounds] = useState<IRoundProps[]>([]);
 
+  //Function to update rounds
+  const updateRounds = (rounds: IRoundProps[]) => {
+    setRounds(rounds);
+  };
+
+  //Fetches players from the backend. Right now it is hardcoded to grab all the players in the database
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/players/all`);
-        const playerData = response.data as any[]; // Assuming the response data is an array of player objects
+        const tournament = await axios.get(`http://localhost:8000/api/tournaments/${tournamentId}`);
+        const playerIds = tournament.data.Players;
+        const playerData = playerIds as any[]; // Assuming the response data is an array of player objects
         const playerNames = playerData.map((player: any) => player.displayname); // Extract display names
         setPlayers(playerNames);
         console.log(playerNames);
@@ -167,14 +140,42 @@ const SingleElimination: React.FC = () => {
     fetchPlayers();
   }, []);
 
-  let rounds = GeneratedRounds(players.length);
-  rounds = GeneratePlayers(rounds, players);
+  //This is use to start generating rounds and to add players to the bracket
+  useEffect(() => {
+    let update_rounds = GeneratedRounds(players.length);
+    update_rounds = GeneratePlayers(update_rounds, players);
+    updateRounds(update_rounds);
+  }, [players]);
+
+  //This is for promoting players to the next round
+  const promotePlayerCallback = (winner: { [key: string]: any; name?: string | undefined; } | undefined, roundIndex: number, seedIndex: number) => {
+    // Get next round
+    const nextRound = rounds[roundIndex + 1];
+    if (!nextRound) {
+      return;
+    }
+    // Get next seed index
+    const nextSeedIndex = Math.floor(seedIndex / 2);
+    const nextSeed = nextRound.seeds[nextSeedIndex];
+    if (!nextSeed) {
+      return;
+    }
+    // Add the winner to the next seed
+    nextSeed.teams.push(winner!);
+    // Make a copy of rounds
+    const updatedRounds = [...rounds];
+    // Update the next round
+    updatedRounds[roundIndex + 1] = nextRound;
+    setRounds(updatedRounds);
+  };
   
   return (
     <div>
       <Bracket
       mobileBreakpoint={767}
       rounds={rounds} //Makes rounds bracket based on player size
+      //props for rendering the seed and it is built in the react-brackets library
+      //any other paramater is passed to the RenderSeed function
       renderSeedComponent={(props) => (
         <RenderSeed
           seed={props.seed}
@@ -183,6 +184,7 @@ const SingleElimination: React.FC = () => {
           seedIndex={props.seedIndex}
           selectedSeed={selectedSeed}
           setSelectedSeed={(value) => setSelectedSeed(value) }
+          promotePlayerCallback={promotePlayerCallback}
         />
       )}
       swipeableProps={{ enableMouseEvents: true, animateHeight: true }}

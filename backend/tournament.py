@@ -251,8 +251,7 @@ class Tournament:
         print("Team Boolean:", self.TeamBoolean)
         print("Alloted Match Time:", self.AllotedMatchTime)
         print("Players:", self.Players)
-    
-    # Method to convert the Tournament object to a dictionary
+  
     def to_dict(self):
         return {
             "tournamentName": self.tournamentName,
@@ -274,3 +273,4 @@ class Tournament:
             "losses_dict": self.losses_dict,
             "ties_dict": self.ties_dict
         }
+

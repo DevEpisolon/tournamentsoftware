@@ -13,13 +13,15 @@ function SearchPlayerForm() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const response = await axios.get(`http://localhost:8000/api/players/${displayName}`);
+      const response = await axios.get(`http://localhost:8000/api/players/get_player/${displayName}`);
       const playerData = response.data;
+      console.log('Player data:', playerData); // Log playerData to check if it's retrieved successfully
       navigate(`/player/${displayName}`, { state: { playerData } });
     } catch (error) {
       console.error('Error fetching player data:', error);
-      // Handle error (e.g., display error message to user)
-    }
+      alert('Player not found');
+		}
+	
   };
 
   return (

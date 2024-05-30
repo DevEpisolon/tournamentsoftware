@@ -1,17 +1,20 @@
 import asyncio
 from fastapi import APIRouter, HTTPException
 from pymongo import MongoClient
+from mongo import MongoDB
 from player import Player
+from utils import format
 
 # Initialize FastAPI app
 player_router = APIRouter()
 
-# MongoDB Atlas connection string
+# # MongoDB Atlas connection string
 MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftware.l9dyjo7.mongodb.net/?retryWrites=true&w=majority&appName=tournamentsoftware"
-# Replace <username>, <password>, <cluster-url>, and <dbname> with your actual MongoDB Atlas credentials and database name
+# # Replace <username>, <password>, <cluster-url>, and <dbname> with your actual MongoDB Atlas credentials and database name
 
-# Establish connection to MongoDB Atlas
+# # Establish connection to MongoDB Atlas
 client = MongoClient(MONGODB_CONNECTION_STRING)
+#client = MongoDB().getDb()
 db = client["tournamentsoftware"]
 players_collection = db["players"]
 
@@ -63,39 +66,53 @@ def document_to_player(player_document):
         return None
 
 
-# Define a handler for the root URL
-@player_router.get("/")
-async def root():
-    return {"message": "Welcome to the Tournament Software!"}
-
-
-'''FastAPI route to retrieve a player document from MongoDB then convert it to player object'''
 @player_router.get("/players/get_player/{displayname}")
 async def get_player(displayname: str):
     player_document = db.players.find_one({"displayname": displayname})
     player = document_to_player(player_document)
-    # add a .lower function for player and searching since displayname will be unique and case sensitivity won't matter
     if player:
-        return player
+        # Return player object including avatar
+        return player.__dict__
     else:
         raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
 
+
+@player_router.get("/player/email/{email}")
+async def get_player_by_email(email: str):
+    player_document = db.players.find_one({"email": email})
+    if player_document:
+        return format(player_document)
+    else:
+        raise HTTPException(status_code=404, detail=f"Player with email '{email}' not found.")
+
+
 '''For regular users to register as a Player/create an account.'''
 @player_router.post("/players/register_player")
-async def register_player():
-    playername = input("Enter name: ")
-    displayname = input("Enter display name: ")
+async def register_player(body: dict):
+    # playername = input("Enter name: ")
+    # displayname = input("Enter display name: ")
 
-    new_player = Player(playername=playername, displayname=displayname)
+    playername = body.get("playername")
+    displayname = body.get("displayname")   
+    email = body.get("email")
+
+    new_player = Player(playername=playername, displayname=displayname, email=email)
 
     # Convert player to document
     player_document = player_to_document(new_player)
 
-    check = input("Add player to database? (Y/N): ")
+    # check = input("Add player to database? (Y/N): ")
 
-    if check == "Y":
-        # Insert player into database
-        db.players.insert_one(player_document)
+    cursor = db.players.find_one({"displayname": displayname})
+
+    if cursor: 
+        raise HTTPException(status_code=400, detail="Player already exists")
+
+    # if check == "Y":
+    #     # Insert player into database
+    db.players.insert_one(player_document)
+
+    return "Player created an registered"
 
     print("Player created and registered.")
 
