@@ -173,3 +173,4 @@ Thumbs.db
 Tournament_ERD.png
 Tournament_UML.png
 node_modules
+backend/firebase_key.json
