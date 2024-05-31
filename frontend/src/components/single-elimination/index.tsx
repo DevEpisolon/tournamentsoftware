@@ -122,7 +122,10 @@ const SingleElimination: React.FC = () => {
     setRounds(rounds);
   };
 
-  //Fetches players from the backend. Right now it is hardcoded to grab all the players in the database
+  //Function to create matches in the tournament through the API
+  
+
+  //Fetches players from the tournament
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
