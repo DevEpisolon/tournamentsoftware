@@ -8,7 +8,7 @@ module.exports = {
       },
     },
   },
-   variants: {
+  variants: {
     extend: {},
   },
   plugins: [],
