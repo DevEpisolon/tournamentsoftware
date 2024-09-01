@@ -8,16 +8,20 @@ from player import Player
 from player_database import *
 from match_database import *
 import asyncio
+from dotenv import load_dotenv
+import os
 
 tournament_router = APIRouter()
 
-MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftware.l9dyjo7.mongodb.net/?retryWrites=true&w=majority"
+load_dotenv()
+
+MONGODB_CONNECTION_STRING = os.getenv("MONGODB_URI")
 client = MongoClient(MONGODB_CONNECTION_STRING)
 db = client["tournamentsoftware"]
 tournaments_collection = db["tournaments"]
 
-#db = MongoDB().getDb()
-#tournaments_collection = db["tournaments"]
+# db = MongoDB().getDb()
+# tournaments_collection = db["tournaments"]
 players_collection = db["players"]
 
 
@@ -28,13 +32,15 @@ def document_to_tournament(tournament_document):
         print("Tournament not found.")
         return None
 
+
 def create_tournament_object(tournament_data):
     if tournament_data:
-        tournament_data.pop('_id', None)  # Remove _id field from the data
+        tournament_data.pop("_id", None)  # Remove _id field from the data
         return Tournament(**tournament_data)
     else:
         print("Tournament data is None.")
         return None
+
 
 def fetch_tournament_data_from_database(tournament_id: str):
     try:
@@ -43,6 +49,7 @@ def fetch_tournament_data_from_database(tournament_id: str):
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid tournament ID")
 
+
 @tournament_router.get("/tournaments/{item_id}")
 def get_tournament_byid(item_id: str):
     tournament_data = fetch_tournament_data_from_database(item_id)
@@ -50,14 +57,19 @@ def get_tournament_byid(item_id: str):
         raise HTTPException(status_code=404, detail="Tournament not found!")
     return create_tournament_object(tournament_data)
 
+
 @tournament_router.get("/tournaments")
 def view_tournaments():
     tournament_data = list(tournaments_collection.find({}))
     if not tournament_data:
         raise HTTPException(status_code=404, detail="No tournaments found")
     # Include the MongoDB _id in the response
-    tournaments = [{"_id": str(tournament.pop("_id")), **tournament} for tournament in tournament_data]
+    tournaments = [
+        {"_id": str(tournament.pop("_id")), **tournament}
+        for tournament in tournament_data
+    ]
     return tournaments
+
 
 @tournament_router.post("/tournaments/create/{tournament_name}:{max_slots}")
 def create_tournament(tournament_name: str, max_slots: int):
@@ -79,7 +91,7 @@ def create_tournament(tournament_name: str, max_slots: int):
         droppedPlayers=[],
         wins_dict={},
         losses_dict={},
-        ties_dict={}
+        ties_dict={},
     )
 
     tournament_data = tournament.to_dict()
@@ -89,16 +101,25 @@ def create_tournament(tournament_name: str, max_slots: int):
 
 
 @tournament_router.put("/add_player/{tournament_id}/{player_display_name}")
-def add_player_to_tournament_by_display_name(tournament_id: str, player_display_name: str):
+def add_player_to_tournament_by_display_name(
+    tournament_id: str, player_display_name: str
+):
     # Ensure that the tournament_data retrieved from the database does not contain '_id' attribute
-    tournament_data = tournaments_collection.find_one({"_id": ObjectId(tournament_id)}, {"_id": 0})
+    tournament_data = tournaments_collection.find_one(
+        {"_id": ObjectId(tournament_id)}, {"_id": 0}
+    )
 
     if tournament_data is None:
         raise HTTPException(status_code=404, detail="Tournament not found!")
 
-    player_data = players_collection.find_one({"displayname": player_display_name}, {"_id": 0})
+    player_data = players_collection.find_one(
+        {"displayname": player_display_name}, {"_id": 0}
+    )
     if player_data is None:
-        raise HTTPException(status_code=404, detail=f"Player with display name {player_display_name} not found!")
+        raise HTTPException(
+            status_code=404,
+            detail=f"Player with display name {player_display_name} not found!",
+        )
 
     # Create Player object
     player = Player(**player_data)
@@ -107,7 +128,7 @@ def add_player_to_tournament_by_display_name(tournament_id: str, player_display_
     player_dict = player.__dict__
 
     # Remove _id field from player_dict if present
-    player_dict.pop('_id', None)
+    player_dict.pop("_id", None)
 
     tournament = Tournament(**tournament_data)
 
@@ -115,22 +136,32 @@ def add_player_to_tournament_by_display_name(tournament_id: str, player_display_
 
     tournaments_collection.update_one(
         {"_id": ObjectId(tournament_id)},
-        {"$set": {"Players": tournament.get_Players()}}
+        {"$set": {"Players": tournament.get_Players()}},
     )
 
     return {"message": f"Player {player_display_name} added to tournament successfully"}
 
+
 @tournament_router.put("/remove_player/{tournament_id}/{player_display_name}")
-def remove_player_from_tournament_by_display_name(tournament_id: str, player_display_name: str):
+def remove_player_from_tournament_by_display_name(
+    tournament_id: str, player_display_name: str
+):
     # Ensure that the tournament_data retrieved from the database does not contain '_id' attribute
-    tournament_data = tournaments_collection.find_one({"_id": ObjectId(tournament_id)}, {"_id": 0})
+    tournament_data = tournaments_collection.find_one(
+        {"_id": ObjectId(tournament_id)}, {"_id": 0}
+    )
 
     if tournament_data is None:
         raise HTTPException(status_code=404, detail="Tournament not found!")
 
-    player_data = players_collection.find_one({"displayname": player_display_name}, {"_id": 0})
+    player_data = players_collection.find_one(
+        {"displayname": player_display_name}, {"_id": 0}
+    )
     if player_data is None:
-        raise HTTPException(status_code=404, detail=f"Player with display name {player_display_name} not found!")
+        raise HTTPException(
+            status_code=404,
+            detail=f"Player with display name {player_display_name} not found!",
+        )
 
     # Create Player object
     player = Player(**player_data)
@@ -139,7 +170,7 @@ def remove_player_from_tournament_by_display_name(tournament_id: str, player_dis
     player_dict = player.__dict__
 
     # Remove _id field from player_dict if present
-    player_dict.pop('_id', None)
+    player_dict.pop("_id", None)
 
     tournament = Tournament(**tournament_data)
 
@@ -147,10 +178,13 @@ def remove_player_from_tournament_by_display_name(tournament_id: str, player_dis
 
     tournaments_collection.update_one(
         {"_id": ObjectId(tournament_id)},
-        {"$set": {"Players": tournament.get_Players()}}
+        {"$set": {"Players": tournament.get_Players()}},
     )
 
-    return {"message": f"Player {player_display_name} removed from tournament successfully"}
+    return {
+        "message": f"Player {player_display_name} removed from tournament successfully"
+    }
+
 
 @tournament_router.put("/tournament_remove/{tournament_id}")
 def delete_tournament_by_id(tournament_id: str):
@@ -160,6 +194,7 @@ def delete_tournament_by_id(tournament_id: str):
         raise HTTPException(status_code=404, detail="Tournament not found!")
     else:
         return {"message": "Tournament deleted successfully"}
+
 
 def tournament_to_document(tournament):
 
@@ -184,11 +219,14 @@ def tournament_to_document(tournament):
         "max_rounds": tournament.max_rounds,
     }
 
+
 @tournament_router.put("/create_matches/{tournament_id}")
 async def create_matches(tournament_id):
     tournament = await get_tournament_byid(tournament_id)
     tournament.createMatches()
     updated_tournament = tournament_to_document(tournament)
-    tournament_collection.replace_one({"_id": ObjectId(tournament_id)}, updated_tournament)
+    tournament_collection.replace_one(
+        {"_id": ObjectId(tournament_id)}, updated_tournament
+    )
     for match in tournament.matches:
         await post_match(match_to_document(match))
