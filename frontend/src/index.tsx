@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import App from "./App";
 import PlayerProfilePage from "./components/PlayerProfilePage";
@@ -37,4 +37,7 @@ const Index = () => {
   );
 };
 
-ReactDOM.render(Index(), document.getElementById("root"));
+// React 18 method to render and manage roots
+const container = document.getElementById('root');
+const root = createRoot(container!) //createRoot replaces ReactDom.render()
+root.render(<Index />);
