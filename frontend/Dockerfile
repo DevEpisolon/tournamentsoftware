@@ -1,13 +1,11 @@
 # Frontend Dockerfile
-FROM node:16-alpine
+FROM node:latest
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY . .
 
 RUN npm install --force
-
-COPY . .
 
 RUN npm run build
 
