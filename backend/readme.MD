@@ -1,3 +1,10 @@
+# How to run
+### 1. Frontend
+- Pre-requisite:
+  - Download [node.js](https://nodejs.org/en)
+  - For clean installation run `rm -rf node_modules package-lock.json` from the terminal while in the frontend folder.
+- Run `npm install` inside frontend folder to download all the dependency and setup the project.
+- Run `npm start` to run our project.
 # Backend main-
 - main.py uses other files to generates an empty tournament using existing menu options.
 - the main functions gives option to add players to the tournament once an empty tournament is created
