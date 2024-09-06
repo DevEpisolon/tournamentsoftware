@@ -18,3 +18,5 @@
 Contains functions utilizing API calls required for the handling of tournaments between backend to frontend.
 # match.py
 - Handles how matches are made and connected to each other. For example, the first round of a tournament going into the first match of round 2.
+# player.py
+Creates player object and assigns it with various attributes. Attributes with no provided values are assigned with a default null. Contains various functions to alter player objects' attributes.
