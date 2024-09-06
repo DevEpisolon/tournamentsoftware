@@ -1,5 +1,4 @@
 # How to run
-### Backend
 - Pre-requisite:
   - Install [python](https://www.python.org/). For compatibility download version > 3.10.
   - In the backend folder of the project init a venv using `python3 -m venv .venv`
