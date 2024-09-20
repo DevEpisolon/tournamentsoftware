@@ -58,29 +58,29 @@ const PlayerProfilePage: React.FC = () => {
         <img
           src={playerImage}
           alt="Player Avatar"
-          className="rounded-full w-32 h-32 mx-auto mb-4"
+          className="rounded-full w-32 h-32 mx-auto mb-4 border-4 border-black"
         />
         <h1 className="text-4xl font-bold">{playerData.displayname}</h1>
         <p className="text-sm italic">Joined: {playerData.join_date}</p>
       </header>
-      <div className="bg-gray-100 p-4 rounded-md shadow-md">
+      <div className=" border-4 border-black bg-gray-100 p-4 rounded-md shadow-md">
         <h2 className="text-lg font-semibold mb-2">About Me</h2>
         {/* Add more player details as needed */}
       </div>
       <div className="grid grid-cols-2 gap-4 mt-8">
-        <div className="bg-blue-100 p-2 rounded-md shadow-md">
+        <div className="border-custom-border border-black g-blue-100 p-2 rounded-md shadow-md transition-transform duration-300 hover:scale-105">
           <h2 className="text-lg font-semibold mb-2">Wins</h2>
           <p className="text-xl">{playerData.wins}</p>
         </div>
-        <div className="bg-green-100 p-2 rounded-md shadow-md">
+        <div className="border-4 border-black g-green-100 p-2 rounded-md shadow-md transition-transform duration-300 hover:scale-105">
           <h2 className="text-lg font-semibold mb-2">Losses</h2>
           <p className="text-xl">{playerData.losses}</p>
         </div>
-        <div className="bg-yellow-100 p-2 rounded-md shadow-md">
+        <div className="border-4 border-black g-yellow-100 p-2 rounded-md shadow-md transition-transform duration-300 hover:scale-105">
           <h2 className="text-lg font-semibold mb-2">Ties</h2>
           <p className="text-xl">{playerData.ties}</p>
         </div>
-        <div className="bg-blue-100 p-2 rounded-md shadow-md">
+        <div className="border-4 border-black g-blue-100 p-2 rounded-md shadow-md transition-transform duration-300 hover:scale-105">
           <h2 className="text-lg font-semibold mb-2">Winstreak</h2>
           <p className="text-xl">{playerData.winstreaks}</p>
         </div>
