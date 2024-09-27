@@ -71,6 +71,7 @@ const PlayerProfilePage: React.FC = () => {
         <div className="border-custom-border border-black g-blue-100 p-2 rounded-md shadow-md transition-transform duration-300 hover:scale-105">
           <h2 className="text-lg font-semibold mb-2">Wins</h2>
           <p className="text-xl">{playerData.wins}</p>
+          
         </div>
         <div className="border-4 border-black g-green-100 p-2 rounded-md shadow-md transition-transform duration-300 hover:scale-105">
           <h2 className="text-lg font-semibold mb-2">Losses</h2>
