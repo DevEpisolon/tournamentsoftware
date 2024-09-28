@@ -11,28 +11,35 @@ import SignIn from "./components/SignIn";
 import SignUp from "./SignUp";
 import RegisterPlayer from "./components/RegisterPlayer";
 
+const Index = () => {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<ProtectedRouter />}>
+            <Route path="/" element={<App />} />
+            <Route path="/player/:playername" element={<PlayerProfilePage />} />
+            <Route
+              path="/tournament/:tournamentId"
+              element={<TournamentPage />}
+            />
+          </Route>
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/registerPlayer" element={<RegisterPlayer />} />
+
+          {/* <Route
+            //path="/tournament/:tournamentId/bracket"
+            //element={<SingleElimination />}
+          /> */}
+
+        </Routes>
+      </Router>
+    </AuthProvider>
+  )
+}
 createRoot(document.getElementById('root')!).render(
-  <AuthProvider>
-    <Router>
-      <Routes>
-        <Route path="/" element={<ProtectedRouter />}>
-          <Route path="/" element={<App />} />
-          <Route path="/player/:playername" element={<PlayerProfilePage />} />
-          <Route
-            path="/tournament/:tournamentId"
-            element={<TournamentPage />}
-          />
-        </Route>
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/registerPlayer" element={<RegisterPlayer />} />
-
-        {/* <Route
-          //path="/tournament/:tournamentId/bracket"
-          //element={<SingleElimination />}
-        /> */}
-
-      </Routes>
-    </Router>
-  </AuthProvider>
+  <React.StrictMode>
+    <Index />
+  </React.StrictMode>
 )
