@@ -3,7 +3,7 @@ import "./App.css";
 import TournamentForm from "./components/TournamentForm";
 import PlayersList from "./components/PlayersList";
 import axios from "axios";
-//import Tournament from "./components/Tournament";
+import Tournament from "./components/Tournament";
 import TournamentsList from "./components/TournamentsList";
 import SearchPlayerForm from "./components/searchPlayerForm";
 import PlayerProfilePage from "./components/PlayerProfilePage";

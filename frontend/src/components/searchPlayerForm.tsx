@@ -20,8 +20,8 @@ function SearchPlayerForm() {
     } catch (error) {
       console.error('Error fetching player data:', error);
       alert('Player not found');
-		}
-	
+    }
+
   };
 
   return (
@@ -31,7 +31,7 @@ function SearchPlayerForm() {
         value={displayName}
         onChange={handleChange}
         placeholder="Enter Display Name"
-        className="rounded-lg border border-black-700 focus:outline-none focus:border-blue-500 px-4 py-2 w-full mr-2"
+        className="rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 px-4 py-2 w-full mr-2"
         style={{ color: 'black' }} // Set text color to black
       />
       {/* Remove the submit button */}
@@ -40,4 +40,3 @@ function SearchPlayerForm() {
 }
 
 export default SearchPlayerForm;
-

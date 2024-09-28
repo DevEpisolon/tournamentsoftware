@@ -1,9 +1,17 @@
-# How to run the frontend
-Pre-requisite:
-- Download [node.js](https://nodejs.org/en/download/package-manager). 
-- For clean installation run **rm -rf node_modules package-lock.json** from the terminal while in the frontend folder. Note that the package-lock.json file is like a cache of existing node packages that may be outdated.
-- Run **npm install** inside frontend folder to download all the dependency and setup the project.
-- Run **npm start** to run our project.
+# React + TypeScript + Vite
 
-# Suggestions
-- It is recommended to first run the backend in a seperate terminal/command prompt window. Backend setup and documentation will be in the backend/README.md
+## Whats different?
+- Vite is maintained and supports React 18 and all up to date packages
+- TS files will be compiled much faster than Babel 
+- All ts and tsx files will be converted to plain javascript to run on a wider range of browsers
+
+## Commands to know
+- **npm run dev**: Runs frontend in the dev environment. This means that the devpackages in package.json will be used
+- **npm run build**: Runs our frontend in production. This will be what the clients will be able to access
+- **npm run lint**: Prints the output of errors in the code
+
+## Frontend setup
+- Install node from their website
+- If these files are present, delete them: node_modules and package-lock.json
+- run **npm install**
+- run **npm run dev** to start it up

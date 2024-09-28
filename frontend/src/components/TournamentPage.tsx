@@ -58,11 +58,13 @@ const TournamentPage: React.FC = () => {
   const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
   const navigate = useNavigate();
 
+    /*
   useEffect(() => {
     const fetchTournamentData = async () => {
       try {
         const response = await axios.get<Tournament>(`http://localhost:8000/api/tournaments/${tournamentId}`);
         setTournament(response.data);
+        setPlayersInTournament(response.data.Players);
       } catch (error) {
         console.error('Error fetching tournament data:', error);
       }
@@ -82,16 +84,53 @@ const TournamentPage: React.FC = () => {
     };
 
     fetchPlayers();
-  }, []);
+  }, []);*/
 
-  const addPlayerToTournament = (player: Player) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch tournament data
+        const tournamentResponse = await axios.get<Tournament>(`http://localhost:8000/api/tournaments/${tournamentId}`);
+        const tournamentData = tournamentResponse.data;
+        
+        // Fetch all players
+        const playersResponse = await axios.get<Player[]>('http://localhost:8000/api/players/all');
+        const allPlayers = playersResponse.data;
+
+        // Set tournament and players data
+        setTournament(tournamentData);
+        setPlayersInTournament(tournamentData.Players);
+
+        // Filter available players to exclude those already in the tournament
+        const tournamentPlayerNames = new Set(tournamentData.Players.map(player => player.displayname));
+        const filteredAvailablePlayers = allPlayers.filter(player => !tournamentPlayerNames.has(player.displayname));
+        setAvailablePlayers(filteredAvailablePlayers);
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          console.error('Error fetching data:', {
+            message: error.message,
+            status: error.response?.status,
+            data: error.response?.data,
+          });
+        } else {
+          console.error('Unexpected error:', error);
+        }
+      }
+    };
+
+    fetchData();
+  }, [tournamentId]);
+
+  const addPlayerToTournament = async (player: Player) => {
     setPlayersInTournament([...playersInTournament, player]);
+    await axios.put(`http://localhost:8000/api/add_player/${tournamentId}/${player.displayname}`);
     setAvailablePlayers(availablePlayers.filter(p => p.displayname !== player.displayname));
   };
 
-  const removePlayerFromTournament = (player: Player) => {
+  const removePlayerFromTournament = async (player: Player) => {
     setPlayersInTournament(playersInTournament.filter(p => p.displayname !== player.displayname));
     setAvailablePlayers([...availablePlayers, player]);
+    await axios.put(`http://localhost:8000/api/remove_player/${tournamentId}/${player.displayname}`);
   };
 
 const deleteTournament = async () => {
