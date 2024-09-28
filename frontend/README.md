@@ -7,7 +7,7 @@
 
 ## Commands to know
 - **npm run dev**: Runs frontend in the dev environment. This means that the devpackages in package.json will be used
-- **npm run build**: Runs our frontend in production. This will be what the clients will be able to access
+- **npm run build**: Runs our frontend in production. This will be what the clients app will be able to access.
 - **npm run lint**: Prints the output of errors in the code
 
 ## Frontend setup
