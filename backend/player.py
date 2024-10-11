@@ -1,5 +1,5 @@
 class Player:
-    def __init__(self, playername, displayname, uniqueid=None, email=None, avatar=None, join_date=None, # user info
+    def __init__(self, playername, displayname, uniqueid=None, email=None, avatar=None, join_date=None, aboutMe = None# user info
                     wins=0, losses=0, ties=0, wlratio=0, winstreaks=0, match_history=[], # general stats
                     current_tournament_wins=0, current_tournament_losses=0, current_tournament_ties=0): # tourney info
         self.playername = playername
@@ -18,7 +18,7 @@ class Player:
         self.current_tournament_wins = current_tournament_wins
         self.current_tournament_losses = current_tournament_losses
         self.current_tournament_ties = current_tournament_ties
-        
+        self.aboutMe = aboutMe 
 
     # for calling print() on a player
     def __str__(self):
@@ -132,7 +132,15 @@ class Player:
             self.wins -= 1
         else:
             print("Error: Number of wins cannot be negative.")
-
+    
+    def get_aboutMe():
+        return self.aboutMe
+    
+    def set_aboutMe(info):
+        if aboutMe and len(aboutMe) > 25:
+            raise ValueError("About Me section cannot exceed 25 characters.")
+        self.aboutMe = aboutMe
+    
     def increase_losses(self):
         self.losses += 1
 

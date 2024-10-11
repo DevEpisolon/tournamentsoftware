@@ -37,6 +37,7 @@ def player_to_document(player):
         "current_tournament_wins": player.current_tournament_wins,
         "current_tournament_losses": player.current_tournament_losses,
         "current_tournament_ties": player.current_tournament_ties
+        "aboutMe" : player.aboutMe
     }
 
 
@@ -59,6 +60,7 @@ def document_to_player(player_document):
             current_tournament_wins=player_document.get("current_tournament_wins"),
             current_tournament_losses=player_document.get("current_tournament_losses"),
             current_tournament_ties=player_document.get("current_tournament_ties")
+            aboutMe = player_document.get("aboutMe")
         )
         return player
     else:
@@ -115,6 +117,8 @@ async def register_player(body: dict):
     return "Player created an registered"
 
     print("Player created and registered.")
+
+
 
 
 @player_router.post("/players/admin_create_player")
