@@ -175,6 +175,10 @@ Thumbs.db
 #Diagrams
 Tournament_ERD.png
 Tournament_UML.png
+
+#Keys
 node_modules
 firebase_key.json
 package-lock.json
+
+main.tsx.bak
