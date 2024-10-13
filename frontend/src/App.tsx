@@ -6,7 +6,7 @@ import axios from "axios";
 import Tournament from "./components/Tournament";
 import TournamentsList from "./components/TournamentsList";
 import SearchPlayerForm from "./components/searchPlayerForm";
-import PlayerProfilePage from "./components/PlayerProfilePage";
+import PlayerProfilePage from "./routes/PlayerProfilePage";
 import { Routes, Route } from "react-router-dom"; // Remove BrowserRouter import
 import { auth } from "./utils/FirbaseConfig";
 
