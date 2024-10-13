@@ -36,7 +36,7 @@ def player_to_document(player):
         "match_history": player.match_history,
         "current_tournament_wins": player.current_tournament_wins,
         "current_tournament_losses": player.current_tournament_losses,
-        "current_tournament_ties": player.current_tournament_ties
+        "current_tournament_ties": player.current_tournament_ties,
         "aboutMe" : player.aboutMe
     }
 
