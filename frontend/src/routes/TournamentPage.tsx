@@ -3,6 +3,9 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { History } from 'history';
 import { useNavigate } from 'react-router-dom';
+import SideBar, { SideBarItem } from '../components/SideBar';
+import { LuLifeBuoy, LuReceipt, LuBoxes, LuPackage, LuUserCircle, LuBarChart3, LuLayoutDashboard, LuSettings } from 'react-icons/lu'
+import { MdCasino } from 'react-icons/md';
 
 interface Player {
   displayname: string;
@@ -154,48 +157,50 @@ useEffect(() => {
     }
   };
 
-  const handleGoBack = () => {
-    navigate("/");
-  }
-
   return (
-    <div className="bg-gray-900 text-white min-h-screen p-8">
-      <div className="flex justify-between mb-8">
-        <div>
-          <button
-            className="bg-pink-700 font-bold text-white px-3 py-2 rounded"
-            onClick={handleGoBack}
-          >
-            Back
-          </button>
+    <div className="bg-tourney-navy1 text-white p-8 pl-0 pt-0">
+
+      <div className="flex left-10">
+        <div className="fixed">
+          <SideBar>
+            <SideBarItem icon={<LuLayoutDashboard size={20} />} text="Dashboard" link="/" alert />
+            <SideBarItem icon={<MdCasino size={20} />} text="Tournaments" link="/" active />
+            <hr className='my-3' />
+            <SideBarItem icon={<LuSettings size={20} />} text="Settings" link="/" alert />
+            <SideBarItem icon={<LuLifeBuoy size={20} />} text="Help" link='/' />
+          </SideBar>
         </div>
-        <div>
-          <h1 className="text-3xl font-bold">{tournament && tournament.tournamentName}</h1>
-        </div>
-        <div>
-          <button className="bg-red-500 text-white px-4 py-2 mr-2" onClick={deleteTournament}>Delete Tournament</button>
-          <button className="bg-green-500 text-white px-4 py-2" onClick={startTournament}>Start Tournament</button>
-        </div>
-      </div>
-      <div>
-        <h2 className="text-lg font-semibold pb-4">Status: {tournament?.STATUS}</h2>
-      </div>
-      <div className="flex">
-        <div className="w-1/2 pr-4">
-          <h2 className="text-lg font-semibold">Players in Tournament ({playersInTournament.length} / {tournament?.MaxSlotsCount})</h2>
-          <ul className="border border-gray-700 rounded p-2">
-            {playersInTournament.map(player => (
-              <PlayerComponent key={player.displayname} player={player} onClick={() => removePlayerFromTournament(player)} />
-            ))}
-          </ul>
-        </div>
-        <div className="w-1/2 pl-4">
-          <h2 className="text-lg font-semibold">Available Players</h2>
-          <ul className="border border-gray-700 rounded p-2">
-            {availablePlayers.map(player => (
-              <PlayerComponent key={player.displayname} player={player} onClick={() => addPlayerToTournament(player)} />
-            ))}
-          </ul>
+        <div className={`flex-1 pl-20 pt-5`}>
+          <div className={`flex justify-between `}>
+            <div>
+              <h1 className="text-3xl font-bold">{tournament && tournament.tournamentName}</h1>
+            </div>
+            <div>
+              <button className="bg-red-500 text-white px-4 py-2 mr-2" onClick={deleteTournament}>Delete Tournament</button>
+              <button className="bg-green-500 text-white px-4 py-2" onClick={startTournament}>Start Tournament</button>
+            </div>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold pb-4">Status: {tournament?.STATUS}</h2>
+          </div>
+          <div className="flex">
+            <div className="w-1/2 pr-4">
+              <h2 className="text-lg font-semibold">Players in Tournament ({playersInTournament.length} / {tournament?.MaxSlotsCount})</h2>
+              <ul className="border border-gray-700 rounded p-2 bg-tourney-navy2">
+                {playersInTournament.map(player => (
+                  <PlayerComponent key={player.displayname} player={player} onClick={() => removePlayerFromTournament(player)} />
+                ))}
+              </ul>
+            </div>
+            <div className="w-1/2 pl-4">
+              <h2 className="text-lg font-semibold">Available Players</h2>
+              <ul className="border border-gray-700 rounded p-2 bg-tourney-navy2">
+                {availablePlayers.map(player => (
+                  <PlayerComponent key={player.displayname} player={player} onClick={() => addPlayerToTournament(player)} />
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
