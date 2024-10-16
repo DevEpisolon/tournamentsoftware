@@ -1,7 +1,23 @@
 class Player:
-    def __init__(self, playername, displayname, uniqueid=None, email=None, avatar=None, join_date=None, aboutMe = None# user info
-                    wins=0, losses=0, ties=0, wlratio=0, winstreaks=0, match_history=[], # general stats
-                    current_tournament_wins=0, current_tournament_losses=0, current_tournament_ties=0): # tourney info
+    def __init__(
+        self,
+        playername,
+        displayname,
+        uniqueid=None,
+        email=None,
+        avatar=None,
+        join_date=None,
+        aboutMe=None,  # user info
+        wins=0,
+        losses=0,
+        ties=0,
+        wlratio=0,
+        winstreaks=0,
+        match_history=[],  # general stats
+        current_tournament_wins=0,
+        current_tournament_losses=0,
+        current_tournament_ties=0,
+    ):  # tourney info
         self.playername = playername
         self.displayname = displayname
         self.uniqueid = uniqueid
@@ -18,19 +34,25 @@ class Player:
         self.current_tournament_wins = current_tournament_wins
         self.current_tournament_losses = current_tournament_losses
         self.current_tournament_ties = current_tournament_ties
-        self.aboutMe = aboutMe 
+        self.aboutMe = aboutMe
 
     # for calling print() on a player
     def __str__(self):
-        return f'''Dummy Player Info:
+        return f"""Dummy Player Info:
             Player: {self.displayname}-{self.playername} | ID: {self.uniqueid}
             Email: {self.email} | Join Date: {self.join_date}
             Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlratio}%
-            '''
+            """
 
     @classmethod
     def create_dummy(cls, playername, displayname, wins=0, losses=0, ties=0):
-        return cls(playername=playername, displayname=displayname, wins=wins, losses=losses, ties=ties)
+        return cls(
+            playername=playername,
+            displayname=displayname,
+            wins=wins,
+            losses=losses,
+            ties=ties,
+        )
 
     # Getters
     def get_playername(self):
@@ -132,15 +154,15 @@ class Player:
             self.wins -= 1
         else:
             print("Error: Number of wins cannot be negative.")
-    
+
     def get_aboutMe():
         return self.aboutMe
-    
+
     def set_aboutMe(info):
         if aboutMe and len(aboutMe) > 25:
             raise ValueError("About Me section cannot exceed 25 characters.")
         self.aboutMe = aboutMe
-    
+
     def increase_losses(self):
         self.losses += 1
 
@@ -160,7 +182,7 @@ class Player:
             print("Error: Number of ties cannot be negative.")
 
     def update_wl_ratio(self):
-        self.wlratio = round(self.wins/(self.wins+self.losses) * 100, 1)
+        self.wlratio = round(self.wins / (self.wins + self.losses) * 100, 1)
 
     def update_match_history(self, match):
         pass

@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { useAuth } from "./utils/AuthContext";
+import { useAuth } from "../utils/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
   GoogleAuthProvider,
   signInWithPopup,
   createUserWithEmailAndPassword,
 } from "firebase/auth";
-import { auth } from "../src/utils/FirbaseConfig";
+import { auth } from "../utils/FirbaseConfig";
 // import { Spinner } from "@material-tailwind/react";
 
 // function sleep(ms: number) {
