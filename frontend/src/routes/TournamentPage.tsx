@@ -158,19 +158,17 @@ useEffect(() => {
   };
 
   return (
-    <div className="bg-tourney-navy1 text-white p-8 pl-0 pt-0">
+    <div className="bg-tourney-navy2 text-white p-8 pl-0 pt-0 pb-0">
 
       <div className="flex left-10">
-        <div className="fixed">
-          <SideBar>
-            <SideBarItem icon={<LuLayoutDashboard size={20} />} text="Dashboard" link="/" alert />
-            <SideBarItem icon={<MdCasino size={20} />} text="Tournaments" link="/" active />
-            <hr className='my-3' />
-            <SideBarItem icon={<LuSettings size={20} />} text="Settings" link="/" alert />
-            <SideBarItem icon={<LuLifeBuoy size={20} />} text="Help" link='/' />
-          </SideBar>
-        </div>
-        <div className={`flex-1 pl-20 pt-5`}>
+        <SideBar>
+          <SideBarItem icon={<LuLayoutDashboard size={20} />} text="Dashboard" link="/" alert />
+          <SideBarItem icon={<MdCasino size={20} />} text="Tournaments" link="/" active />
+          <hr className='my-3' />
+          <SideBarItem icon={<LuSettings size={20} />} text="Settings" link="/" alert />
+          <SideBarItem icon={<LuLifeBuoy size={20} />} text="Help" link='/' />
+        </SideBar>
+        <div className={`relative z-0 flex-1 pl-10 pt-5`}>
           <div className={`flex justify-between `}>
             <div>
               <h1 className="text-3xl font-bold">{tournament && tournament.tournamentName}</h1>

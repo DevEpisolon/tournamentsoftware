@@ -21,7 +21,7 @@ export default function SideBar({ children }: SideBarProps): React.ReactNode {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <aside className="h-screen">
+    <aside className="h-screen sticky self-start top-0 transition-width z-20">
       <nav className="h-full flex flex-col bg-tourney-navy1 border-r shadow-sm border-tourney-navy2">
         <div className="p-4 pb-2 flex justify-between items-center">
           <span className={`overflow-hidden transition-all ${expanded ? "w-32" : "w-0"}`}>
