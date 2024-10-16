@@ -10,6 +10,8 @@ const PlayerProfilePage: React.FC = () => {
   const { playername } = useParams<{ playername: string }>();
   const [playerData, setPlayerData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [aboutMe, setAboutMe] = useState<string>("");
+  const [isEditing, setIsEditing] = useState<boolean>(false); // Track editing state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,6 +21,7 @@ const PlayerProfilePage: React.FC = () => {
           `http://localhost:8000/api/players/get_player/${playername}`
         );
         setPlayerData(response.data);
+        setAboutMe(response.data.aboutMe || ""); // Load the initial 'aboutMe' field if it exists
         setLoading(false);
       } catch (error) {
         console.error("Error fetching player data:", error);
@@ -33,6 +36,33 @@ const PlayerProfilePage: React.FC = () => {
     navigate("/");
   };
 
+  // Function to update 'aboutMe' when the user presses Enter
+  const handleAboutMeConfirm = async (
+    e: React.FocusEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>
+  ) => {
+    if (e.type === "blur" || (e as React.KeyboardEvent<HTMLDivElement>).key === "Enter") {
+      e.preventDefault(); // Prevents new line when pressing Enter
+      const updatedAboutMe = (e.target as HTMLDivElement).innerText.trim();
+      if (updatedAboutMe !== aboutMe) {
+        try {
+          await axios.put(
+            `http://localhost:8000/api/players/update_about_me/${playername}`,
+            { aboutMe: updatedAboutMe }
+          );
+          setAboutMe(updatedAboutMe); // Update state after successful API call
+        } catch (error) {
+          console.error("Error updating About Me:", error);
+        }
+      }
+      setIsEditing(false); // Exit editing mode
+    }
+  };
+
+  // Handle when the About Me box is clicked to start editing
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
   if (loading) {
     return <div className="container mx-auto mt-8 text-center">Loading...</div>;
   }
@@ -43,12 +73,11 @@ const PlayerProfilePage: React.FC = () => {
     );
   }
 
-  // Use the player's image if available, otherwise use the default blank image
   const playerImage = playerData.avatar || DEFAULT_IMAGE_URL;
 
   return (
     <div className="bg-[#2D3250] min-h-screen text-white">
-      <div className="container mx-auto pt-8 relative">
+      <div className="container mx-auto pt-8 pb-10 px-4 relative">
         <button
           className="absolute top-3 left-4 bg-pink-700 font-bold text-white px-3 py-2 rounded"
           onClick={handleGoBack}
@@ -65,9 +94,38 @@ const PlayerProfilePage: React.FC = () => {
           <p className="text-sm italic">Joined: {playerData.join_date}</p>
         </header>
 
-        <div className="border-4 border-white bg-gray-100 text-black p-4 rounded-md shadow-md">
-          <h2 className="text-lg font-semibold mb-2">About Me</h2>
-          {/* Add more player details as needed */}
+        {/* Editable About Me Section */}
+        <div className="border-4 border-white p-4 rounded-md shadow-md mb-8 bg-gray-200">
+          <h2 className="text-lg font-semibold mb-2 text-black">About Me</h2>
+          <div
+            contentEditable={true}
+            suppressContentEditableWarning={true}
+            className="p-2 text-gray-800 bg-gray-200 cursor-text outline-none min-h-[50px]"
+            onClick={handleEditClick}
+            onBlur={handleAboutMeConfirm}
+            onKeyDown={handleAboutMeConfirm}
+            onInput={(e) => {
+	const target = e.target as HTMLDivElement;
+    const text = target.innerText;
+
+    // If the text exceeds 25 characters, truncate it
+    if (text.length > 25) {
+      target.innerText = text.slice(0, 25); // Truncate to 25 characters
+      // Optionally, you can set the cursor to the end of the text
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.selectNodeContents(target);
+      range.collapse(false); // Set cursor to end
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  }}
+>
+		    {aboutMe}
+          </div>
+          <p className="text-sm italic text-gray-600">
+            (Max 25 characters. Click to edit.)
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-32 mt-12">

@@ -36,7 +36,7 @@ def player_to_document(player):
         "match_history": player.match_history,
         "current_tournament_wins": player.current_tournament_wins,
         "current_tournament_losses": player.current_tournament_losses,
-        "current_tournament_ties": player.current_tournament_ties
+        "current_tournament_ties": player.current_tournament_ties,
         "aboutMe" : player.aboutMe
     }
 
@@ -59,7 +59,7 @@ def document_to_player(player_document):
             match_history=player_document.get("match_history"),
             current_tournament_wins=player_document.get("current_tournament_wins"),
             current_tournament_losses=player_document.get("current_tournament_losses"),
-            current_tournament_ties=player_document.get("current_tournament_ties")
+            current_tournament_ties=player_document.get("current_tournament_ties"),
             aboutMe = player_document.get("aboutMe")
         )
         return player
@@ -143,6 +143,22 @@ async def admin_create_player():
         db.players.insert_one(player_document)
 
     print("Player created.")
+
+
+'''Used to update about me'''
+@player_router.put("/players/update_about_me/{playername}")
+async def update_about_me(playername: str, body: dict):
+    new_about_me = body.get("aboutMe")
+    if not new_about_me or len(new_about_me) > 25:
+        raise HTTPException(status_code=400, detail="Invalid input: 'aboutMe' must be less than 25 characters.")
+    
+    result = db.players.update_one({"playername": playername}, {"$set": {"aboutMe": new_about_me}})
+    
+    if result.modified_count == 1:
+        return {"message": f"Player '{playername}' updated successfully."}
+    else:
+        raise HTTPException(status_code=404, detail=f"Player '{playername}' not found.")
+
 
 '''For removing a player from the database.'''
 @player_router.delete("/players/delete_player/{displayname}")
