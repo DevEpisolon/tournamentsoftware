@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useParams} from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { History } from 'history'; 
+import { History } from 'history';
 import { useNavigate } from 'react-router-dom';
+import SideBar, { SideBarItem } from '../components/SideBar';
+import { LuLifeBuoy, LuReceipt, LuBoxes, LuPackage, LuUserCircle, LuBarChart3, LuLayoutDashboard, LuSettings } from 'react-icons/lu'
+import { MdCasino } from 'react-icons/md';
 
 interface Player {
   displayname: string;
@@ -58,33 +61,33 @@ const TournamentPage: React.FC = () => {
   const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
   const navigate = useNavigate();
 
-    /*
-  useEffect(() => {
-    const fetchTournamentData = async () => {
-      try {
-        const response = await axios.get<Tournament>(`http://localhost:8000/api/tournaments/${tournamentId}`);
-        setTournament(response.data);
-        setPlayersInTournament(response.data.Players);
-      } catch (error) {
-        console.error('Error fetching tournament data:', error);
-      }
-    };
+  /*
+useEffect(() => {
+  const fetchTournamentData = async () => {
+    try {
+      const response = await axios.get<Tournament>(`http://localhost:8000/api/tournaments/${tournamentId}`);
+      setTournament(response.data);
+      setPlayersInTournament(response.data.Players);
+    } catch (error) {
+      console.error('Error fetching tournament data:', error);
+    }
+  };
 
-    fetchTournamentData();
-  }, [tournamentId]);
+  fetchTournamentData();
+}, [tournamentId]);
 
-  useEffect(() => {
-    const fetchPlayers = async () => {
-      try {
-        const response = await axios.get<Player[]>('http://localhost:8000/api/players/all');
-        setAvailablePlayers(response.data);
-      } catch (error) {
-        console.error('Error fetching players:', error);
-      }
-    };
+useEffect(() => {
+  const fetchPlayers = async () => {
+    try {
+      const response = await axios.get<Player[]>('http://localhost:8000/api/players/all');
+      setAvailablePlayers(response.data);
+    } catch (error) {
+      console.error('Error fetching players:', error);
+    }
+  };
 
-    fetchPlayers();
-  }, []);*/
+  fetchPlayers();
+}, []);*/
 
   useEffect(() => {
     const fetchData = async () => {
@@ -92,7 +95,7 @@ const TournamentPage: React.FC = () => {
         // Fetch tournament data
         const tournamentResponse = await axios.get<Tournament>(`http://localhost:8000/api/tournaments/${tournamentId}`);
         const tournamentData = tournamentResponse.data;
-        
+
         // Fetch all players
         const playersResponse = await axios.get<Player[]>('http://localhost:8000/api/players/all');
         const allPlayers = playersResponse.data;
@@ -133,16 +136,16 @@ const TournamentPage: React.FC = () => {
     await axios.put(`http://localhost:8000/api/remove_player/${tournamentId}/${player.displayname}`);
   };
 
-const deleteTournament = async () => {
-  try {
-    await axios.put(`http://localhost:8000/api/tournament_remove/${tournamentId}`);
-    console.log('Tournament deleted successfully.');
-    window.history.back();
-   } catch (error) {
-    console.error('Error deleting tournament:', error);
-    // Handle any errors that occur during deletion.
-  }
-};
+  const deleteTournament = async () => {
+    try {
+      await axios.put(`http://localhost:8000/api/tournament_remove/${tournamentId}`);
+      console.log('Tournament deleted successfully.');
+      window.history.back();
+    } catch (error) {
+      console.error('Error deleting tournament:', error);
+      // Handle any errors that occur during deletion.
+    }
+  };
 
   const startTournament = () => {
     if (playersInTournament.length === tournament?.MaxSlotsCount) {
@@ -155,32 +158,47 @@ const deleteTournament = async () => {
   };
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen p-8">
-      <div className="flex justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">{tournament && tournament.tournamentName}</h1>
-        </div>
-        <div>
-          <button className="bg-red-500 text-white px-4 py-2 mr-2" onClick={deleteTournament}>Delete Tournament</button>
-          <button className="bg-green-500 text-white px-4 py-2" onClick={startTournament}>Start Tournament</button>
-        </div>
-      </div>
-      <div className="flex">
-        <div className="w-1/2 pr-4">
-          <h2 className="text-lg font-semibold">Players in Tournament ({playersInTournament.length} / {tournament?.MaxSlotsCount})</h2>
-          <ul className="border border-gray-700 rounded p-2">
-            {playersInTournament.map(player => (
-              <PlayerComponent key={player.displayname} player={player} onClick={() => removePlayerFromTournament(player)} />
-            ))}
-          </ul>
-        </div>
-        <div className="w-1/2 pl-4">
-          <h2 className="text-lg font-semibold">Available Players</h2>
-          <ul className="border border-gray-700 rounded p-2">
-            {availablePlayers.map(player => (
-              <PlayerComponent key={player.displayname} player={player} onClick={() => addPlayerToTournament(player)} />
-            ))}
-          </ul>
+    <div className="bg-tourney-navy2 text-white p-8 pl-0 pt-0 pb-0">
+
+      <div className="flex left-10">
+        <SideBar>
+          <SideBarItem icon={<LuLayoutDashboard size={20} />} text="Dashboard" link="/" alert />
+          <SideBarItem icon={<MdCasino size={20} />} text="Tournaments" link="/" active />
+          <hr className='my-3' />
+          <SideBarItem icon={<LuSettings size={20} />} text="Settings" link="/" alert />
+          <SideBarItem icon={<LuLifeBuoy size={20} />} text="Help" link='/' />
+        </SideBar>
+        <div className={`relative z-0 flex-1 pl-10 pt-5`}>
+          <div className={`flex justify-between `}>
+            <div>
+              <h1 className="text-3xl font-bold">{tournament && tournament.tournamentName}</h1>
+            </div>
+            <div>
+              <button className="bg-red-500 text-white px-4 py-2 mr-2" onClick={deleteTournament}>Delete Tournament</button>
+              <button className="bg-green-500 text-white px-4 py-2" onClick={startTournament}>Start Tournament</button>
+            </div>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold pb-4">Status: {tournament?.STATUS}</h2>
+          </div>
+          <div className="flex">
+            <div className="w-1/2 pr-4">
+              <h2 className="text-lg font-semibold">Players in Tournament ({playersInTournament.length} / {tournament?.MaxSlotsCount})</h2>
+              <ul className="border border-gray-700 rounded p-2 bg-tourney-navy2">
+                {playersInTournament.map(player => (
+                  <PlayerComponent key={player.displayname} player={player} onClick={() => removePlayerFromTournament(player)} />
+                ))}
+              </ul>
+            </div>
+            <div className="w-1/2 pl-4">
+              <h2 className="text-lg font-semibold">Available Players</h2>
+              <ul className="border border-gray-700 rounded p-2 bg-tourney-navy2">
+                {availablePlayers.map(player => (
+                  <PlayerComponent key={player.displayname} player={player} onClick={() => addPlayerToTournament(player)} />
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
