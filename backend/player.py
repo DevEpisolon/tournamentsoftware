@@ -1,29 +1,7 @@
 class Player:
-<<<<<<< HEAD
     def __init__(self, playername, displayname, uniqueid=None, email=None, avatar=None, join_date=None, aboutMe = None, # user info
                     wins=0, losses=0, ties=0, wlratio=0, winstreaks=0, match_history=[], # general stats
                     current_tournament_wins=0, current_tournament_losses=0, current_tournament_ties=0): # tourney info
-=======
-    def __init__(
-        self,
-        playername,
-        displayname,
-        uniqueid=None,
-        email=None,
-        avatar=None,
-        join_date=None,
-        aboutMe=None,  # user info
-        wins=0,
-        losses=0,
-        ties=0,
-        wlratio=0,
-        winstreaks=0,
-        match_history=[],  # general stats
-        current_tournament_wins=0,
-        current_tournament_losses=0,
-        current_tournament_ties=0,
-    ):  # tourney info
->>>>>>> cc1d9a6057190028a79d7e9dfec0011878266261
         self.playername = playername
         self.displayname = displayname
         self.uniqueid = uniqueid
@@ -40,8 +18,7 @@ class Player:
         self.current_tournament_wins = current_tournament_wins
         self.current_tournament_losses = current_tournament_losses
         self.current_tournament_ties = current_tournament_ties
-        self.aboutMe = aboutMe
-
+        self.aboutMe = aboutMe 
     # for calling print() on a player
     def __str__(self):
         return f"""Dummy Player Info:
