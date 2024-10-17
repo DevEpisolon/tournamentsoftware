@@ -5,7 +5,7 @@ import { History } from 'history';
 import { useNavigate } from 'react-router-dom';
 import SideBar, { SideBarItem } from '../components/SideBar';
 import { LuLifeBuoy, LuReceipt, LuBoxes, LuPackage, LuUserCircle, LuBarChart3, LuLayoutDashboard, LuSettings } from 'react-icons/lu'
-import { MdCasino } from 'react-icons/md';
+import { MdCasino, MdArrowDropDown, MdOutlineModeEdit, MdOutlineArrowDropDown } from 'react-icons/md';
 
 interface Player {
   displayname: string;
@@ -59,6 +59,8 @@ const TournamentPage: React.FC = () => {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [playersInTournament, setPlayersInTournament] = useState<Player[]>([]);
   const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
+  const [status, setStatus] = useState<Number>(1)
+  const [editStatus, setEditStatus] = useState(false)
   const navigate = useNavigate();
 
   /*
@@ -147,6 +149,23 @@ useEffect(() => {
     }
   };
 
+  const enumToStatus = () => {
+    if (status == 0) {
+      return "In Progress"
+    }
+    if (status == 1) {
+      return "Not Started"
+    }
+    if (status == 2) {
+      return "Finished"
+    }
+  }
+
+  const handleStatus = (newStatus: number) => {
+    setStatus(newStatus)
+    setEditStatus((curr) => !curr)
+  }
+
   const startTournament = () => {
     if (playersInTournament.length === tournament?.MaxSlotsCount) {
       console.log('Starting tournament...');
@@ -158,12 +177,12 @@ useEffect(() => {
   };
 
   return (
-    <div className="bg-tourney-navy2 text-white p-8 pl-0 pt-0 pb-0">
+    <div className="bg-tourney-navy1 text-white p-8 pl-0 pt-0 pb-0">
 
       <div className="flex left-10">
         <SideBar>
           <SideBarItem icon={<LuLayoutDashboard size={20} />} text="Dashboard" link="/" alert />
-          <SideBarItem icon={<MdCasino size={20} />} text="Tournaments" link="/" active />
+          <SideBarItem icon={<MdCasino size={20} />} text="Tournaments" active />
           <hr className='my-3' />
           <SideBarItem icon={<LuSettings size={20} />} text="Settings" link="/" alert />
           <SideBarItem icon={<LuLifeBuoy size={20} />} text="Help" link='/' />
@@ -174,13 +193,38 @@ useEffect(() => {
               <h1 className="text-3xl font-bold">{tournament && tournament.tournamentName}</h1>
             </div>
             <div>
-              <button className="bg-red-500 text-white px-4 py-2 mr-2" onClick={deleteTournament}>Delete Tournament</button>
-              <button className="bg-green-500 text-white px-4 py-2" onClick={startTournament}>Start Tournament</button>
+              <button className="bg-red-500 text-white px-4 py-2 mr-2 rounded-md" onClick={deleteTournament}>Delete Tournament</button>
+              <button className="bg-green-500 text-white px-4 py-2 rounded-md" onClick={startTournament}>Start Tournament</button>
             </div>
           </div>
-          <div>
-            <h2 className="text-lg font-semibold pb-4">Status: {tournament?.STATUS}</h2>
+          <div id='StatusMenu' className='flex relative align-middle pb-5'>
+            <h2 className='font-semibold text-lg'>Status:</h2>
+            <div className='pl-5'>
+              <div id='Status' className={`${editStatus ? "flex shadow-lg rounded-md mb-1 mr-1 bg-gray-800 pl-1" : "flex rounded-sm mb-3"}`}>
+                <span className={`text-lg`}>{enumToStatus()}</span>
+                <div id='DropdownArrow' className={`relative mt-1 ml-1 button`}>
+                  {editStatus && <MdOutlineArrowDropDown></MdOutlineArrowDropDown>}
+                </div>
+              </div>
+              {editStatus &&
+                <ul id='StatusOptions' className={`absolute w-32 transistion delay-75 bg-gray-800 translate-x--2 rounded-md`}>
+                  <li className={`flex justify-center py-2 rounded-sm`}>
+                    <button className='relative items-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(1)}>Not Started</button>
+                  </li>
+                  <li className='flex justify-center py-2'>
+                    <button className='relative items-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(0)}>In Progress</button>
+                  </li>
+                  <li className='flex justify-center py-2'>
+                    <button className='relative item-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(2)}>Finished</button>
+                  </li>
+                </ul>
+              }
+            </div>
+            <button className={`hover:text-tourney-orange left-full py-0 h-6`} onClick={() => setEditStatus((curr) => !curr)}>
+              <MdOutlineModeEdit></MdOutlineModeEdit>
+            </button>
           </div>
+          <h2 className=''>Start Date: {tournament?.STARTDATE}</h2>
           <div className="flex">
             <div className="w-1/2 pr-4">
               <h2 className="text-lg font-semibold">Players in Tournament ({playersInTournament.length} / {tournament?.MaxSlotsCount})</h2>
