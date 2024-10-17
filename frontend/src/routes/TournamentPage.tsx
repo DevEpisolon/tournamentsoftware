@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { History } from 'history';
@@ -62,6 +62,7 @@ const TournamentPage: React.FC = () => {
   const [status, setStatus] = useState<Number>(1)
   const [editStatus, setEditStatus] = useState(false)
   const navigate = useNavigate();
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   /*
 useEffect(() => {
@@ -126,6 +127,17 @@ useEffect(() => {
     fetchData();
   }, [tournamentId]);
 
+  // Closes status dropdown menu if clicked outside of the menu
+  useEffect(() => {
+    const closeDropDown = (e: MouseEvent) => {
+      if (buttonRef && !buttonRef.current?.contains(e.target as Node)) {
+        setEditStatus(false)
+      };
+    };
+    document.body.addEventListener("click", closeDropDown);
+    return () => document.body.removeEventListener("click", closeDropDown);
+  },);
+
   const addPlayerToTournament = async (player: Player) => {
     setPlayersInTournament([...playersInTournament, player]);
     await axios.put(`http://localhost:8000/api/add_player/${tournamentId}/${player.displayname}`);
@@ -149,6 +161,7 @@ useEffect(() => {
     }
   };
 
+  // Converts Enum into Status Options
   const enumToStatus = () => {
     if (status == 0) {
       return "In Progress"
@@ -161,6 +174,7 @@ useEffect(() => {
     }
   }
 
+  // This updates the status in frontend so far
   const handleStatus = (newStatus: number) => {
     setStatus(newStatus)
     setEditStatus((curr) => !curr)
@@ -175,6 +189,19 @@ useEffect(() => {
       alert('The tournament lobby is not full. Please add more players before starting the tournament.');
     }
   };
+
+  // Formats MongoDb's date into a readable date
+  const formatDate = (mongo_date: string | undefined) => {
+    const safeDate = mongo_date ?? ""
+    const date = new Date(safeDate);
+
+    // Get the month day and year
+    const month = date.getUTCMonth() + 1;
+    const day = date.getUTCDay();
+    const year = date.getUTCFullYear();
+
+    return `${month}/${day}/${year}`
+  }
 
   return (
     <div className="bg-tourney-navy1 text-white p-8 pl-0 pt-0 pb-0">
@@ -197,9 +224,9 @@ useEffect(() => {
               <button className="bg-green-500 text-white px-4 py-2 rounded-md" onClick={startTournament}>Start Tournament</button>
             </div>
           </div>
-          <div id='StatusMenu' className='flex relative align-middle pb-5'>
+          <div id='StatusMenu' className='flex relative align-middle h-6'>
             <h2 className='font-semibold text-lg'>Status:</h2>
-            <div className='pl-5'>
+            <div className='pl-2'>
               <div id='Status' className={`${editStatus ? "flex shadow-lg rounded-md mb-1 mr-1 bg-gray-800 pl-1" : "flex rounded-sm mb-3"}`}>
                 <span className={`text-lg`}>{enumToStatus()}</span>
                 <div id='DropdownArrow' className={`relative mt-1 ml-1 button`}>
@@ -220,11 +247,11 @@ useEffect(() => {
                 </ul>
               }
             </div>
-            <button className={`hover:text-tourney-orange left-full py-0 h-6`} onClick={() => setEditStatus((curr) => !curr)}>
+            <button ref={buttonRef} className={`hover:text-tourney-orange left-full py-0 h-6`} onClick={() => setEditStatus((curr) => !curr)}>
               <MdOutlineModeEdit></MdOutlineModeEdit>
             </button>
           </div>
-          <h2 className=''>Start Date: {tournament?.STARTDATE}</h2>
+          <h2 className='mb-3'>Start Date: {formatDate(tournament?.STARTDATE)}</h2>
           <div className="flex">
             <div className="w-1/2 pr-4">
               <h2 className="text-lg font-semibold">Players in Tournament ({playersInTournament.length} / {tournament?.MaxSlotsCount})</h2>
