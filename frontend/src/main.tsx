@@ -10,6 +10,7 @@ import ProtectedRouter from "./utils/ProtectedRoute";
 import SignIn from "./routes/SignIn";
 import SignUp from "./routes/SignUp";
 import RegisterPlayer from "./routes/RegisterPlayer";
+import "./App.css"
 
 const Index = () => {
   return (
