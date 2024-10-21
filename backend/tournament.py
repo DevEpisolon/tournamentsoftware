@@ -160,6 +160,13 @@ class Tournament:
         return None
     '''
     To create the matches in the tournaemnt
+    Needs to be flexible based on tournamentType : Single Double Pairing
+    Needs to create the necessary matches beforehand and route them like a web or a tree
+    Need rounds so all the first matches finished then we can promote once everyone is finished
+    Need async calls incase they close out the tournament and restart it so nothing is stored in allocated cache for recall memory
+    Need to make less calls and just place the players without much checking/hardcoding
+
+
     '''
     def createMatches(self):
         matches = []

@@ -127,5 +127,6 @@ def match_to_document(match):
         "start_time": match.startTime,
         "end_time": match.endTime,
         "tournament_name": match.tournamentName,
+        "bracket_position": match.bracket,
     }
 
