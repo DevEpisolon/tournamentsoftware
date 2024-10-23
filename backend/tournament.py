@@ -1,5 +1,6 @@
 from datetime import datetime
 from match import Match
+import Math
 class Tournament:
     def __init__(self, tournamentName, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, max_rounds,
                  maxSlotsPerMatch, MaxSlotsCount, matches=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None,
@@ -26,7 +27,7 @@ class Tournament:
         self.wins_dict = wins_dict if wins_dict else {}
         self.losses_dict = losses_dict if losses_dict else {}
         self.ties_dict = ties_dict if ties_dict else {}
-        
+        self.rounds = math.log2(len(players) + 1
 
 
     # Getter and setter methods for each attribute
