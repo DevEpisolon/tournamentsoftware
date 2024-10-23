@@ -4,8 +4,9 @@ import axios from 'axios';
 import { History } from 'history';
 import { useNavigate } from 'react-router-dom';
 import SideBar, { SideBarItem } from '../components/SideBar';
-import { LuLifeBuoy, LuReceipt, LuBoxes, LuPackage, LuUserCircle, LuBarChart3, LuLayoutDashboard, LuSettings } from 'react-icons/lu'
-import { MdCasino, MdArrowDropDown, MdOutlineModeEdit, MdOutlineArrowDropDown } from 'react-icons/md';
+import { LuLayoutDashboard } from 'react-icons/lu'
+import { MdCasino, MdArrowDropDown, MdOutlineModeEdit, MdOutlineArrowDropDown, MdPerson, MdFeed } from 'react-icons/md';
+import TournamentInfo from '../components/TournamentInfo';
 
 interface Player {
   displayname: string;
@@ -48,6 +49,16 @@ interface Tournament {
   ties_dict: any;
 }
 
+const tabIdentifiers = {
+  'manage-players': 'manage-players',
+  'tournaments': 'tournaments',
+  'dashboard': 'dashboard',
+  'none': 'none',
+  // Add more mappings as needed
+};
+
+type TabKey = keyof typeof tabIdentifiers;
+
 const PlayerComponent: React.FC<{ player: Player; onClick: () => void }> = ({ player, onClick }) => (
   <li onClick={onClick} className="cursor-pointer mb-2 p-2 bg-gray-800 rounded text-white">
     {player.displayname}
@@ -61,9 +72,10 @@ const TournamentPage: React.FC = () => {
   const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
   const [status, setStatus] = useState<Number>(1)
   const [editStatus, setEditStatus] = useState(false)
+  const [selectedPage, setSelectedPage] = useState<TabKey>('manage-players')
   const navigate = useNavigate();
   const buttonRef = useRef<HTMLButtonElement>(null);
-
+  const containerRef = useRef<HTMLDivElement>(null)
   /*
 useEffect(() => {
   const fetchTournamentData = async () => {
@@ -186,6 +198,11 @@ useEffect(() => {
     await axios.put(`http://localhost:8000/api/update_status/${tournamentId}/${statusString}`);
   }
 
+
+  const handleTabClick = (tab: TabKey) => {
+    setSelectedPage(tab)
+  };
+
   const startTournament = () => {
     if (playersInTournament.length === tournament?.MaxSlotsCount) {
       console.log('Starting tournament...');
@@ -214,11 +231,11 @@ useEffect(() => {
 
       <div className="flex left-10">
         <SideBar>
-          <SideBarItem icon={<LuLayoutDashboard size={20} />} text="Dashboard" link="/" alert />
-          <SideBarItem icon={<MdCasino size={20} />} text="Tournaments" active />
+          <SideBarItem icon={<LuLayoutDashboard size={20} />} text="Dashboard" link="/" alert onClick={() => handleTabClick('none')} />
+          <SideBarItem icon={<MdCasino size={20} />} text="Tournaments" active onClick={() => handleTabClick('none')} />
           <hr className='my-3' />
-          <SideBarItem icon={<LuSettings size={20} />} text="Settings" link="/" alert />
-          <SideBarItem icon={<LuLifeBuoy size={20} />} text="Help" link='/' />
+          <SideBarItem icon={<MdFeed size={25} />} text="Info" onClick={() => handleTabClick('tournaments')} />
+          <SideBarItem icon={<MdPerson size={25} />} text="Manage Players" onClick={() => handleTabClick('manage-players')} />
         </SideBar>
         <div className={`relative z-0 flex-1 pl-10 pt-5`}>
           <div className={`flex justify-between pb-10`}>
@@ -261,28 +278,31 @@ useEffect(() => {
             <h2 className='mb-6 ml-5 '>Start Date: {formatDate(tournament?.STARTDATE)}</h2>
             <h2 className='ml-5 '>Location: </h2>
           </div>
-          <div className="flex justify-center">
-            <div className="w-1/3 pr-4">
-              <h2 className="text-lg font-semibold">Players in Tournament ({playersInTournament.length} / {tournament?.MaxSlotsCount})</h2>
-              <ul className="border border-gray-700 rounded p-2 bg-tourney-navy2 overflow-auto h-96">
-                {playersInTournament.map(player => (
-                  <PlayerComponent key={player.displayname} player={player} onClick={() => removePlayerFromTournament(player)} />
-                ))}
-              </ul>
+          {selectedPage === 'manage-players' && (
+            <div className="flex justify-center">
+              <div className="w-1/3 pr-4">
+                <h2 className="text-lg font-semibold">Players in Tournament ({playersInTournament.length} / {tournament?.MaxSlotsCount})</h2>
+                <ul className="border border-gray-700 rounded p-2 bg-tourney-navy2 overflow-auto h-96">
+                  {playersInTournament.map(player => (
+                    <PlayerComponent key={player.displayname} player={player} onClick={() => removePlayerFromTournament(player)} />
+                  ))}
+                </ul>
+              </div>
+              <div className="w-1/3 pl-4 ">
+                <h2 className="text-lg font-semibold">Available Players</h2>
+                <ul className="border border-gray-700 rounded p-2 bg-tourney-navy2 overflow-auto h-96">
+                  {availablePlayers.map(player => (
+                    <PlayerComponent key={player.displayname} player={player} onClick={() => addPlayerToTournament(player)} />
+                  ))}
+                </ul>
+              </div>
             </div>
-            <div className="w-1/3 pl-4 ">
-              <h2 className="text-lg font-semibold">Available Players</h2>
-              <ul className="border border-gray-700 rounded p-2 bg-tourney-navy2 overflow-auto h-96">
-                {availablePlayers.map(player => (
-                  <PlayerComponent key={player.displayname} player={player} onClick={() => addPlayerToTournament(player)} />
-                ))}
-              </ul>
+          )}
+          {selectedPage === 'tournaments' && (
+            <div ref={containerRef}>
+              <TournamentInfo />
             </div>
-          </div>
-          <div>
-            <h3>Information</h3>
-            <input type='text' placeholder='Enter text' className='' />
-          </div>
+          )}
         </div>
       </div>
     </div>

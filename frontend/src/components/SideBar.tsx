@@ -11,6 +11,7 @@ interface ItemProps {
   icon: React.ReactNode;
   text: string;
   link?: string;
+  onClick: (event: React.MouseEventHandler<HTMLButtonElement>) => void;
   active?: boolean;
   alert?: boolean;
 };
@@ -58,7 +59,7 @@ export default function SideBar({ children }: SideBarProps): React.ReactNode {
   )
 };
 
-export function SideBarItem({ icon, text, link, active, alert }: ItemProps): React.ReactNode {
+export function SideBarItem({ icon, text, link, onClick, active, alert }: ItemProps): React.ReactNode {
   const { expanded } = useContext(SideBarContext);
 
   return (
@@ -67,7 +68,8 @@ export function SideBarItem({ icon, text, link, active, alert }: ItemProps): Rea
         ? "bg-tourney-navy1 text-tourney-orange"
         : "hover:bg-tourney-navy3 text-white"
       }
-    `}>
+    `}
+      onClick={(e: any) => onClick(e)}>
       {icon}
       <span className={`overflow-hidden transition-all ${expanded ? "w-52 text-left ml-3" : "w-0"}`}>{text}</span>
       {alert && (
