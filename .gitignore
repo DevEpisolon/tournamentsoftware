@@ -182,3 +182,5 @@ firebase_key.json
 package-lock.json
 
 main.tsx.bak
+Dockerfile
+docker-compose.yml
