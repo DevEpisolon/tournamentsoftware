@@ -2,9 +2,9 @@ import asyncio
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pymongo import MongoClient
-from match_database import match_router
-from tournament_database import tournament_router
-from player_database import player_router
+from database.match_database import match_router
+from database.tournament_database import tournament_router
+from database.player_database import player_router
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo.errors import ServerSelectionTimeoutError, ConnectionFailure, OperationFailure, DocumentTooLarge
 

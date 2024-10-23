@@ -1,14 +1,12 @@
 from auth import verify_firebase_token
 from typing import Union
 from fastapi import FastAPI, Request, HTTPException
-import player_database
-from tournament import Tournament
-from player import *
-from player_database import *
+from objects.tournament import Tournament
+from objects.player import *
+from database.player_database import *
 from fastapi import FastAPI
 from pydantic import BaseModel
 from pymongo import MongoClient
-from player_database import *
 import asyncio
 
 import firebase_admin
