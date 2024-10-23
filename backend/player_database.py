@@ -14,7 +14,7 @@ MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftwa
 
 # # Establish connection to MongoDB Atlas
 client = MongoClient(MONGODB_CONNECTION_STRING)
-#client = MongoDB().getDb()
+# client = MongoDB().getDb()
 db = client["tournamentsoftware"]
 players_collection = db["players"]
 
@@ -36,7 +36,8 @@ def player_to_document(player):
         "match_history": player.match_history,
         "current_tournament_wins": player.current_tournament_wins,
         "current_tournament_losses": player.current_tournament_losses,
-        "current_tournament_ties": player.current_tournament_ties
+        "current_tournament_ties": player.current_tournament_ties,
+        "aboutMe": player.aboutMe,
     }
 
 
@@ -58,7 +59,8 @@ def document_to_player(player_document):
             match_history=player_document.get("match_history"),
             current_tournament_wins=player_document.get("current_tournament_wins"),
             current_tournament_losses=player_document.get("current_tournament_losses"),
-            current_tournament_ties=player_document.get("current_tournament_ties")
+            current_tournament_ties=player_document.get("current_tournament_ties"),
+            aboutMe=player_document.get("aboutMe"),
         )
         return player
     else:
@@ -74,7 +76,9 @@ async def get_player(displayname: str):
         # Return player object including avatar
         return player.__dict__
     else:
-        raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
+        raise HTTPException(
+            status_code=404, detail=f"Player '{displayname}' not found."
+        )
 
 
 @player_router.get("/player/email/{email}")
@@ -83,17 +87,21 @@ async def get_player_by_email(email: str):
     if player_document:
         return format(player_document)
     else:
-        raise HTTPException(status_code=404, detail=f"Player with email '{email}' not found.")
+        raise HTTPException(
+            status_code=404, detail=f"Player with email '{email}' not found."
+        )
 
 
-'''For regular users to register as a Player/create an account.'''
+"""For regular users to register as a Player/create an account."""
+
+
 @player_router.post("/players/register_player")
 async def register_player(body: dict):
     # playername = input("Enter name: ")
     # displayname = input("Enter display name: ")
 
     playername = body.get("playername")
-    displayname = body.get("displayname")   
+    displayname = body.get("displayname")
     email = body.get("email")
 
     new_player = Player(playername=playername, displayname=displayname, email=email)
@@ -105,7 +113,7 @@ async def register_player(body: dict):
 
     cursor = db.players.find_one({"displayname": displayname})
 
-    if cursor: 
+    if cursor:
         raise HTTPException(status_code=400, detail="Player already exists")
 
     # if check == "Y":
@@ -127,7 +135,13 @@ async def admin_create_player():
 
     # new_player = Player(playername=playername, displayname=displayname)
 
-    new_player = Player(playername=playername, displayname=displayname, wins=wins, losses=losses, ties=ties)
+    new_player = Player(
+        playername=playername,
+        displayname=displayname,
+        wins=wins,
+        losses=losses,
+        ties=ties,
+    )
 
     # Convert player to document
     player_document = player_to_document(new_player)
@@ -140,7 +154,25 @@ async def admin_create_player():
 
     print("Player created.")
 
+
+'''Used to update about me'''
+@player_router.put("/players/update_about_me/{playername}")
+async def update_about_me(playername: str, body: dict):
+    new_about_me = body.get("aboutMe")
+    if not new_about_me or len(new_about_me) > 25:
+        raise HTTPException(status_code=400, detail="Invalid input: 'aboutMe' must be less than 25 characters.")
+    
+    result = db.players.update_one({"playername": playername}, {"$set": {"aboutMe": new_about_me}})
+    
+    if result.modified_count == 1:
+        return {"message": f"Player '{playername}' updated successfully."}
+    else:
+        raise HTTPException(status_code=404, detail=f"Player '{playername}' not found.")
+
+
 '''For removing a player from the database.'''
+
+
 @player_router.delete("/players/delete_player/{displayname}")
 async def delete_player(displayname: str):
     # Attempt to delete the player from the database
@@ -151,32 +183,55 @@ async def delete_player(displayname: str):
         return {"message": f"Player '{displayname}' deleted successfully."}
     else:
         # Player not found in the database
-        raise HTTPException(status_code=404, detail=f"Player '{displayname}' not found.")
+        raise HTTPException(
+            status_code=404, detail=f"Player '{displayname}' not found."
+        )
 
-'''For updating player stats after tourney.'''
+
+"""For updating player stats after tourney."""
+
+
 def update_tourney_results(round_wins, round_losses, round_ties, tourney_list):
     for player in tourney_list:
         if round_wins.get(player.displayname) != None:
             updated_wins = player.get_wins() + round_wins.get(player.displayname)
-            players_collection.update_one({"displayname": player.displayname}, {"$set": {"wins": updated_wins}})
+            players_collection.update_one(
+                {"displayname": player.displayname}, {"$set": {"wins": updated_wins}}
+            )
         if round_losses.get(player.displayname) != None:
             updated_losses = player.get_losses() + round_losses.get(player.displayname)
-            players_collection.update_one({"displayname": player.displayname}, {"$set": {"losses": updated_losses}})
+            players_collection.update_one(
+                {"displayname": player.displayname},
+                {"$set": {"losses": updated_losses}},
+            )
         if round_ties.get(player.displayname) != None:
             updated_ties = player.get_ties() + round_ties.get(player.displayname)
-            players_collection.update_one({"displayname": player.displayname}, {"$set": {"ties": updated_ties}})
+            players_collection.update_one(
+                {"displayname": player.displayname}, {"$set": {"ties": updated_ties}}
+            )
         else:
             continue
 
-'''For updating a single player's stats..'''
+
+"""For updating a single player's stats.."""
 
 
-'''Currently for testing purposes. Players will be able to add
-themselves to the tourney list, playerlist, which will then be used by this function'''
+"""Currently for testing purposes. Players will be able to add
+themselves to the tourney list, playerlist, which will then be used by this function"""
+
+
 @player_router.get("/players/tourney_players")
 async def tourney_players():
-    playerlist = ["Vegito", "Epii", "Kayz", "songbaker",
-                  "this_is_stupid", "Tim", "Devin", "Hotshot"]
+    playerlist = [
+        "Vegito",
+        "Epii",
+        "Kayz",
+        "songbaker",
+        "this_is_stupid",
+        "Tim",
+        "Devin",
+        "Hotshot",
+    ]
 
     players = []
     for player in playerlist:
@@ -190,11 +245,15 @@ async def tourney_players():
 @player_router.get("/players/all")
 async def grab_ALLplayers():
     players_data = list(db.players.find({}))  # Fetch all players from the collection
-    players = [document_to_player(player_data) for player_data in players_data]  # Convert player documents to Player objects
+    players = [
+        document_to_player(player_data) for player_data in players_data
+    ]  # Convert player documents to Player objects
     return players
 
 
-'''For database testing via FastAPI and MongoDB.'''
+"""For database testing via FastAPI and MongoDB."""
+
+
 async def main():
     all_players = await grab_ALLplayers()
     for i in all_players:
@@ -207,6 +266,7 @@ async def main():
     print(players)
     for i in players:
         print(i.displayname)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

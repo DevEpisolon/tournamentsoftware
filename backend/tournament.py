@@ -4,7 +4,7 @@ class Tournament:
     def __init__(self, tournamentName, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, max_rounds,
                  maxSlotsPerMatch, MaxSlotsCount, matches=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None,
                  Players=None, tournamentWinner=None, droppedPlayers=None, wins_dict=None, losses_dict=None,
-                 ties_dict=None):
+                 ties_dict=None,rounds=None):
       
         self.tournamentName = tournamentName
         self.STATUS = STATUS
@@ -26,7 +26,7 @@ class Tournament:
         self.wins_dict = wins_dict if wins_dict else {}
         self.losses_dict = losses_dict if losses_dict else {}
         self.ties_dict = ties_dict if ties_dict else {}
-
+        
 
 
     # Getter and setter methods for each attribute
@@ -160,6 +160,13 @@ class Tournament:
         return None
     '''
     To create the matches in the tournaemnt
+    Needs to be flexible based on tournamentType : Single Double Pairing
+    Needs to create the necessary matches beforehand and route them like a web or a tree
+    Need rounds so all the first matches finished then we can promote once everyone is finished
+    Need async calls incase they close out the tournament and restart it so nothing is stored in allocated cache for recall memory
+    Need to make less calls and just place the players without much checking/hardcoding
+
+
     '''
     def createMatches(self):
         matches = []

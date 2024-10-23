@@ -4,7 +4,7 @@ import TournamentForm from "./components/TournamentForm";
 import axios from "axios";
 import SearchPlayerForm from "./components/searchPlayerForm";
 import PlayerProfilePage from "./components/PlayerProfilePage";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom"; // Remove BrowserRouter import
 import { auth } from "./utils/FirbaseConfig";
 
 function App(): JSX.Element {
