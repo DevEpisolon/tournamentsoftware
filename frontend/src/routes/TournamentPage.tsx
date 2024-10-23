@@ -111,6 +111,10 @@ useEffect(() => {
         const tournamentPlayerNames = new Set(tournamentData.Players.map(player => player.displayname));
         const filteredAvailablePlayers = allPlayers.filter(player => !tournamentPlayerNames.has(player.displayname));
         setAvailablePlayers(filteredAvailablePlayers);
+
+        // Set tournament status
+        let currentStatus: number = Number(tournamentData.STATUS)
+        setStatus(currentStatus)
       } catch (error) {
         if (axios.isAxiosError(error)) {
           console.error('Error fetching data:', {
@@ -175,9 +179,11 @@ useEffect(() => {
   }
 
   // This updates the status in frontend so far
-  const handleStatus = (newStatus: number) => {
-    setStatus(newStatus)
-    setEditStatus((curr) => !curr)
+  const handleStatus = async (newStatus: number) => {
+    setStatus(newStatus);
+    setEditStatus((curr) => !curr);
+    const statusString: string = String(newStatus);
+    await axios.put(`http://localhost:8000/api/update_status/${tournamentId}/${statusString}`);
   }
 
   const startTournament = () => {
@@ -215,60 +221,67 @@ useEffect(() => {
           <SideBarItem icon={<LuLifeBuoy size={20} />} text="Help" link='/' />
         </SideBar>
         <div className={`relative z-0 flex-1 pl-10 pt-5`}>
-          <div className={`flex justify-between `}>
+          <div className={`flex justify-between pb-10`}>
             <div>
-              <h1 className="text-3xl font-bold">{tournament && tournament.tournamentName}</h1>
+              <h1 className="text-5xl font-bold">{tournament && tournament.tournamentName}</h1>
             </div>
             <div>
               <button className="bg-red-500 text-white px-4 py-2 mr-2 rounded-md" onClick={deleteTournament}>Delete Tournament</button>
               <button className="bg-green-500 text-white px-4 py-2 rounded-md" onClick={startTournament}>Start Tournament</button>
             </div>
           </div>
-          <div id='StatusMenu' className='flex relative align-middle h-6'>
-            <h2 className='font-semibold text-lg'>Status:</h2>
-            <div className='pl-2'>
-              <div id='Status' className={`${editStatus ? "flex shadow-lg rounded-md mb-1 mr-1 bg-gray-800 pl-1" : "flex rounded-sm mb-3"}`}>
-                <span className={`text-lg`}>{enumToStatus()}</span>
-                <div id='DropdownArrow' className={`relative mt-1 ml-1 button`}>
-                  {editStatus && <MdOutlineArrowDropDown></MdOutlineArrowDropDown>}
+          <div id='header2' className='flex'>
+            <div id='StatusMenu' className='flex relative align-middle h-8 '>
+              <h2 className='font-semibold '>Status:</h2>
+              <div className='pl-2'>
+                <div id='Status' className={`${editStatus ? "flex shadow-lg rounded-md mb-1 mr-1 bg-gray-800 pl-1" : "flex rounded-sm mb-3"}`}>
+                  <span className={``}>{enumToStatus()}</span>
+                  <div id='DropdownArrow' className={`relative mt-1 ml-1 button`}>
+                    {editStatus && <MdOutlineArrowDropDown></MdOutlineArrowDropDown>}
+                  </div>
                 </div>
+                {editStatus &&
+                  <ul id='StatusOptions' className={`${editStatus ? "absolute w-32 transistion ease-in-out delay-150 duration-300 bg-gray-800 translate-x--2 rounded-md" : "hidden"}`}>
+                    <li className={`flex justify-center py-2 rounded-sm`}>
+                      <button className='relative items-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(1)}>Not Started</button>
+                    </li>
+                    <li className='flex justify-center py-2'>
+                      <button className='relative items-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(0)}>In Progress</button>
+                    </li>
+                    <li className='flex justify-center py-2'>
+                      <button className='relative item-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(2)}>Finished</button>
+                    </li>
+                  </ul>
+                }
               </div>
-              {editStatus &&
-                <ul id='StatusOptions' className={`absolute w-32 transistion delay-75 bg-gray-800 translate-x--2 rounded-md`}>
-                  <li className={`flex justify-center py-2 rounded-sm`}>
-                    <button className='relative items-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(1)}>Not Started</button>
-                  </li>
-                  <li className='flex justify-center py-2'>
-                    <button className='relative items-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(0)}>In Progress</button>
-                  </li>
-                  <li className='flex justify-center py-2'>
-                    <button className='relative item-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(2)}>Finished</button>
-                  </li>
-                </ul>
-              }
+              <button ref={buttonRef} className={`hover:text-tourney-orange left-full py-0 h-6`} onClick={() => setEditStatus((curr) => !curr)}>
+                <MdOutlineModeEdit></MdOutlineModeEdit>
+              </button>
             </div>
-            <button ref={buttonRef} className={`hover:text-tourney-orange left-full py-0 h-6`} onClick={() => setEditStatus((curr) => !curr)}>
-              <MdOutlineModeEdit></MdOutlineModeEdit>
-            </button>
+            <h2 className='mb-6 ml-5 '>Start Date: {formatDate(tournament?.STARTDATE)}</h2>
+            <h2 className='ml-5 '>Location: </h2>
           </div>
-          <h2 className='mb-3'>Start Date: {formatDate(tournament?.STARTDATE)}</h2>
-          <div className="flex">
-            <div className="w-1/2 pr-4">
+          <div className="flex justify-center">
+            <div className="w-1/3 pr-4">
               <h2 className="text-lg font-semibold">Players in Tournament ({playersInTournament.length} / {tournament?.MaxSlotsCount})</h2>
-              <ul className="border border-gray-700 rounded p-2 bg-tourney-navy2">
+              <ul className="border border-gray-700 rounded p-2 bg-tourney-navy2 overflow-auto h-96">
                 {playersInTournament.map(player => (
                   <PlayerComponent key={player.displayname} player={player} onClick={() => removePlayerFromTournament(player)} />
                 ))}
               </ul>
             </div>
-            <div className="w-1/2 pl-4">
+            <div className="w-1/3 pl-4 ">
               <h2 className="text-lg font-semibold">Available Players</h2>
-              <ul className="border border-gray-700 rounded p-2 bg-tourney-navy2">
+              <ul className="border border-gray-700 rounded p-2 bg-tourney-navy2 overflow-auto h-96">
                 {availablePlayers.map(player => (
                   <PlayerComponent key={player.displayname} player={player} onClick={() => addPlayerToTournament(player)} />
                 ))}
               </ul>
             </div>
+          </div>
+          <div>
+            <h3>Information</h3>
+            <input type='text' placeholder='Enter text' className='' />
           </div>
         </div>
       </div>
