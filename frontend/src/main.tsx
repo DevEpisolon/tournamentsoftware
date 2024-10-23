@@ -17,7 +17,7 @@ const Index = () => {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<App />} />
+          <Route path="*" element={<App />} />
           <Route path="/player/:playername" element={<PlayerProfilePage />} />
           <Route
             path="/tournament/:tournamentId"
