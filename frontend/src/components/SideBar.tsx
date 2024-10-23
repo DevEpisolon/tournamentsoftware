@@ -61,7 +61,6 @@ export default function SideBar({ children }: SideBarProps): React.ReactNode {
 
 export function SideBarItem({ icon, text, link, onClick, active, alert }: ItemProps): React.ReactNode {
   const { expanded } = useContext(SideBarContext);
-
   return (
     <a href={link} className={`relative flex items-center my-1 px-3 py-2 font-medium rounded-md cursor-pointer transition-colors group
       ${active
@@ -69,6 +68,7 @@ export function SideBarItem({ icon, text, link, onClick, active, alert }: ItemPr
         : "hover:bg-tourney-navy3 text-white"
       }
     `}
+      // any is for my TabKey function
       onClick={(e: any) => onClick(e)}>
       {icon}
       <span className={`overflow-hidden transition-all ${expanded ? "w-52 text-left ml-3" : "w-0"}`}>{text}</span>

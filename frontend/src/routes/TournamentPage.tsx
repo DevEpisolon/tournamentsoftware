@@ -234,8 +234,8 @@ useEffect(() => {
           <SideBarItem icon={<LuLayoutDashboard size={20} />} text="Dashboard" link="/" alert onClick={() => handleTabClick('none')} />
           <SideBarItem icon={<MdCasino size={20} />} text="Tournaments" active onClick={() => handleTabClick('none')} />
           <hr className='my-3' />
-          <SideBarItem icon={<MdFeed size={25} />} text="Info" onClick={() => handleTabClick('tournaments')} />
-          <SideBarItem icon={<MdPerson size={25} />} text="Manage Players" onClick={() => handleTabClick('manage-players')} />
+          <SideBarItem icon={<MdFeed size={25} />} text="Info" active={selectedPage === 'tournaments'} onClick={() => handleTabClick('tournaments')} />
+          <SideBarItem icon={<MdPerson size={25} />} text="Manage Players" active={selectedPage === 'manage-players'} onClick={() => handleTabClick('manage-players')} />
         </SideBar>
         <div className={`relative z-0 flex-1 pl-10 pt-5`}>
           <div className={`flex justify-between pb-10`}>
