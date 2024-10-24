@@ -75,7 +75,6 @@ const TournamentPage: React.FC = () => {
   const [selectedPage, setSelectedPage] = useState<TabKey>('manage-players')
   const navigate = useNavigate();
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null)
   /*
 useEffect(() => {
   const fetchTournamentData = async () => {
@@ -299,7 +298,7 @@ useEffect(() => {
             </div>
           )}
           {selectedPage === 'tournaments' && (
-            <div ref={containerRef}>
+            <div>
               <TournamentInfo />
             </div>
           )}
