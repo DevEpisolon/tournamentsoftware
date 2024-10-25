@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import SearchPlayerForm from "./components/searchPlayerForm";
+import { Routes, Route, useNavigate } from "react-router-dom"; // Corrected import for useNavigate
 import { auth } from "./utils/FirbaseConfig";
 
 function App(): JSX.Element {
@@ -314,3 +315,4 @@ function App(): JSX.Element {
 }
 
 export default App;
+
