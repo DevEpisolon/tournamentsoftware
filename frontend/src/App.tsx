@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import SearchPlayerForm from "./components/searchPlayerForm";
+import PlayerProfilePage from "./components/PlayerProfilePage";
+import { Routes, Route } from "react-router-dom"; // Remove BrowserRouter import
 import { auth } from "./utils/FirbaseConfig";
 
 function App(): JSX.Element {
@@ -314,3 +316,4 @@ function App(): JSX.Element {
 }
 
 export default App;
+
