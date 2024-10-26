@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { History } from 'history';
 import { useNavigate } from 'react-router-dom';
 import SideBar, { SideBarItem } from '../components/SideBar';
 import { LuLayoutDashboard } from 'react-icons/lu'
@@ -231,7 +230,7 @@ useEffect(() => {
       <div className="flex left-10">
         <SideBar>
           <SideBarItem icon={<LuLayoutDashboard size={20} />} text="Dashboard" link="/" alert onClick={() => handleTabClick('none')} />
-          <SideBarItem icon={<MdCasino size={20} />} text="Tournaments" active onClick={() => handleTabClick('none')} />
+          <SideBarItem icon={<MdCasino size={20} />} text="Tournaments" onClick={() => handleTabClick('none')} />
           <hr className='my-3' />
           <SideBarItem icon={<MdFeed size={25} />} text="Info" active={selectedPage === 'tournaments'} onClick={() => handleTabClick('tournaments')} />
           <SideBarItem icon={<MdPerson size={25} />} text="Manage Players" active={selectedPage === 'manage-players'} onClick={() => handleTabClick('manage-players')} />
