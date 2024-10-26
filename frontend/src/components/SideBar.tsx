@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useState } from 'react'
 import { MdMoreVert, MdOutlineDehaze, MdClose } from 'react-icons/md'; // Material Design
-import { useNavigate } from 'react-router-dom';
-
 
 interface SideBarProps {
   children?: React.ReactNode;
@@ -24,7 +22,7 @@ export default function SideBar({ children }: SideBarProps): React.ReactNode {
   return (
     <aside className="h-screen sticky self-start top-0 transition-width z-20">
       <nav className="h-full flex flex-col bg-tourney-navy2 border-r shadow-md border-tourney-navy1">
-        <div className="p-4 pb-2 flex justify-between items-center">
+        <div className="p-5 pb-2 flex justify-between items-center">
           <span className={`overflow-hidden transition-all ${expanded ? "w-32" : "w-0"}`}>
             TAS-32
           </span>
