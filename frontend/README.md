@@ -12,6 +12,6 @@
 
 ## Frontend setup
 - Install node from their website
-- If these files are present, delete them: node_modules and package-lock.json
+- If these files are present, delete them: *node_modules* and *package-lock.json*
 - run **npm install**
 - run **npm run dev** to start it up
