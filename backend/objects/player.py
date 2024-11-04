@@ -1,7 +1,8 @@
 class Player:
     def __init__(self, playername, displayname, uniqueid=None, email=None, avatar=None, join_date=None, aboutMe = None, # user info
                     wins=0, losses=0, ties=0, wlratio=0, winstreaks=0, match_history=[], # general stats
-                    current_tournament_wins=0, current_tournament_losses=0, current_tournament_ties=0): # tourney info
+                    current_tournament_wins=0, current_tournament_losses=0, current_tournament_ties=0,
+                    pending_invites, friends): # tourney info
         self.playername = playername
         self.displayname = displayname
         self.uniqueid = uniqueid
@@ -18,7 +19,11 @@ class Player:
         self.current_tournament_wins = current_tournament_wins
         self.current_tournament_losses = current_tournament_losses
         self.current_tournament_ties = current_tournament_ties
-        self.aboutMe = aboutMe 
+        self.aboutMe = aboutMe
+        self.pending_invites = pending_invites
+        self.friends = friends 
+
+
     # for calling print() on a player
     def __str__(self):
         return f"""Dummy Player Info:
@@ -163,6 +168,17 @@ class Player:
             self.ties -= 1
         else:
             print("Error: Number of ties cannot be negative.")
+    def get_pendingInvites(self):
+        return self.pending_invites
+    
+    def set_pendingInvites(self,pending_friends):
+        self.pending = pending_friends 
+    
+    def get_friends(self):
+        return self.friends
+
+    def set_friends(self,friends):
+        self.friends = friends
 
     def update_wl_ratio(self):
         self.wlratio = round(self.wins / (self.wins + self.losses) * 100, 1)

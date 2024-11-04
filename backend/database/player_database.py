@@ -38,7 +38,10 @@ def player_to_document(player):
         "current_tournament_losses": player.current_tournament_losses,
         "current_tournament_ties": player.current_tournament_ties,
         "aboutMe": player.aboutMe,
-    }
+        "pending_invites": player.pending,
+        "friends": player.friends,
+
+        }
 
 
 # Convert player document to player object
@@ -61,7 +64,9 @@ def document_to_player(player_document):
             current_tournament_losses=player_document.get("current_tournament_losses"),
             current_tournament_ties=player_document.get("current_tournament_ties"),
             aboutMe=player_document.get("aboutMe"),
-        )
+            pending_invites = player_document.get("pending_invites"),
+            friends = player_document.get("friends"),
+            )
         return player
     else:
         print("Player not found.")
@@ -90,6 +95,12 @@ async def get_player_by_email(email: str):
         raise HTTPException(
             status_code=404, detail=f"Player with email '{email}' not found."
         )
+
+@plaer_router.post("/players/sendFriendRequest")
+async def send_friendRequest(username):
+    player_document = db.players.find_one({"displayname": username})
+        if
+
 
 
 """For regular users to register as a Player/create an account."""

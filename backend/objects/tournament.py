@@ -107,7 +107,7 @@ class Tournament:
 
     def set_AllotedMatchTime(self, AllotedMatchTime):
         self.AllotedMatchTime = AllotedMatchTime
-
+    
     def get_Players(self):
         return self.Players
 
@@ -119,7 +119,14 @@ class Tournament:
 
     def set_tournamentWinner(self,Player):
         self.tournamentWinner = Player
+    
+    def set_rounds(self,rounds):
+        self.rounds = rounds
 
+    def get_rounds(self):
+        return self.rounds
+
+    
 #Functions
     '''
     Add a singulaur player to the tournament
@@ -127,6 +134,11 @@ class Tournament:
     '''
     def addPlayertoTournament(self,Player):
         self.Players.append(Player)
+
+    def allMatchesInRoundFinished(self,roundNumber):
+        for x in self.getMatches:
+            #need to check roundNumber in match 
+
     '''
     Remove a player from the tournament
     player = player to remove
@@ -280,5 +292,6 @@ class Tournament:
             "wins_dict": self.wins_dict,
             "losses_dict": self.losses_dict,
             "ties_dict": self.ties_dict
-        }
+            "rounds": self.rounds
+            }
 

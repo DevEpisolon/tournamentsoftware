@@ -4,7 +4,7 @@ class Match:
     def __init__(self, matchid, slots, max_rounds, winner_next_match_id, match_status=1, tournamentName="temp",
                  previous_match_id=None, players=None, match_winner=None, match_loser=None, loser_next_match_id=None,
                  start_date=None, end_date=None, startTime=None, endTime=None, round_wins=None, round_losses=None,
-                 round_ties=None,bracket_position=None):
+                 round_ties=None,bracket_position=None,tournamentRoundNumber = None):
         self.matchid = matchid
         self.slots = slots
         self.match_status = match_status
@@ -15,7 +15,9 @@ class Match:
         self.loser_next_match_id = loser_next_match_id
         self.start_date = start_date
         self.end_date = end_date
-        self.bracket_position = bracket_position
+        self.bracket_position = bracket_positioni
+        self.tournamentRoundNumber = tournamentRoundNumber 
+
         if players is None:
             self.players = []
         else:
@@ -157,6 +159,12 @@ class Match:
     def get_bracketPosition(self):
         return self.bracket_position
     
+    def get_tournamentRoundNumber(self):
+        return self.tournamentRoundNumber 
+
+    def set_tournamentRoundNumber(self,number):
+        self.tournamentRoundNumber = number
+
     def add_players(self, player):
         """
         player(Player): player to add
