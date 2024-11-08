@@ -1,9 +1,10 @@
 import asyncio
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pymongo import MongoClient
 from mongo import MongoDB
 from player import Player
 from utils import format
+from typing import List
 
 # Initialize FastAPI app
 player_router = APIRouter()
@@ -81,6 +82,25 @@ async def get_player(displayname: str):
         )
 
 
+@player_router.get("/api/players/search")
+async def search_players(term: str = Query(..., min_length=1)):
+    """
+    Search for players whose displayname contains the search term (case-insensitive)
+    """
+    # Create a case-insensitive regex pattern
+    pattern = {"$regex": f".*{term}.*", "$options": "i"}
+
+    # Search in the players collection
+    cursor = db.players.find({"displayname": pattern})
+
+    # Convert cursor to list of players
+    players = []
+    async for player in cursor:
+        players.append(Player(**player))
+
+    return players
+
+
 @player_router.get("/player/email/{email}")
 async def get_player_by_email(email: str):
     player_document = db.players.find_one({"email": email})
@@ -155,22 +175,29 @@ async def admin_create_player():
     print("Player created.")
 
 
-'''Used to update about me'''
+"""Used to update about me"""
+
+
 @player_router.put("/players/update_about_me/{playername}")
 async def update_about_me(playername: str, body: dict):
     new_about_me = body.get("aboutMe")
     if not new_about_me or len(new_about_me) > 25:
-        raise HTTPException(status_code=400, detail="Invalid input: 'aboutMe' must be less than 25 characters.")
-    
-    result = db.players.update_one({"playername": playername}, {"$set": {"aboutMe": new_about_me}})
-    
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid input: 'aboutMe' must be less than 25 characters.",
+        )
+
+    result = db.players.update_one(
+        {"playername": playername}, {"$set": {"aboutMe": new_about_me}}
+    )
+
     if result.modified_count == 1:
         return {"message": f"Player '{playername}' updated successfully."}
     else:
         raise HTTPException(status_code=404, detail=f"Player '{playername}' not found.")
 
 
-'''For removing a player from the database.'''
+"""For removing a player from the database."""
 
 
 @player_router.delete("/players/delete_player/{displayname}")

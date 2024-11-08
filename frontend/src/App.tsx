@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import TournamentForm from "./components/TournamentForm";
-import PlayersList from "./components/PlayersList";
 import axios from "axios";
 import Tournament from "./components/Tournament";
 import TournamentsList from "./components/TournamentsList";
@@ -79,7 +78,6 @@ function App(): JSX.Element {
         </div>
         <div className="sidebar">
           <h2>Players in database</h2>
-          <PlayersList />
         </div>
       </div>
 

@@ -1,4 +1,5 @@
 // TipTapEditor.tsx
+import './tiptap.css'
 import { useEditor, EditorContent, Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import TextAlign from '@tiptap/extension-text-align'
@@ -26,7 +27,26 @@ import {
   LuTable,
   LuX
 } from 'react-icons/lu'
+import { TournamentPageProvider, useTournamentPage } from '../../context/TournamentPageProvider'
 
+// Configure DOMPurify with allowed tags and attributes
+const purifyConfig = {
+  ALLOWED_TAGS: [
+    'p', 'br', 'strong', 'em', 'u', 'strike', 'ul', 'ol', 'li',
+    'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
+  ],
+  ALLOWED_ATTR: [], // No attributes allowed by default
+};
+
+// Create a type-safe sanitize function
+const sanitizeContent = (content: string): string => {
+  try {
+    return DOMPurify.sanitize(content, purifyConfig);
+  } catch (error) {
+    console.error('Sanitization error:', error);
+    return '<p></p>'; // Return safe empty content on error
+  }
+};
 // Define interface for MenuBar props
 interface MenuBarProps {
   editor: Editor | null;
@@ -130,7 +150,7 @@ const MenuBar = React.memo(({ editor, isPreview, togglePreview }: MenuBarProps) 
   };
 
   return (
-    <div className="border-b border-gray-200 bg-gray-50 rounded-lg p-2 flex gap-1 flex-wrap">
+    <div className={`border-b border-gray-200 bg-gray-50 rounded-lg p-2 flex gap-1 flex-wrap ${isPreview ? "bg-white " : ""}`}>
       <button
         onClick={togglePreview}
         className="mr-4 shadow sm rounded-md "
@@ -143,7 +163,7 @@ const MenuBar = React.memo(({ editor, isPreview, togglePreview }: MenuBarProps) 
       </button>
 
       {!isPreview && (
-        <div className='flex'>
+        <div className='flex '>
           {/* Heading Dropdown */}
           <select
             onChange={(e) => {
@@ -256,7 +276,7 @@ const MenuBar = React.memo(({ editor, isPreview, togglePreview }: MenuBarProps) 
             <LuTable size={16} />
           </button>
 
-          <div className="h-6 w-px bg-gray-300 mx-1" />
+          <div className="bg-gray-300 mx-1" />
           <TableDialog
             isOpen={isTableDialogOpen}
             onClose={() => setIsTableDialogOpen(false)}
@@ -303,6 +323,7 @@ const CustomHeading = Heading.configure({
 });
 
 const TipTapEditor = () => {
+  const { status } = useTournamentPage();
   const [isPreview, setIsPreview] = useState<boolean>(false);
 
 
@@ -312,9 +333,7 @@ const TipTapEditor = () => {
         bulletList: false,
         orderedList: false,
         listItem: false,
-        heading: {
-          levels: [1, 2, 3]
-        }
+        heading: false,
       }),
       BulletList.configure({
         HTMLAttributes: {
@@ -377,7 +396,7 @@ const TipTapEditor = () => {
           Lists would be nothing without list items.
         </p>
       `,
-    editable: true,
+    editable: isPreview && status == 1,
     editorProps: {
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none',
@@ -397,22 +416,23 @@ const TipTapEditor = () => {
 
   // Retrieve editor content or nothing if null
   const getContent = React.useCallback(() => {
-    return editor?.getHTML() ?? '<p></p>';
+    const content = editor?.getHTML() ?? '<p></p>';
+    return content
+      .replace(/ {2,}/g, match => '&nbsp;'.repeat(match.length))
+      .replace(/\n/g, '<br/>')
+      .replace(/(<p>)\s+/g, '$1')  // Clean up space at start of paragraphs
+      .replace(/\s+(<\/p>)/g, '$1'); // Clean up space at end of paragraphs
   }, [editor]);
 
   return (
-    <div className="border rounded-lg shadow-sm bg-white text-black">
-      <MenuBar editor={editor} isPreview={isPreview} togglePreview={togglePreview} />
-      <div className="p-4 overflow-auto h-96">
-        {isPreview ? (
-          <div
-            className="prose max-w-none"
-            dangerouslySetInnerHTML={{ __html: getContent() }}
-          >
-          </div>
-        ) : (
+    <div className={`border rounded-lg shadow-sm bg-white text-black `}>
+      {status === 1 && (
+        <MenuBar editor={editor} isPreview={isPreview} togglePreview={togglePreview} />
+      )}
+      <div className={`p-4 overflow-auto h-96`}>
+        <div>
           <EditorContent editor={editor} />
-        )}
+        </div>
       </div>
     </div>
   )

@@ -4,8 +4,12 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import SideBar, { SideBarItem } from '../components/SideBar';
 import { LuLayoutDashboard } from 'react-icons/lu'
-import { MdCasino, MdArrowDropDown, MdOutlineModeEdit, MdOutlineArrowDropDown, MdPerson, MdFeed } from 'react-icons/md';
+import { MdCasino, MdOutlineModeEdit, MdOutlineArrowDropDown, MdPerson, MdFeed } from 'react-icons/md';
+import { FaListAlt } from 'react-icons/fa';
 import TournamentInfo from '../components/TournamentInfo';
+import PlayersList from '../components/PlayersList';
+import { TournamentPageProvider } from '../context/TournamentPageProvider';
+import MatchHolder from '../components/MatchHolder';
 
 interface Player {
   displayname: string;
@@ -50,8 +54,10 @@ interface Tournament {
 
 const tabIdentifiers = {
   'manage-players': 'manage-players',
+  'info': 'info',
   'tournaments': 'tournaments',
   'dashboard': 'dashboard',
+  'matches': 'matches',
   'none': 'none',
   // Add more mappings as needed
 };
@@ -69,11 +75,17 @@ const TournamentPage: React.FC = () => {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [playersInTournament, setPlayersInTournament] = useState<Player[]>([]);
   const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
-  const [status, setStatus] = useState<Number>(1)
+  const [status, setStatus] = useState<Number>()
   const [editStatus, setEditStatus] = useState(false)
   const [selectedPage, setSelectedPage] = useState<TabKey>('manage-players')
   const navigate = useNavigate();
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  //Make a context to share values with other components
+  const contextValue = {
+    status,
+  };
+
   /*
 useEffect(() => {
   const fetchTournamentData = async () => {
@@ -154,8 +166,8 @@ useEffect(() => {
 
   const addPlayerToTournament = async (player: Player) => {
     setPlayersInTournament([...playersInTournament, player]);
-    await axios.put(`http://localhost:8000/api/add_player/${tournamentId}/${player.displayname}`);
     setAvailablePlayers(availablePlayers.filter(p => p.displayname !== player.displayname));
+    await axios.put(`http://localhost:8000/api/add_player/${tournamentId}/${player.displayname}`);
   };
 
   const removePlayerFromTournament = async (player: Player) => {
@@ -201,11 +213,14 @@ useEffect(() => {
     setSelectedPage(tab)
   };
 
-  const startTournament = () => {
+  const startTournament = async () => {
     if (playersInTournament.length === tournament?.MaxSlotsCount) {
       console.log('Starting tournament...');
+      await axios.put(`http://localhost:8000/api/create_matches/${tournamentId}`)
+      handleStatus(0)
+      alert('Tournament has started')
       // Implement start functionality
-      navigate(`/tournament/${tournamentId}/bracket`);
+      // navigate(`/tournament/${tournamentId}/bracket`);
     } else {
       alert('The tournament lobby is not full. Please add more players before starting the tournament.');
     }
@@ -224,86 +239,115 @@ useEffect(() => {
     return `${month}/${day}/${year}`
   }
 
-  return (
-    <div className="bg-tourney-navy1 text-white p-8 pl-0 pt-0 pb-0">
+  // Creates QR-Code 
+  // TODO: Need to change the data variable to an actual link to register
+  const generateQR = () => {
+    return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=google.com`;
+  };
 
-      <div className="flex left-10">
-        <SideBar>
-          <SideBarItem icon={<LuLayoutDashboard size={20} />} text="Dashboard" link="/" alert onClick={() => handleTabClick('none')} />
-          <SideBarItem icon={<MdCasino size={20} />} text="Tournaments" onClick={() => handleTabClick('none')} />
-          <hr className='my-3' />
-          <SideBarItem icon={<MdFeed size={25} />} text="Info" active={selectedPage === 'tournaments'} onClick={() => handleTabClick('tournaments')} />
-          <SideBarItem icon={<MdPerson size={25} />} text="Manage Players" active={selectedPage === 'manage-players'} onClick={() => handleTabClick('manage-players')} />
-        </SideBar>
-        <div className={`relative z-0 flex-1 pl-10 pt-5`}>
-          <div className={`flex justify-between pb-10`}>
-            <div>
-              <h1 className="text-5xl font-bold">{tournament && tournament.tournamentName}</h1>
+  return (
+
+    <TournamentPageProvider value={contextValue}>
+      <div className="bg-tourney-navy1 text-white p-8 pl-0 pt-0 pb-0 ">
+        <div className="flex left-10 ">
+          <SideBar>
+            <SideBarItem icon={<LuLayoutDashboard size={25} />} text="Dashboard" link="/" alert onClick={() => handleTabClick('none')} />
+            <SideBarItem icon={<MdCasino size={25} />} text="Tournaments" active={selectedPage === 'tournaments'} onClick={() => handleTabClick('tournaments')} />
+            <hr className='my-3' />
+            <SideBarItem icon={<MdFeed size={25} />} text="Information" active={selectedPage === 'info'} onClick={() => handleTabClick('info')} />
+            <SideBarItem icon={<MdPerson size={25} />} text="Players" active={selectedPage === 'manage-players'} onClick={() => handleTabClick('manage-players')} />
+            <SideBarItem icon={<FaListAlt size={25} />} text='Matches' active={selectedPage === 'matches'} onClick={() => handleTabClick('matches')} />
+          </SideBar>
+          <div className={`relative z-0 flex-1 pl-10 pt-5`}>
+            <div className={`flex justify-between pb-10`}>
+              <div>
+                <h1 className="text-5xl font-bold">{tournament && tournament.tournamentName}</h1>
+              </div>
+              <div>
+                <button className="bg-red-500 text-white px-4 py-2 mr-2 rounded-md font-semibold" onClick={deleteTournament}>Delete Tournament</button>
+                <button className="bg-green-500 text-white px-4 py-2 rounded-md font-semibold" onClick={startTournament}>Start Tournament</button>
+              </div>
             </div>
-            <div>
-              <button className="bg-red-500 text-white px-4 py-2 mr-2 rounded-md" onClick={deleteTournament}>Delete Tournament</button>
-              <button className="bg-green-500 text-white px-4 py-2 rounded-md" onClick={startTournament}>Start Tournament</button>
-            </div>
-          </div>
-          <div id='header2' className='flex'>
-            <div id='StatusMenu' className='flex relative align-middle h-8 '>
-              <h2 className='font-semibold '>Status:</h2>
-              <div className='pl-2'>
-                <div id='Status' className={`${editStatus ? "flex shadow-lg rounded-md mb-1 mr-1 bg-gray-800 pl-1" : "flex rounded-sm mb-3"}`}>
-                  <span className={``}>{enumToStatus()}</span>
-                  <div id='DropdownArrow' className={`relative mt-1 ml-1 button`}>
-                    {editStatus && <MdOutlineArrowDropDown></MdOutlineArrowDropDown>}
+            <div className='flex justify-between'>
+              <div id='header2' className='flex items-center'>
+                <div id='StatusMenu' className='flex relative items-center '>
+                  <h2 className='font-semibold '>Status:</h2>
+                  <div className='pl-2'>
+                    <div id='Status' className={`${editStatus ? "flex shadow-lg rounded-md mb-1 mr-1 bg-gray-800 py-2 px-2" : "flex rounded-sm "}`}>
+                      <span className={``}>{enumToStatus()}</span>
+                      <div id='DropdownArrow' className={`relative mt-1 ml-1 button`}>
+                        {editStatus && <MdOutlineArrowDropDown></MdOutlineArrowDropDown>}
+                      </div>
+                    </div>
+                    {editStatus &&
+                      <ul id='StatusOptions' className={`${editStatus ? "absolute w-32 transistion ease-in-out delay-150 duration-300 bg-gray-800 translate-x--2 rounded-md" : "hidden"}`}>
+                        <li className={`flex justify-center py-2 rounded-sm`}>
+                          <button className='relative items-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(1)}>Not Started</button>
+                        </li>
+                        <li className='flex justify-center py-2'>
+                          <button className='relative items-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(0)}>In Progress</button>
+                        </li>
+                        <li className='flex justify-center py-2'>
+                          <button className='relative item-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(2)}>Finished</button>
+                        </li>
+                      </ul>
+                    }
                   </div>
+                  <button ref={buttonRef} className={`hover:text-tourney-orange left-full py-0 h-6`} onClick={() => setEditStatus((curr) => !curr)}>
+                    <MdOutlineModeEdit></MdOutlineModeEdit>
+                  </button>
                 </div>
-                {editStatus &&
-                  <ul id='StatusOptions' className={`${editStatus ? "absolute w-32 transistion ease-in-out delay-150 duration-300 bg-gray-800 translate-x--2 rounded-md" : "hidden"}`}>
-                    <li className={`flex justify-center py-2 rounded-sm`}>
-                      <button className='relative items-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(1)}>Not Started</button>
-                    </li>
-                    <li className='flex justify-center py-2'>
-                      <button className='relative items-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(0)}>In Progress</button>
-                    </li>
-                    <li className='flex justify-center py-2'>
-                      <button className='relative item-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(2)}>Finished</button>
-                    </li>
-                  </ul>
+                <h2 className='ml-5 '>Start Date: {formatDate(tournament?.STARTDATE)}</h2>
+                <h2 className='ml-5 '>Location: </h2>
+              </div>
+              <button className='bg-tourney-orange rounded-md px-4 py-2 font-semibold'> Register</button>
+            </div>
+
+            {selectedPage === 'manage-players' && (
+              <div className='flex justify-evenly mt-20'>
+                <div className="flex justify-start w-1/2">
+                  <div className="w-full pr-4">
+                    <PlayersList
+                      players={playersInTournament}
+                      onPlayerClick={removePlayerFromTournament}
+                      title="Players in Tournament"
+                      maxPlayers={tournament?.MaxSlotsCount}
+                      emptyMessage="No players in tournament"
+                    />
+                  </div>
+                  {status === 1 && (
+                    <div className="w-full pl-4">
+                      <PlayersList
+                        players={availablePlayers}
+                        onPlayerClick={addPlayerToTournament}
+                        title="Available Players"
+                        emptyMessage="No available players"
+                      />
+                    </div>
+                  )}
+                </div>
+                {status === 1 &&
+                  <div className='self-center'>
+                    <h2 className='text-lg font-semibold mb-3 '>QR-Code</h2>
+                    <div id='img-box'>
+                      <img src={generateQR()} id='QR-Code' />
+                    </div>
+                  </div>
                 }
               </div>
-              <button ref={buttonRef} className={`hover:text-tourney-orange left-full py-0 h-6`} onClick={() => setEditStatus((curr) => !curr)}>
-                <MdOutlineModeEdit></MdOutlineModeEdit>
-              </button>
-            </div>
-            <h2 className='mb-6 ml-5 '>Start Date: {formatDate(tournament?.STARTDATE)}</h2>
-            <h2 className='ml-5 '>Location: </h2>
+            )}
+            {selectedPage === 'info' && (
+              <div className='mt-20 shrink '>
+                <TournamentInfo />
+              </div>
+            )}
+            {selectedPage === 'matches' &&
+              <MatchHolder />
+            }
           </div>
-          {selectedPage === 'manage-players' && (
-            <div className="flex justify-center">
-              <div className="w-1/3 pr-4">
-                <h2 className="text-lg font-semibold">Players in Tournament ({playersInTournament.length} / {tournament?.MaxSlotsCount})</h2>
-                <ul className="border border-gray-700 rounded p-2 bg-tourney-navy2 overflow-auto h-96">
-                  {playersInTournament.map(player => (
-                    <PlayerComponent key={player.displayname} player={player} onClick={() => removePlayerFromTournament(player)} />
-                  ))}
-                </ul>
-              </div>
-              <div className="w-1/3 pl-4 ">
-                <h2 className="text-lg font-semibold">Available Players</h2>
-                <ul className="border border-gray-700 rounded p-2 bg-tourney-navy2 overflow-auto h-96">
-                  {availablePlayers.map(player => (
-                    <PlayerComponent key={player.displayname} player={player} onClick={() => addPlayerToTournament(player)} />
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
-          {selectedPage === 'tournaments' && (
-            <div>
-              <TournamentInfo />
-            </div>
-          )}
         </div>
-      </div>
-    </div>
+      </div >
+    </TournamentPageProvider>
   );
 };
 
