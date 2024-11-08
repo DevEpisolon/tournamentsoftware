@@ -2,11 +2,26 @@ import asyncio
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pymongo import MongoClient
-from database.match_database import match_router
-from database.tournament_database import tournament_router
-from database.player_database import player_router
+from match_database import match_router
+from tournament_database import tournament_router
+from player_database import player_router
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo.errors import ServerSelectionTimeoutError, ConnectionFailure, OperationFailure, DocumentTooLarge
+from pymongo import MongoClient
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Get the MongoDB connection string from the environment variable
+MONGODB_CONNECTION_STRING = os.getenv("MONGODB_URI")
+if not MONGODB_CONNECTION_STRING:
+    raise ValueError("MONGODB_URI is not set in the environment")
+
+# Initialize MongoDB client
+client = MongoClient(MONGODB_CONNECTION_STRING)
+db = client["tournamentsoftware"]
+
 
 
 # Initialize FastAPI app
@@ -28,14 +43,12 @@ async def exception_handler(_, __):
     )
 
 
-# Include the match router in the main application
-app.include_router(match_router, prefix="/api")
-app.include_router(player_router,prefix="/api")
-app.include_router(tournament_router,prefix="/api")
+app.include_router(match_router, prefix="/api", dependencies=[Depends(lambda: db)])
+app.include_router(player_router, prefix="/api", dependencies=[Depends(lambda: db)])
+app.include_router(tournament_router, prefix="/api", dependencies=[Depends(lambda: db)])
 
 
 # Some of the MongoDB exceptions that could be caused. 
-
 @app.exception_handler(ConnectionFailure)
 async def handle_connection_failure(_, __):
     return JSONResponse(

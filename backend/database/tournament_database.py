@@ -8,16 +8,12 @@ from objects.player import Player
 from database.player_database import *
 from database.match_database import *
 import asyncio
-from dotenv import load_dotenv
-import os
+from fast_api import db
+
 
 tournament_router = APIRouter()
 
-load_dotenv()
-
-MONGODB_CONNECTION_STRING = os.getenv("MONGODB_URI")
-client = MongoClient(MONGODB_CONNECTION_STRING)
-db = client["tournamentsoftware"]
+b = client["tournamentsoftware"]
 tournaments_collection = db["tournaments"]
 
 # db = MongoDB().getDb()

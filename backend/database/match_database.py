@@ -1,9 +1,10 @@
-from fastapi import HTTPException, APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 from mongo import MongoDB
 from pymongo import MongoClient
 from objects.match import Match 
 from utils import format
 from database.player_database import *
+from fast_api import db
 
 # Router for match-related endpoints
 match_router = APIRouter()
@@ -23,8 +24,6 @@ class MatchDatabase:
         self.matches[match.matchid] = match
         return match
     
-MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftware.l9dyjo7.mongodb.net/?retryWrites=true&w=majority"
-client = MongoClient(MONGODB_CONNECTION_STRING)
 db = client["tournamentsoftware"]
 match_collection = db["matches"]
     
