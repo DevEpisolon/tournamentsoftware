@@ -4,6 +4,8 @@ from pymongo import MongoClient
 from mongo import MongoDB
 from objects.player import Player
 from utils import format
+from firebase_admin import auth as firebase_auth
+from app.firebase_config import cred
 
 # Initialize FastAPI app
 player_router = APIRouter()
@@ -18,6 +20,16 @@ client = MongoClient(MONGODB_CONNECTION_STRING)
 db = client["tournamentsoftware"]
 players_collection = db["players"]
 
+
+
+
+async def verify_firebase_token(id_token: str):
+    try:
+        decoded_token = firebase_auth.verify_id_token(id_token)
+        uid = decoded_token["uid"]
+        return uid
+    except Exception as e:
+        raise HTTPException(code =401,detail="Invalid Firebase token") from e
 
 # Convert player object to player document
 def player_to_document(player):
@@ -114,6 +126,9 @@ async def register_player(body: dict):
     playername = body.get("playername")
     displayname = body.get("displayname")
     email = body.get("email")
+    id_token = data.get("idToken")
+    if not id_token:`
+        raise HTTPException(status_code = 400 , detail="ID Token is required!")
 
     new_player = Player(playername=playername, displayname=displayname, email=email)
 
