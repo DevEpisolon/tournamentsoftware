@@ -9,7 +9,7 @@ import { FaListAlt } from 'react-icons/fa';
 import TournamentInfo from '../components/TournamentInfo';
 import PlayersList from '../components/PlayersList';
 import { TournamentPageProvider } from '../context/TournamentPageProvider';
-import MatchHolder from '../components/MatchHolder';
+import MatchSchedule from '../components/MatchSchedule';
 
 interface Player {
   displayname: string;
@@ -342,7 +342,7 @@ useEffect(() => {
               </div>
             )}
             {selectedPage === 'matches' &&
-              <MatchHolder />
+              <MatchSchedule tournament={tournament} />
             }
           </div>
         </div>
