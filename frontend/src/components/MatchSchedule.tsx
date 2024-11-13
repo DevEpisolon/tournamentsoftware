@@ -51,7 +51,7 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
   const getMatchPlayers = (match: any) => {
     if (!match.players) return [];
     return match.players.map((Player: Player) => {
-      return Player?.displayname || 'TBD';
+      return Player || 'TBD';
     });
   };
 
@@ -120,14 +120,24 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
                   </span>
                 </div>
 
-                <div className="space-y-2">
-                  {getMatchPlayers(match).map((playerName: string, idx: number) => (
+                <div className="flex items-center justify-between ">
+                  {getMatchPlayers(match).map((players: Player, idx: number) => (
                     <div
                       key={idx}
-                      className="flex items-center gap-2 text-gray-200"
+                      className="flex items-center gap-5 text-gray-200 "
                     >
-                      <MdPerson className="text-gray-400" />
-                      <span>{playerName}</span>
+                      {idx === 1 && (
+                        <span className='text-xl'>{players.displayname}</span>
+                      )}
+                      {players?.avatar === null &&
+                        <MdPerson className="text-gray-400 size-20 border rounded-full border-white bg-white " />
+                      }
+                      {players?.avatar !== null &&
+                        <img src={players.avatar} className='size-20 rounded-full' />
+                      }
+                      {idx === 0 && (
+                        <span className='text-xl'>{players.displayname}</span>
+                      )}
                     </div>
                   ))}
                   {getMatchPlayers(match).length === 0 && (
