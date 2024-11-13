@@ -1,8 +1,8 @@
 class Player:
-    def __init__(self, playername, displayname, uniqueid=None, email=None, avatar=None, join_date=None, aboutMe = None, firebaseID, # user info
+    def __init__(self, playername, displayname, uniqueid=None, email=None, avatar=None, join_date=None, aboutMe=None, firebaseID=None, # user info
                     wins=0, losses=0, ties=0, wlratio=0, winstreaks=0, match_history=[], # general stats
                     current_tournament_wins=0, current_tournament_losses=0, current_tournament_ties=0,
-                    pending_invites, friends): # tourney info
+                    pending_invites=None, friends=None): # tourney info
         self.playername = playername
         self.displayname = displayname
         self.uniqueid = uniqueid

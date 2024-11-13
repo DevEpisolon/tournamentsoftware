@@ -5,8 +5,8 @@ from mongo import MongoDB
 from objects.player import Player
 from utils import format
 from firebase_admin import auth as firebase_auth
-from app.firebase_config import cred
-from fast_api import db
+#from app.firebase_config import cred
+from fastapi_app import db, client
 
 player_router = APIRouter()
 
@@ -101,12 +101,12 @@ async def get_player_by_email(email: str):
         raise HTTPException(
             status_code=404, detail=f"Player with email '{email}' not found."
         )
-
+'''
 @plaer_router.post("/players/sendFriendRequest")
 async def send_friendRequest(username):
     player_document = db.players.find_one({"displayname": username})
         if
-
+'''
 
 
 """For regular users to register as a Player/create an account."""
@@ -121,7 +121,7 @@ async def register_player(body: dict):
     displayname = body.get("displayname")
     email = body.get("email")
     id_token = data.get("idToken")
-    if not id_token:`
+    if not id_token:
         raise HTTPException(status_code = 400 , detail="ID Token is required!")
 
     new_player = Player(playername=playername, displayname=displayname, email=email)

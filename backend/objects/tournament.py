@@ -137,6 +137,7 @@ class Tournament:
 
     def allMatchesInRoundFinished(self,roundNumber):
         for x in self.getMatches:
+            pass
             #need to check roundNumber in match 
 
     '''
@@ -291,7 +292,7 @@ class Tournament:
             "droppedPlayers": self.droppedPlayers,
             "wins_dict": self.wins_dict,
             "losses_dict": self.losses_dict,
-            "ties_dict": self.ties_dict
+            "ties_dict": self.ties_dict,
             "rounds": self.rounds
             }
 

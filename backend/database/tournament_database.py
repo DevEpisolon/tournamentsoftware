@@ -8,7 +8,7 @@ from objects.player import Player
 from database.player_database import *
 from database.match_database import *
 import asyncio
-from fast_api import db
+from fastapi_app import db, client
 
 
 tournament_router = APIRouter()
