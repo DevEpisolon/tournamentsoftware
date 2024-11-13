@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from objects.match import Match 
 from utils import format
 from database.player_database import *
-from fast_api import db
+from fastapi_app import db, client
 
 # Router for match-related endpoints
 match_router = APIRouter()
