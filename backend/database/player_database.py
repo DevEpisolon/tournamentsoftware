@@ -16,7 +16,7 @@ players_collection = db["players"]
 
 
 
-
+@player_router.get("/players/get_playerFirebaseID/{displayname}")
 async def verify_firebase_token(id_token: str):
     try:
         decoded_token = firebase_auth.verify_id_token(id_token)
@@ -101,13 +101,19 @@ async def get_player_by_email(email: str):
         raise HTTPException(
             status_code=404, detail=f"Player with email '{email}' not found."
         )
+    
 '''
-@plaer_router.post("/players/sendFriendRequest")
+@player_router.post("/players/sendFriendRequest")
 async def send_friendRequest(username):
     player_document = db.players.find_one({"displayname": username})
         if
 '''
 
+@player_router.post("/players/sendFriendRequest")
+async def send_friendRequest(sender,reciever):
+    player_document = db.players.find_one({"displayname": reciever})
+    player = document_to_player(player_document)
+    player.set_pendingInvites(player.get_pendingInvites.append(sender))
 
 """For regular users to register as a Player/create an account."""
 
