@@ -244,8 +244,16 @@ class Tournament:
             playersInMatch = []
             matches.append(m)
         self.set_Matches(matches)
-
-
+'''
+updated version of create matches under works
+'''
+    def __CreateMatches(self):
+        tempPlayers = self.getPlayers().copy()
+        set_rounds(math.log2(len(players)
+        matchCount = self.getPlayerCount() - 1
+        total matches = math.log2(len(players)  
+            for _ in range(get_rounds()):
+               for _ in range( 
     # call it when tournament ended so it can fetch players' wins, losses, and ties
     def update_dict(self):
         for match in self.get_Matches():
