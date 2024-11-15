@@ -253,7 +253,9 @@ updated version of create matches under works
         matchCount = self.getPlayerCount() - 1
         total matches = math.log2(len(players)  
             for _ in range(get_rounds()):
-               for _ in range( 
+                for _ in range(self.getPlayerCount() -1):
+                    
+
     # call it when tournament ended so it can fetch players' wins, losses, and ties
     def update_dict(self):
         for match in self.get_Matches():
