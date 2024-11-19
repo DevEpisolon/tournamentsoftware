@@ -252,9 +252,19 @@ updated version of create matches under works
         set_rounds(math.log2(len(players)
         matchCount = self.getPlayerCount() - 1
         total matches = math.log2(len(players)  
-            for _ in range(get_rounds()):
+        i = 0 
+        matches = []
+            for x in range(get_rounds()):
                 for _ in range(self.getPlayerCount() -1):
-                    
+                    i =+1 
+                    m = Match(matchid=i, slots=self.get_MaxSlotsPerMatch(), match_status=1, max_rounds=self.max_rounds,
+                      tournamentName=self.get_tournamentName(), players=None,
+                       previous_match_id=None, match_winner=None,
+                      match_loser=None, start_date=None, end_date=None,
+                      startTime=None, endTime=None, roundNumber = x)
+                    matches.append(m)
+
+            self.set_matches(matches)
 
     # call it when tournament ended so it can fetch players' wins, losses, and ties
     def update_dict(self):
