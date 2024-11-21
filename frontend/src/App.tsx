@@ -5,6 +5,7 @@ import SearchPlayerForm from "./components/searchPlayerForm";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { auth } from "./utils/FirbaseConfig";
 import Settings from "./routes/Settings";
+import {useAuth} from "./utils/AuthContext.tsx";
 
 
 
@@ -22,6 +23,7 @@ function App(): JSX.Element {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const navigate = useNavigate();
+  const {currentUser} = useAuth()
 
   // User authentication state effect
   useEffect(() => {
@@ -92,8 +94,8 @@ function App(): JSX.Element {
     setDropdownOpen(false);
   };
 
-  const handleSignOut = () => {
-    auth.signOut();
+  const handleSignOut = async () => {
+    await auth.signOut();
     setDropdownOpen(false);
   };
 
@@ -133,15 +135,25 @@ function App(): JSX.Element {
                   <li className="p-2 hover:bg-gray-200 cursor-pointer" onClick={handleSettings}>
                     Settings
                   </li>
-                  <li className="p-2 hover:bg-gray-200 cursor-pointer" onClick={handleSignOut}>
-                    Sign Out
-                  </li>
+
+                  {
+                    currentUser == null
+                        ? <>
+                          <li className="p-2 hover:bg-gray-200 cursor-pointer" onClick={() => navigate("/signin")}>
+                            Sign In
+                          </li>
+                        </> :
+                        <li className="p-2 hover:bg-gray-200 cursor-pointer" onClick={handleSignOut}>
+                          Sign Out
+                        </li>
+                  }
+
                 </ul>
               </div>
             )}
           </div>
           {user && (
-            <span className="font-semibold" style={{ color: "#F6B17A" }}>
+              <span className="font-semibold" style={{ color: "#F6B17A" }}>
               {user.displayName ? user.displayName : "User"}
             </span>
           )}
