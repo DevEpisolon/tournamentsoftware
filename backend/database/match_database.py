@@ -111,7 +111,7 @@ async def get_match(matchid):
 
 
 def match_to_document(match):
-    serialized_players = [player_to_document(player) for player in match.players]
+    serialized_players = [player for player in match.players]
     serialized_winner = None
     serialized_loser = None
     if match.match_winner is not None:
@@ -138,5 +138,5 @@ def match_to_document(match):
         "start_time": match.startTime,
         "end_time": match.endTime,
         "tournament_name": match.tournamentName,
-        "bracket_position": match.bracket,
+        "bracket_position": match.bracket_position,
     }

@@ -203,7 +203,7 @@ useEffect(() => {
   // This updates the status in frontend so far
   const handleStatus = async (newStatus: number) => {
     setStatus(newStatus);
-    setEditStatus((curr) => !curr);
+    // setEditStatus((curr) => !curr);
     const statusString: string = String(newStatus);
     await axios.put(`http://localhost:8000/api/update_status/${tournamentId}/${statusString}`);
   }

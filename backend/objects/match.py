@@ -1,10 +1,30 @@
 import time
 
+
 class Match:
-    def __init__(self, matchid, slots, max_rounds, winner_next_match_id, match_status=1, tournamentName="temp",
-                 previous_match_id=None, players=None, match_winner=None, match_loser=None, loser_next_match_id=None,
-                 start_date=None, end_date=None, startTime=None, endTime=None, round_wins=None, round_losses=None,
-                 round_ties=None,bracket_position=None,tournamentRoundNumber = None):
+    def __init__(
+        self,
+        matchid,
+        slots,
+        max_rounds,
+        winner_next_match_id,
+        match_status=1,
+        tournamentName="temp",
+        previous_match_id=None,
+        players=None,
+        match_winner=None,
+        match_loser=None,
+        loser_next_match_id=None,
+        start_date=None,
+        end_date=None,
+        startTime=None,
+        endTime=None,
+        round_wins=None,
+        round_losses=None,
+        round_ties=None,
+        bracket_position=None,
+        tournamentRoundNumber=None,
+    ):
         self.matchid = matchid
         self.slots = slots
         self.match_status = match_status
@@ -15,8 +35,8 @@ class Match:
         self.loser_next_match_id = loser_next_match_id
         self.start_date = start_date
         self.end_date = end_date
-        self.bracket_position = bracket_positioni
-        self.tournamentRoundNumber = tournamentRoundNumber 
+        self.bracket_position = bracket_position
+        self.tournamentRoundNumber = tournamentRoundNumber
 
         if players is None:
             self.players = []
@@ -54,11 +74,11 @@ class Match:
         return self.slots
 
     def get_match_status(self):
-        if (self.match_status == 0):
+        if self.match_status == 0:
             return "In Progress"
-        elif (self.match_status == 1):
+        elif self.match_status == 1:
             return "Not Started"
-        elif (self.match_status == 2 ):
+        elif self.match_status == 2:
             return "Finished"
 
     def get_winner_next_match_id(self):
@@ -152,17 +172,17 @@ class Match:
 
     def set_end_time(self, endTime):
         self.endTime = endTime
-    
-    def set_bracketPosition(self,position):
-        self.bracket_position = position 
-    
+
+    def set_bracketPosition(self, position):
+        self.bracket_position = position
+
     def get_bracketPosition(self):
         return self.bracket_position
-    
-    def get_tournamentRoundNumber(self):
-        return self.tournamentRoundNumber 
 
-    def set_tournamentRoundNumber(self,number):
+    def get_tournamentRoundNumber(self):
+        return self.tournamentRoundNumber
+
+    def set_tournamentRoundNumber(self, number):
         self.tournamentRoundNumber = number
 
     def add_players(self, player):
@@ -195,7 +215,6 @@ class Match:
         for player in self.players():
             print(player.get_playername)
 
-
     def update_rounds(self, winner, matches):
         """
         winner(Player): the winner of a round
@@ -208,11 +227,19 @@ class Match:
         print("\n")
         for player in self.get_players():
             if winner.displayname == player.displayname:
-                self.round_wins[player.displayname] = self.round_wins.get(player.displayname, 0) + 1
-                player.set_current_tournament_wins(player.get_current_tournament_wins() + 1)
+                self.round_wins[player.displayname] = (
+                    self.round_wins.get(player.displayname, 0) + 1
+                )
+                player.set_current_tournament_wins(
+                    player.get_current_tournament_wins() + 1
+                )
             else:
-                self.round_losses[player.displayname] = self.round_losses.get(player.displayname, 0) + 1
-                player.set_current_tournament_losses(player.get_current_tournament_losses() + 1)
+                self.round_losses[player.displayname] = (
+                    self.round_losses.get(player.displayname, 0) + 1
+                )
+                player.set_current_tournament_losses(
+                    player.get_current_tournament_losses() + 1
+                )
         if self.round_wins[winner.displayname] >= self.num_wins:
             self.set_match_winner(winner)
             self.set_match_loser()
@@ -233,11 +260,15 @@ class Match:
             if self.rounds[winner.get_playername()] == int(self.max_rounds):
                 self.set_match_winner(winner)
                 for i in range(len(matches)):
-                    if matches[i].get_matchid() == self.matchid + self.winner_next_match_id:
+                    if (
+                        matches[i].get_matchid()
+                        == self.matchid + self.winner_next_match_id
+                    ):
                         matches[i].add_players(self.get_match_winner())
                         self.set_match_status(2)
                         print(
-                            f"{self.get_match_winner().get_playername()} won the match and is moving onto match {matches[i].get_matchid()}")
+                            f"{self.get_match_winner().get_playername()} won the match and is moving onto match {matches[i].get_matchid()}"
+                        )
                         break
 
     def start_match(self):
@@ -282,7 +313,8 @@ class Match:
     def __str__(self):
         output = (
             f"Match ID: {self.get_matchid()} | Next Match ID: {self.get_winner_next_match_id() + self.get_matchid()}"
-            f" | Match Status: {self.get_match_status()}")
+            f" | Match Status: {self.get_match_status()}"
+        )
         for player in self.players:
             output += f" | Player: {player.get_playername()}"
         if self.get_match_status() == "Finished":

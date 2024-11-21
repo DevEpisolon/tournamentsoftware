@@ -194,25 +194,28 @@ def delete_tournament_by_id(tournament_id: str):
 
 def tournament_to_document(tournament):
 
-    serialized_players = [player_to_document(player) for player in tournament.Players]
+    serialized_players = [player for player in tournament.Players]
     serialized_matches = [match_to_document(match) for match in tournament.matches]
     return {
-        "tournament_name": tournament.tournamentName,
-        "status": tournament.STATUS,
-        "start_date": tournament.STARTDATE,
-        "end_date": tournament.ENDDATE,
-        "created_at": tournament.createdAt,
-        "updated_at": tournament.updatedAt,
+        "tournamentName": tournament.tournamentName,
+        "STATUS": tournament.STATUS,
+        "STARTDATE": tournament.STARTDATE,
+        "ENDDATE": tournament.ENDDATE,
+        "createdAt": tournament.createdAt,
+        "updatedAt": tournament.updatedAt,
         "matches": serialized_matches,
-        "max_slots_count": tournament.MaxSlotsCount,
-        "tournament_type": tournament.TournamentType,
-        "team_boolean": tournament.TeamBoolean,
-        "alloted_match_time": tournament.AllotedMatchTime,
-        "players": serialized_players,
-        "tournament_winner": tournament.tournamentWinner,
-        "dropped_players": tournament.droppedPlayers,
-        "max_slots_per_match": tournament.maxSlotsPerMatch,
+        "MaxSlotsCount": tournament.MaxSlotsCount,
+        "TournamentType": tournament.TournamentType,
+        "TeamBoolean": tournament.TeamBoolean,
+        "AllotedMatchTime": tournament.AllotedMatchTime,
+        "Players": serialized_players,
+        "tournamentWinner": tournament.tournamentWinner,
+        "droppedPlayers": tournament.droppedPlayers,
+        "maxSlotsPerMatch": tournament.maxSlotsPerMatch,
         "max_rounds": tournament.max_rounds,
+        "wins_dict": tournament.wins_dict,
+        "losses_dict": tournament.losses_dict,
+        "ties_dict": tournament.ties_dict,
     }
 
 
