@@ -10,6 +10,7 @@ import ProtectedRouter from "./utils/ProtectedRoute";
 import SignIn from "./routes/SignIn";
 import SignUp from "./routes/SignUp";
 import RegisterPlayer from "./routes/RegisterPlayer";
+import OldApp from "./routes/OldApp"
 import "./App.css"
 
 const Index = () => {
@@ -26,6 +27,7 @@ const Index = () => {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/registerPlayer" element={<RegisterPlayer />} />
+          <Route path="/oldMain/*" element={<OldApp />} />
 
           {/* <Route
             //path="/tournament/:tournamentId/bracket"

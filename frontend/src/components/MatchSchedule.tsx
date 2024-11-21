@@ -89,7 +89,7 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
   }
 
   return (
-    <div className="bg-tourney-navy2 rounded-lg p-6">
+    <div className="relative bg-tourney-navy2 rounded-lg p-6 w-5/6">
       <div className="pb-4 border-b border-gray-700">
         <h2 className="text-xl font-bold flex items-center gap-2">
           <MdOutlineSchedule className="text-tourney-orange" />

@@ -182,6 +182,28 @@ def remove_player_from_tournament_by_display_name(
     }
 
 
+@tournament_router.put("/update_status/{tournament_id}/{updatedStatus}")
+def set_status_by_id(tournament_id: str, updatedStatus: str):
+    try:
+        tournament_id_obj = ObjectId(tournament_id)
+        tournament = tournaments_collection.find_one({"_id": tournament_id_obj})
+        if tournament:
+            result = tournaments_collection.update_one(
+                {"_id": tournament_id_obj}, {"$set": {"STATUS": updatedStatus}}
+            )
+            if result.modified_count == 1:
+                return {"Message": "Tournament status updated successfully!"}
+            else:
+                raise HTTPException(
+                    status_code=500, detail="Unable update tournament status."
+                )
+        else:
+            raise HTTPException(status_code=404, details="Tournament not found!")
+    except Exception as e:
+        print(str(e))
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
 @tournament_router.put("/tournament_remove/{tournament_id}")
 def delete_tournament_by_id(tournament_id: str):
     tournament_id_obj = ObjectId(tournament_id)

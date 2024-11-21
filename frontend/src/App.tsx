@@ -103,6 +103,7 @@ function App(): JSX.Element {
       setShowForm(true);
     } else if (action === "view") {
       console.log("View Tournament clicked");
+      navigate("/OldMain")
     } else if (action === "join") {
       console.log("Join Tournament clicked");
     }
