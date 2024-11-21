@@ -1,7 +1,7 @@
 from fastapi import HTTPException, APIRouter
 from mongo import MongoDB
 from pymongo import MongoClient
-from match import Match
+from objects.match import Match
 from utils import format
 from database.player_database import *
 from fastapi_app import db, client
