@@ -1,4 +1,4 @@
-from fastapi import HTTPException, APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 from mongo import MongoDB
 from pymongo import MongoClient
 from objects.match import Match
@@ -28,7 +28,6 @@ class MatchDatabase:
 
 db = client["tournamentsoftware"]
 match_collection = db["matches"]
-
 
 match_db = MatchDatabase()
 
@@ -112,7 +111,7 @@ async def get_match(matchid):
 
 
 def match_to_document(match):
-    serialized_players = [player for player in match.players]
+    serialized_players = [player_to_document(player) for player in match.players]
     serialized_winner = None
     serialized_loser = None
     if match.match_winner is not None:
@@ -139,4 +138,5 @@ def match_to_document(match):
         "start_time": match.startTime,
         "end_time": match.endTime,
         "tournament_name": match.tournamentName,
+        "bracket_position": match.bracket,
     }

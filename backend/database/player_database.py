@@ -1,5 +1,5 @@
 import asyncio
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pymongo import MongoClient
 from mongo import MongoDB
 from objects.player import Player
@@ -150,8 +150,6 @@ async def register_player(body: dict):
     db.players.insert_one(player_document)
 
     return "Player created an registered"
-
-    print("Player created and registered.")
 
 
 @player_router.post("/players/admin_create_player")
