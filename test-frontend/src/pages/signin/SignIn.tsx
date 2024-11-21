@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useAuth } from "../../utils/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -7,7 +7,7 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from "../../utils/FirbaseConfig";
-import { toast } from "react-toastify";
+import { toast } from 'react-toastify';
 
 function SignIn() {
   const emailRef = useRef("");
@@ -48,7 +48,7 @@ function SignIn() {
   const signInWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
+      await signInWithPopup(auth, provider);
     } catch (error) {
       if (error == null) {
         return;
