@@ -138,6 +138,13 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
                       {idx === 0 && (
                         <span className='text-xl'>{players.displayname}</span>
                       )}
+                      {idx === 0 && (
+                        <div className='absolute right-1/2 text-3xl'>
+                          <span>0</span>
+                          <span className='pl-5 pr-5'>-</span>
+                          <span>0</span>
+                        </div>
+                      )}
                     </div>
                   ))}
                   {getMatchPlayers(match).length === 0 && (

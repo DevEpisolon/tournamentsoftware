@@ -83,7 +83,7 @@ const TournamentPage: React.FC = () => {
 
   //Make a context to share values with other components
   const contextValue = {
-    status,
+    status
   };
 
   /*

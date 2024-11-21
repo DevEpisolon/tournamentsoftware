@@ -2,7 +2,7 @@ import React, { createContext, useContext } from "react"
 
 // Define which values we want to share
 interface TournamentPageContextType {
-  status: Number;
+  status?: Number;
 };
 
 // Create context
