@@ -55,9 +55,6 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
     });
   };
 
-  // Get tournament matches
-  async const getMatches = () => {
-  }
 
   // Helper function to get match status text and color
   const getMatchStatus = (status: number) => {
