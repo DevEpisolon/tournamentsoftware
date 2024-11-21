@@ -1,11 +1,12 @@
 import asyncio
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pymongo import MongoClient
 from mongo import MongoDB
 from objects.player import Player
 from utils import format
 from firebase_admin import auth as firebase_auth
-#from app.firebase_config import cred
+
+# from app.firebase_config import cred
 from fastapi_app import db, client
 
 player_router = APIRouter()
@@ -15,7 +16,6 @@ db = client["tournamentsoftware"]
 players_collection = db["players"]
 
 
-
 @player_router.get("/players/get_playerFirebaseID/{displayname}")
 async def verify_firebase_token(id_token: str):
     try:
@@ -23,7 +23,8 @@ async def verify_firebase_token(id_token: str):
         uid = decoded_token["uid"]
         return uid
     except Exception as e:
-        raise HTTPException(code =401,detail="Invalid Firebase token") from e
+        raise HTTPException(code=401, detail="Invalid Firebase token") from e
+
 
 # Convert player object to player document
 def player_to_document(player):
@@ -46,8 +47,7 @@ def player_to_document(player):
         "aboutMe": player.aboutMe,
         "pending_invites": player.pending,
         "friends": player.friends,
-
-        }
+    }
 
 
 # Convert player document to player object
@@ -70,9 +70,9 @@ def document_to_player(player_document):
             current_tournament_losses=player_document.get("current_tournament_losses"),
             current_tournament_ties=player_document.get("current_tournament_ties"),
             aboutMe=player_document.get("aboutMe"),
-            pending_invites = player_document.get("pending_invites"),
-            friends = player_document.get("friends"),
-            )
+            pending_invites=player_document.get("pending_invites"),
+            friends=player_document.get("friends"),
+        )
         return player
     else:
         print("Player not found.")
@@ -101,19 +101,22 @@ async def get_player_by_email(email: str):
         raise HTTPException(
             status_code=404, detail=f"Player with email '{email}' not found."
         )
-    
-'''
+
+
+"""
 @player_router.post("/players/sendFriendRequest")
 async def send_friendRequest(username):
     player_document = db.players.find_one({"displayname": username})
         if
-'''
+"""
+
 
 @player_router.post("/players/sendFriendRequest")
-async def send_friendRequest(sender,reciever):
+async def send_friendRequest(sender, reciever):
     player_document = db.players.find_one({"displayname": reciever})
     player = document_to_player(player_document)
     player.set_pendingInvites(player.get_pendingInvites.append(sender))
+
 
 """For regular users to register as a Player/create an account."""
 
@@ -128,7 +131,7 @@ async def register_player(body: dict):
     email = body.get("email")
     id_token = data.get("idToken")
     if not id_token:
-        raise HTTPException(status_code = 400 , detail="ID Token is required!")
+        raise HTTPException(status_code=400, detail="ID Token is required!")
 
     new_player = Player(playername=playername, displayname=displayname, email=email)
 
@@ -147,8 +150,6 @@ async def register_player(body: dict):
     db.players.insert_one(player_document)
 
     return "Player created an registered"
-
-    print("Player created and registered.")
 
 
 @player_router.post("/players/admin_create_player")
@@ -181,22 +182,29 @@ async def admin_create_player():
     print("Player created.")
 
 
-'''Used to update about me'''
+"""Used to update about me"""
+
+
 @player_router.put("/players/update_about_me/{playername}")
 async def update_about_me(playername: str, body: dict):
     new_about_me = body.get("aboutMe")
     if not new_about_me or len(new_about_me) > 25:
-        raise HTTPException(status_code=400, detail="Invalid input: 'aboutMe' must be less than 25 characters.")
-    
-    result = db.players.update_one({"playername": playername}, {"$set": {"aboutMe": new_about_me}})
-    
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid input: 'aboutMe' must be less than 25 characters.",
+        )
+
+    result = db.players.update_one(
+        {"playername": playername}, {"$set": {"aboutMe": new_about_me}}
+    )
+
     if result.modified_count == 1:
         return {"message": f"Player '{playername}' updated successfully."}
     else:
         raise HTTPException(status_code=404, detail=f"Player '{playername}' not found.")
 
 
-'''For removing a player from the database.'''
+"""For removing a player from the database."""
 
 
 @player_router.delete("/players/delete_player/{displayname}")
@@ -274,6 +282,26 @@ async def grab_ALLplayers():
     players = [
         document_to_player(player_data) for player_data in players_data
     ]  # Convert player documents to Player objects
+    return players
+
+
+# Searches players and with 2 letters or more as input
+@player_router.get("/api/players/search")
+async def search_players(term: str = Query(..., min_length=1)):
+    """
+    Search for players whose displayname contains the search term (case-insensitive)
+    """
+    # Create a case-insensitive regex pattern
+    pattern = {"$regex": f".*{term}.*", "$options": "i"}
+
+    # Search in the players collection
+    cursor = db.players.find({"displayname": pattern})
+
+    # Convert cursor to list of players
+    players = []
+    async for player in cursor:
+        players.append(Player(**player))
+
     return players
 
 

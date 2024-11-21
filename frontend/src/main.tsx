@@ -10,13 +10,14 @@ import ProtectedRouter from "./utils/ProtectedRoute";
 import SignIn from "./routes/SignIn";
 import SignUp from "./routes/SignUp";
 import RegisterPlayer from "./routes/RegisterPlayer";
+import "./App.css"
 
 const Index = () => {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<App />} />
+          <Route path="*" element={<App />} />
           <Route path="/player/:playername" element={<PlayerProfilePage />} />
           <Route
             path="/tournament/:tournamentId"

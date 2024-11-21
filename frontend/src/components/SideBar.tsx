@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useState } from 'react'
 import { MdMoreVert, MdOutlineDehaze, MdClose } from 'react-icons/md'; // Material Design
-import { useNavigate } from 'react-router-dom';
-
 
 interface SideBarProps {
   children?: React.ReactNode;
@@ -11,6 +9,7 @@ interface ItemProps {
   icon: React.ReactNode;
   text: string;
   link?: string;
+  onClick: (event: React.MouseEventHandler<HTMLButtonElement>) => void;
   active?: boolean;
   alert?: boolean;
 };
@@ -23,7 +22,7 @@ export default function SideBar({ children }: SideBarProps): React.ReactNode {
   return (
     <aside className="h-screen sticky self-start top-0 transition-width z-20">
       <nav className="h-full flex flex-col bg-tourney-navy2 border-r shadow-md border-tourney-navy1">
-        <div className="p-4 pb-2 flex justify-between items-center">
+        <div className="p-5 pb-2 flex justify-between items-center">
           <span className={`overflow-hidden transition-all ${expanded ? "w-32" : "w-0"}`}>
             TAS-32
           </span>
@@ -58,16 +57,17 @@ export default function SideBar({ children }: SideBarProps): React.ReactNode {
   )
 };
 
-export function SideBarItem({ icon, text, link, active, alert }: ItemProps): React.ReactNode {
+export function SideBarItem({ icon, text, link, onClick, active, alert }: ItemProps): React.ReactNode {
   const { expanded } = useContext(SideBarContext);
-
   return (
     <a href={link} className={`relative flex items-center my-1 px-3 py-2 font-medium rounded-md cursor-pointer transition-colors group
       ${active
         ? "bg-tourney-navy1 text-tourney-orange"
         : "hover:bg-tourney-navy3 text-white"
       }
-    `}>
+    `}
+      // any is for my TabKey function
+      onClick={(e: any) => onClick(e)}>
       {icon}
       <span className={`overflow-hidden transition-all ${expanded ? "w-52 text-left ml-3" : "w-0"}`}>{text}</span>
       {alert && (
