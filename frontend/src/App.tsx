@@ -241,15 +241,6 @@ function App(): JSX.Element {
         </div>
 
         {showForm && <SearchPlayerForm />}
-
-        <Routes>
-          <Route path="/featured" element={<div>Featured Tournaments</div>} />
-          <Route path="/recent" element={<div>Recent Tournaments</div>} />
-          <Route path="/upcoming" element={<div>Upcoming Tournaments</div>} />
-          <Route path="/friends" element={<div>Friends Tournaments</div>} />
-          <Route path="/player/:id" element={<div>Player Profile</div>} />
-          <Route path="/settings" element={<Settings />} /> {/* Add this line */}
-        </Routes>
       </div>
     </div>
   );

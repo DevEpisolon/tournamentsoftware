@@ -7,6 +7,7 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from "../utils/FirbaseConfig";
+import {toast} from "react-toastify"
 
 function SignIn() {
   const emailRef = useRef("");
@@ -39,8 +40,7 @@ function SignIn() {
       const message: string = AUTH_ERRORS[code];
 
       console.error(error, message, errorCode);
-
-      alert("Incorrect email or password");
+      toast.error(message)
     }
   };
 
