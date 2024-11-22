@@ -9,6 +9,7 @@ import { AuthProvider } from "./utils/AuthContext";
 import SignIn from "./routes/SignIn";
 import SignUp from "./routes/SignUp";
 import RegisterPlayer from "./routes/RegisterPlayer";
+import OldApp from "./routes/OldApp"
 import "./App.css"
 import Settings from "./routes/Settings.tsx";
 import {DialogProvider} from "./utils/DialogProvider.tsx";
@@ -28,7 +29,7 @@ const Index = () => {
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/registerPlayer" element={<RegisterPlayer />} />
-
+            <Route path="/oldMain/*" element={<OldApp />} />
             <Route path="/featured" element={<div>Featured Tournaments</div>} />
             <Route path="/recent" element={<div>Recent Tournaments</div>} />
             <Route path="/upcoming" element={<div>Upcoming Tournaments</div>} />

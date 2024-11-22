@@ -86,33 +86,28 @@ const TournamentPage: React.FC = () => {
     status
   };
 
-  /*
-useEffect(() => {
   const fetchTournamentData = async () => {
     try {
       const response = await axios.get<Tournament>(`http://localhost:8000/api/tournaments/${tournamentId}`);
       setTournament(response.data);
-      setPlayersInTournament(response.data.Players);
     } catch (error) {
       console.error('Error fetching tournament data:', error);
     }
   };
 
-  fetchTournamentData();
-}, [tournamentId]);
+  /*
+  useEffect(() => {
+    const fetchPlayers = async () => {
+      try {
+        const response = await axios.get<Player[]>('http://localhost:8000/api/players/all');
+        setAvailablePlayers(response.data);
+      } catch (error) {
+        console.error('Error fetching players:', error);
+      }
+    };
 
-useEffect(() => {
-  const fetchPlayers = async () => {
-    try {
-      const response = await axios.get<Player[]>('http://localhost:8000/api/players/all');
-      setAvailablePlayers(response.data);
-    } catch (error) {
-      console.error('Error fetching players:', error);
-    }
-  };
-
-  fetchPlayers();
-}, []);*/
+    fetchPlayers();
+  }, []);*/
 
   useEffect(() => {
     const fetchData = async () => {
@@ -219,6 +214,7 @@ useEffect(() => {
       await axios.put(`http://localhost:8000/api/create_matches/${tournamentId}`)
       handleStatus(0)
       alert('Tournament has started')
+      fetchTournamentData()
       // Implement start functionality
       // navigate(`/tournament/${tournamentId}/bracket`);
     } else {
@@ -341,8 +337,14 @@ useEffect(() => {
                 <TournamentInfo />
               </div>
             )}
-            {selectedPage === 'matches' &&
-              <MatchSchedule tournament={tournament} />
+            {selectedPage === 'matches' && (
+              <div className='flex'>
+                <MatchSchedule tournament={tournament} />
+                <div className='pl-5'>
+                  <button className='px-4 py-2 font-bold rounded-md bg-tourney-orange'>Promote</button>
+                </div>
+              </div>
+            )
             }
           </div>
         </div>
