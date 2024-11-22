@@ -15,10 +15,6 @@ import Settings from "./routes/Settings.tsx";
 import {DialogProvider} from "./utils/DialogProvider.tsx";
 
 const Index = () => {
-  const { currentUser } = useAuth();
-
-  console.log("Current User:", currentUser); // Debugging authentication state
-
   return (
     <AuthProvider>
       <DialogProvider>
