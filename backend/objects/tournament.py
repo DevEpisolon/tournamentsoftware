@@ -1,6 +1,7 @@
 from datetime import datetime
 from objects.match import Match
 import math
+<<<<<<< HEAD
 
 
 class Tournament:
@@ -28,6 +29,15 @@ class Tournament:
         rounds=None,
     ):
 
+=======
+import random
+class Tournament:
+    def __init__(self, tournamentName, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, max_rounds,
+                 maxSlotsPerMatch, MaxSlotsCount, matches=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None,
+                 Players=None, tournamentWinner=None, droppedPlayers=None, wins_dict=None, losses_dict=None,
+                 ties_dict=None,rounds=None, currentRound=None,onGoingPlayers = None):
+      
+>>>>>>> 12849d8 (create matches)
         self.tournamentName = tournamentName
         self.STATUS = STATUS
         self.STARTDATE = STARTDATE
@@ -50,7 +60,13 @@ class Tournament:
         self.wins_dict = wins_dict if wins_dict else {}
         self.losses_dict = losses_dict if losses_dict else {}
         self.ties_dict = ties_dict if ties_dict else {}
+<<<<<<< HEAD
         self.rounds = math.log2(len(Players) + 1)
+=======
+        self.rounds = math.log2(len(players) + 1)
+        self.currentRound = currentRound
+        self.onGoingPlayers = Players if Players else []
+>>>>>>> 12849d8 (create matches)
 
     # Getter and setter methods for each attribute
     def get_tournamentName(self):
@@ -88,7 +104,23 @@ class Tournament:
 
     def set_MaxSlotsPerMatch(self, count):
         self.maxSlotsPerMatch = count
+<<<<<<< HEAD
 
+=======
+    
+    def get_currentRound(self):
+        return self.currentRound
+
+    def get_onGoingPlayers(self):
+        return self.onGoingPlayers 
+   
+    def set_onGoingPlayers(self,players):
+        self.onGoingPlayers = players
+
+    def set_currentRound(self,count):
+        self.currentRound = count
+   
+>>>>>>> 12849d8 (create matches)
     def get_MaxSlotsPerMatch(self):
         return self.maxSlotsPerMatch
 
@@ -158,12 +190,28 @@ class Tournament:
     def addPlayertoTournament(self, Player):
         self.Players.append(Player)
 
+<<<<<<< HEAD
     def allMatchesInRoundFinished(self, roundNumber):
         for x in self.getMatches:
             pass
             # need to check roundNumber in match
 
     """
+=======
+else:
+
+    def allMatchesInRoundFinished(self,roundNumber):
+        for x in self.getMatches:
+            if !(x.get_STATUS() != "Finished"):
+                return "Not all matches are finished!"
+            else:
+
+            #need to check roundNumber in match 
+
+    def randomizePlayersinTournament(self):
+        random.shuffle(self.getPlayers)
+    '''
+>>>>>>> 12849d8 (create matches)
     Remove a player from the tournament
     player = player to remove
     """
@@ -342,11 +390,22 @@ class Tournament:
                       match_loser=None, start_date=None, end_date=None,
                       startTime=None, endTime=None, roundNumber = x)
                     matches.append(m)
-
+                     
             self.set_matches(matches)
     """
 
-    # call it when tournament ended so it can fetch players' wins, losses, and ties
+    def __assingPlayerstoMatches(self):
+        tempPlayers = self.getPlayers().copy()
+        matches = self.getMatches().copy() 
+        for m in range(len(matches)/2):
+            tempPlayersinMatch = [] 
+            for _ in range(2):
+                tempPlayersinMatch.append(tempPlayers.pop())
+        currentMatch = matches.pop(0)
+        currentMatch.set_Players(tempPlayersinMatch)
+          
+        
+# call it when tournament ended so it can fetch players' wins, losses, and ties
     def update_dict(self):
         for match in self.get_Matches():
             for player in match.get_players():
