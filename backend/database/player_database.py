@@ -11,7 +11,7 @@ from firebase_admin import auth as firebase_auth
 # from app.firebase_config import cred
 from fastapi_app import db, client
 
-from backend.auth import verify_token
+from auth import verify_token
 
 player_router = APIRouter()
 
