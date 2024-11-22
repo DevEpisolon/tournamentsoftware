@@ -182,6 +182,28 @@ def remove_player_from_tournament_by_display_name(
     }
 
 
+@tournament_router.put("/update_status/{tournament_id}/{updatedStatus}")
+def set_status_by_id(tournament_id: str, updatedStatus: str):
+    try:
+        tournament_id_obj = ObjectId(tournament_id)
+        tournament = tournaments_collection.find_one({"_id": tournament_id_obj})
+        if tournament:
+            result = tournaments_collection.update_one(
+                {"_id": tournament_id_obj}, {"$set": {"STATUS": updatedStatus}}
+            )
+            if result.modified_count == 1:
+                return {"Message": "Tournament status updated successfully!"}
+            else:
+                raise HTTPException(
+                    status_code=500, detail="Unable update tournament status."
+                )
+        else:
+            raise HTTPException(status_code=404, details="Tournament not found!")
+    except Exception as e:
+        print(str(e))
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
 @tournament_router.put("/tournament_remove/{tournament_id}")
 def delete_tournament_by_id(tournament_id: str):
     tournament_id_obj = ObjectId(tournament_id)
@@ -194,35 +216,100 @@ def delete_tournament_by_id(tournament_id: str):
 
 def tournament_to_document(tournament):
 
-    serialized_players = [player_to_document(player) for player in tournament.Players]
+    serialized_players = [player for player in tournament.Players]
     serialized_matches = [match_to_document(match) for match in tournament.matches]
     return {
-        "tournament_name": tournament.tournamentName,
-        "status": tournament.STATUS,
-        "start_date": tournament.STARTDATE,
-        "end_date": tournament.ENDDATE,
-        "created_at": tournament.createdAt,
-        "updated_at": tournament.updatedAt,
+        "tournamentName": tournament.tournamentName,
+        "STATUS": tournament.STATUS,
+        "STARTDATE": tournament.STARTDATE,
+        "ENDDATE": tournament.ENDDATE,
+        "createdAt": tournament.createdAt,
+        "updatedAt": tournament.updatedAt,
         "matches": serialized_matches,
-        "max_slots_count": tournament.MaxSlotsCount,
-        "tournament_type": tournament.TournamentType,
-        "team_boolean": tournament.TeamBoolean,
-        "alloted_match_time": tournament.AllotedMatchTime,
-        "players": serialized_players,
-        "tournament_winner": tournament.tournamentWinner,
-        "dropped_players": tournament.droppedPlayers,
-        "max_slots_per_match": tournament.maxSlotsPerMatch,
+        "MaxSlotsCount": tournament.MaxSlotsCount,
+        "TournamentType": tournament.TournamentType,
+        "TeamBoolean": tournament.TeamBoolean,
+        "AllotedMatchTime": tournament.AllotedMatchTime,
+        "Players": serialized_players,
+        "tournamentWinner": tournament.tournamentWinner,
+        "droppedPlayers": tournament.droppedPlayers,
+        "maxSlotsPerMatch": tournament.maxSlotsPerMatch,
         "max_rounds": tournament.max_rounds,
+        "wins_dict": tournament.wins_dict,
+        "losses_dict": tournament.losses_dict,
+        "ties_dict": tournament.ties_dict,
     }
 
 
 @tournament_router.put("/create_matches/{tournament_id}")
 async def create_matches(tournament_id):
-    tournament = await get_tournament_byid(tournament_id)
-    tournament.createMatches()
-    updated_tournament = tournament_to_document(tournament)
-    tournament_collection.replace_one(
-        {"_id": ObjectId(tournament_id)}, updated_tournament
-    )
-    for match in tournament.matches:
-        await post_match(match_to_document(match))
+    # 1. First, validate tournament_id format
+    try:
+        obj_id = ObjectId(tournament_id)
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid tournament ID format: {str(e)}",
+        )
+
+    # 2. Get tournament with null check
+    tournament = get_tournament_byid(tournament_id)
+    if tournament is None:
+        raise HTTPException(
+            status_code=404, detail=f"Tournament with ID {tournament_id} not found"
+        )
+
+    # 3. Split the operations for better error tracking
+    try:
+        # Create matches
+        tournament.createMatches()
+
+        # Convert to document format
+        try:
+            updated_tournament = tournament_to_document(tournament)
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to convert tournament to document: {str(e)}",
+            )
+
+        # Update in database
+        try:
+            print(updated_tournament)
+            result = tournaments_collection.replace_one(
+                {"_id": obj_id}, updated_tournament
+            )
+            if result.modified_count == 0:
+                raise HTTPException(
+                    status_code=500, detail="Failed to update tournament in database"
+                )
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Database update failed: {str(e)}"
+            )
+
+        # Create match documents
+        try:
+            for match in tournament.matches:
+                match_doc = match_to_document(match)
+                await post_match(match_doc)
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Failed to create match documents: {str(e)}"
+            )
+
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions
+    except Exception as e:
+        # Log the full error for debugging
+        print(f"Unexpected error in create_matches: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to create matches: {str(e)}"
+        )
+
+    # Return success response
+    return {
+        "status": "success",
+        "message": "Matches created successfully",
+        "tournament_id": str(tournament_id),
+    }

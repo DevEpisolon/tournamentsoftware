@@ -2,6 +2,8 @@ import React, { useRef } from "react";
 import { useAuth } from "../utils/AuthContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import {toast} from "react-toastify";
+import {Spinner} from "../components/Spinner.tsx";
 
 const RegisterPlayer: React.FC = () => {
   const displayRef = useRef<string>("");
@@ -16,28 +18,36 @@ const RegisterPlayer: React.FC = () => {
     // Add code to send a POST request to FastAPI to add the player to the database
 
     try {
+      const token = await currentUser.getIdTokenResult()
       const result = await axios.post(
         "http://localhost:8000/api/players/register_player",
         {
           email: email,
           displayname: displayName,
-          playername: playerName,
-        }
+          playername: playerName
+        },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
       );
+
       if (result.status === 200) {
-        alert("Player added successfully");
+        toast.success("Player added successfully");
         navigate(`/player/${displayName}`);
         return;
       }
-      alert("Failed to add player to database.");
+      toast.error("Failed to add player to database.");
     } catch (error) {
-      alert("Error adding player to database");
+      toast.error("Error adding player to database");
     }
   };
 
   return (
     <div className="p-5 flex flex-col justify-center items-center">
-      <p>Please register the player</p>
+      <h1 className="text-4xl mb-10">Please register the player</h1>
+
       <div>
         <label
           htmlFor="email"
@@ -59,7 +69,7 @@ const RegisterPlayer: React.FC = () => {
         </div>
       </div>
 
-      <div>
+      <div className="mt-5">
         <label
           htmlFor="email"
           className="block text-sm font-medium leading-6 text-gray-900"
@@ -79,13 +89,13 @@ const RegisterPlayer: React.FC = () => {
           />
         </div>
       </div>
-      <button
-        type="button"
-        onClick={() => addUserToDatabase()}
-        className="mt-2 rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-      >
-        Submit
-      </button>
+        <button
+            type="submit"
+            className=" mt-3 flex max-w-[400px] mt-10 w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            // onClick={signIn}
+        >
+            Add Player
+        </button>
     </div>
   );
 };

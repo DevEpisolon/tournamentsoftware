@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from mongo import MongoDB
 from pymongo import MongoClient
-from objects.match import Match 
+from objects.match import Match
 from utils import format
 from database.player_database import *
 from fastapi_app import db, client
 
 # Router for match-related endpoints
 match_router = APIRouter()
+
 
 class MatchDatabase:
     def __init__(self):
@@ -23,11 +24,13 @@ class MatchDatabase:
         match = Match(**match_data)
         self.matches[match.matchid] = match
         return match
-    
+
+
 db = client["tournamentsoftware"]
 match_collection = db["matches"]
-    
+
 match_db = MatchDatabase()
+
 
 @match_router.get("/matches/tournament/{tournamentName}")
 async def get_matches_by_tournament(tournamentName: int):
@@ -36,6 +39,7 @@ async def get_matches_by_tournament(tournamentName: int):
         raise HTTPException(status_code=404, detail="Matches not found")
     return format(matches)
 
+
 @match_router.get("/matches/players/{displayname}")
 def get_matches_by_player(displayname: str):
     matches = match_collection.find({"players.player_id": displayname})
@@ -43,30 +47,33 @@ def get_matches_by_player(displayname: str):
         raise HTTPException(status_code=404, detail="Matches not found")
     return format(matches)
 
+
 @match_router.post("/match")
 async def post_match(match: dict):
     match_collection.insert_one(match)
     return "Successfully added match"
 
+
 @match_router.patch("/matches/{match_id}")
 async def update_match(match_id: str, update_fields: dict):
     result = match_collection.find_one_and_update(
-        {"matchid": match_id},
-        {"$set": update_fields},
-        return_document=True
+        {"matchid": match_id}, {"$set": update_fields}, return_document=True
     )
     if not result:
         raise HTTPException(status_code=404, detail="Match not found")
     return "Successfully updated match"
+
 
 @match_router.post("/matches/")
 async def create_match(match_data: dict):
     print(match_data)
     return match_db.create_match(match_data)
 
+
 @match_router.get("/matches/{matchid}/")
 async def read_match(matchid: int):
     return await match_db.get_match(matchid)
+
 
 @match_router.put("/match/{matchid}/promote_player/{winner}")
 async def promote_player(matchid, displayname):
@@ -77,8 +84,11 @@ async def promote_player(matchid, displayname):
         if next_match.get_matchid() == match.matchid + match.winner_next_match_id:
             next_match.add_players(player)
             updated_match = match_to_document(next_match)
-            match_collection.replace_one({"matchid": int(next_match.matchid)}, updated_match)
+            match_collection.replace_one(
+                {"matchid": int(next_match.matchid)}, updated_match
+            )
             break
+
 
 @match_router.get("/matches")
 async def get_all_matches():
@@ -89,6 +99,7 @@ async def get_all_matches():
         matches.append(match)
     return matches
 
+
 @match_router.get("/match/{matchid}")
 async def get_match(matchid):
     match_document = match_collection.find_one({"matchid": int(matchid)})
@@ -98,8 +109,9 @@ async def get_match(matchid):
     else:
         raise HTTPException(status_code=404, detail=f"Match '{matchid}' not found.")
 
+
 def match_to_document(match):
-    serialized_players = [player_to_document(player) for player in match.players]
+    serialized_players = [player for player in match.players]
     serialized_winner = None
     serialized_loser = None
     if match.match_winner is not None:
@@ -126,6 +138,5 @@ def match_to_document(match):
         "start_time": match.startTime,
         "end_time": match.endTime,
         "tournament_name": match.tournamentName,
-        "bracket_position": match.bracket,
+        "bracket_position": match.bracket_position,
     }
-
