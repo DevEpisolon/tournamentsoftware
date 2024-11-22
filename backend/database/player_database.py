@@ -50,7 +50,7 @@ def player_to_document(player, firebase_uid):
         "aboutMe": player.aboutMe,
         "pending_invites": player.pending,
         "friends": player.friends,
-        "firebase_uid": firebase_uid
+        "firebase_uid": firebase_uid,
     }
 
 
@@ -126,7 +126,7 @@ async def send_friendRequest(sender, reciever):
 
 
 @player_router.post("/players/register_player")
-async def register_player(request: Request,  body: dict):
+async def register_player(request: Request, body: dict):
     # playername = input("Enter name: ")
     # displayname = input("Enter display name: ")
 
@@ -141,27 +141,20 @@ async def register_player(request: Request,  body: dict):
     # Convert player to document
     player_document = player_to_document(new_player, firebase_uid=uid)
 
-
-
     # check = input("Add player to database? (Y/N): ")
 
     cursor = db.players.find_one({"displayname": displayname})
 
-    await firebase_auth.set_custom_user_claims(uid, {
-        ''
-    })
+    await firebase_auth.set_custom_user_claims(uid, {""})
 
     if cursor:
         raise HTTPException(status_code=400, detail="Player already exists")
-
 
     result = db.players.insert_one(player_document)
     player_id = str(result.inserted_id)  # Convert ObjectId to string
 
     # Set the player_id as custom claim
-    await firebase_auth.set_custom_user_claims(uid, {
-        'player_id': player_id
-    })
+    await firebase_auth.set_custom_user_claims(uid, {"player_id": player_id})
 
     return "Player created an registered"
 
