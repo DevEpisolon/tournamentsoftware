@@ -1,8 +1,7 @@
 from datetime import datetime
 from objects.match import Match
 import math
-<<<<<<< HEAD
-
+import Match
 
 class Tournament:
     def __init__(
@@ -27,17 +26,11 @@ class Tournament:
         losses_dict=None,
         ties_dict=None,
         rounds=None,
-    ):
+        currentRound = None,
+        onGoingPlayers = None
+        ):
 
-=======
-import random
-class Tournament:
-    def __init__(self, tournamentName, STATUS, STARTDATE, ENDDATE, createdAt, updatedAt, max_rounds,
-                 maxSlotsPerMatch, MaxSlotsCount, matches=None, TournamentType=None, TeamBoolean=None, AllotedMatchTime=None,
-                 Players=None, tournamentWinner=None, droppedPlayers=None, wins_dict=None, losses_dict=None,
-                 ties_dict=None,rounds=None, currentRound=None,onGoingPlayers = None):
       
->>>>>>> 12849d8 (create matches)
         self.tournamentName = tournamentName
         self.STATUS = STATUS
         self.STARTDATE = STARTDATE
@@ -60,13 +53,9 @@ class Tournament:
         self.wins_dict = wins_dict if wins_dict else {}
         self.losses_dict = losses_dict if losses_dict else {}
         self.ties_dict = ties_dict if ties_dict else {}
-<<<<<<< HEAD
         self.rounds = math.log2(len(Players) + 1)
-=======
-        self.rounds = math.log2(len(players) + 1)
         self.currentRound = currentRound
         self.onGoingPlayers = Players if Players else []
->>>>>>> 12849d8 (create matches)
 
     # Getter and setter methods for each attribute
     def get_tournamentName(self):
@@ -103,11 +92,7 @@ class Tournament:
         return self.createdAt
 
     def set_MaxSlotsPerMatch(self, count):
-        self.maxSlotsPerMatch = count
-<<<<<<< HEAD
-
-=======
-    
+        return self.set_MaxSlotsPerMatch = count
     def get_currentRound(self):
         return self.currentRound
 
@@ -120,7 +105,6 @@ class Tournament:
     def set_currentRound(self,count):
         self.currentRound = count
    
->>>>>>> 12849d8 (create matches)
     def get_MaxSlotsPerMatch(self):
         return self.maxSlotsPerMatch
 
@@ -190,31 +174,22 @@ class Tournament:
     def addPlayertoTournament(self, Player):
         self.Players.append(Player)
 
-<<<<<<< HEAD
-    def allMatchesInRoundFinished(self, roundNumber):
-        for x in self.getMatches:
-            pass
-            # need to check roundNumber in match
-
-    """
-=======
-else:
-
     def allMatchesInRoundFinished(self,roundNumber):
         for x in self.getMatches:
-            if !(x.get_STATUS() != "Finished"):
-                return "Not all matches are finished!"
-            else:
-
-            #need to check roundNumber in match 
+            if (!(x.get_STATUS() != "Finished") and x.get_currentRound() == roundNumber):
+                return False
+        return True
+    
+    def getMatchesinRound(self,roundNumber):
+        tempMatches: List[Match]= [] 
+        for x in self.getMatches():
+            if (x.get_currentRound() == roundNumber):
+                tempMatches.append(x)
+        return tempMatches
+    
 
     def randomizePlayersinTournament(self):
         random.shuffle(self.getPlayers)
-    '''
->>>>>>> 12849d8 (create matches)
-    Remove a player from the tournament
-    player = player to remove
-    """
 
     def removePlayerfromTournament(self, Player):
         self.Players.remove(Player)
@@ -391,7 +366,7 @@ else:
                       startTime=None, endTime=None, roundNumber = x)
                     matches.append(m)
                      
-            self.set_matches(matches)
+        self.set_matches(matches)
     """
 
     def __assingPlayerstoMatches(self):
@@ -403,7 +378,17 @@ else:
                 tempPlayersinMatch.append(tempPlayers.pop())
         currentMatch = matches.pop(0)
         currentMatch.set_Players(tempPlayersinMatch)
-          
+
+    def __promotePlayersInrroundNumber(self,rn):
+        playerHolder = [] 
+        if allMatchesInRoundFinished(rn):
+            for x in getMatchesinRound(rn):
+                playerHolder.append(x.get_round_winner())
+        for y in getMatchesinRound(rn+1):
+            if len(playerHolder) >=2:
+                playersFornextMatch = [playerHolder.pop(0),playerHolder.pop(1)]
+                y.set_players(playersFornextMatch)
+
         
 # call it when tournament ended so it can fetch players' wins, losses, and ties
     def update_dict(self):
