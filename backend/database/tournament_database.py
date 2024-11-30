@@ -9,7 +9,7 @@ from database.player_database import *
 from database.match_database import *
 import asyncio
 from fastapi_app import db, client
-
+from objects.match import Match
 
 tournament_router = APIRouter()
 

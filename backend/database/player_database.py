@@ -1,5 +1,4 @@
 import asyncio
-
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pymongo import MongoClient
 from mongo import MongoDB

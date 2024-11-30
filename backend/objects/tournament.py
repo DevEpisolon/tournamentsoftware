@@ -1,7 +1,5 @@
 from datetime import datetime
-from objects.match import Match
 import math
-import Match
 
 class Tournament:
     def __init__(
@@ -92,7 +90,8 @@ class Tournament:
         return self.createdAt
 
     def set_MaxSlotsPerMatch(self, count):
-        return self.set_MaxSlotsPerMatch = count
+        self.maxSlotsPerMatch = count
+    
     def get_currentRound(self):
         return self.currentRound
 
@@ -176,7 +175,7 @@ class Tournament:
 
     def allMatchesInRoundFinished(self,roundNumber):
         for x in self.getMatches:
-            if (!(x.get_STATUS() != "Finished") and x.get_currentRound() == roundNumber):
+            if ((x.get_STATUS() is not "Finished") and (x.get_currentRound() is roundNumber)):
                 return False
         return True
     
