@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
+import PlayerProfilePage from './routes/PlayerProfilePage';
 import SearchPlayerForm from "./components/searchPlayerForm";
-import { Routes, Route, useNavigate } from "react-router-dom"; // Corrected import for useNavigate
+import { Routes, Route, useNavigate, Link } from "react-router-dom"; // Corrected import for useNavigate
 import { auth } from "./utils/FirbaseConfig";
 
 function App(): JSX.Element {
@@ -64,8 +65,38 @@ function App(): JSX.Element {
       .catch((error) => console.error("Error fetching online friends:", error));
   }, []);
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
+  const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value;
+    setSearchQuery(query);
+  
+    if (query.trim() !== "") {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/players/search?query=${query}`);
+        const players = response.data;
+
+        // Debug: Log the players array to the console
+        console.log("Players array:", players);
+        console.log("Test 1")
+
+        players.forEach((player: { displayname: string }) => {
+          console.log(player.displayname);
+        });        
+
+        // Filter players to show only those whose displayName starts with the search query
+        const filteredPlayers = players.filter((player: { displayname: string }) =>
+        player.displayname && player.displayname.toLowerCase().startsWith(query.toLowerCase())); // Case-insensitive match for display names starting with query
+
+        // Debug: Log the players array to the console
+        console.log("Players array:", filteredPlayers);
+        console.log("Test 2")
+
+        setSearchResults(filteredPlayers.slice(0, 10)); // Limit to 10 results
+      } catch (error) {
+        console.error("Error searching players:", error);
+      }
+    } else {
+      setSearchResults([]); // Clear results if search query is empty
+    }
   };
 
   const handleSearch = async () => {
@@ -189,17 +220,35 @@ function App(): JSX.Element {
             )}
           </div>
 
+          {/* Define Routes */}
+        <Routes>
+        <Route path="/player/:playername" element={<PlayerProfilePage />} />
+        </Routes>
+
           {/* Search Players Textbox */}
-          <div className="ml-4">
+          <div className="ml-4 relative">
             <input
               type="text"
               value={searchQuery}
               onChange={handleSearchChange}
-              onKeyDown={handleKeyPress}
               placeholder="Search players"
-              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none"
-              style={{ color: "black" }} // Ensure the text is black
+              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none text-black"
             />
+
+            {/* Display Player Search Results */}
+            {searchResults.length > 0 && (
+              <ul className="absolute bg-gray-800 text-white mt-1 w-full max-h-60 overflow-auto rounded-md border border-gray-600">
+                {searchResults.map((player) => (
+                  <li
+                    key={player.displayname}
+                    className="py-2 px-4 hover:bg-gray-700 cursor-pointer"
+                  >
+                    {/*player.displayname*/}
+                    <Link to={`/player/${player.displayname}`}>{player.displayname}</Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </header>
@@ -315,5 +364,3 @@ function App(): JSX.Element {
 }
 
 export default App;
-
-//test commit

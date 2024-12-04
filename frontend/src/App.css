@@ -39,3 +39,27 @@
   padding: 10px;
 }
 
+/* Dropdown container */
+.dropdown {
+  position: absolute;
+  background-color: #333;  /* Dark gray background */
+  border: 1px solid #555;  /* Darker gray border */
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: 5px;  /* Optional: add a small gap below the input */
+  border-radius: 4px;  /* Optional: smooth rounded corners */
+}
+
+/* Dropdown item (each player name) */
+.dropdown-item {
+  padding: 10px;
+  color: white;  /* White text color */
+  cursor: pointer;
+}
+
+/* Highlight the item on hover */
+.dropdown-item:hover {
+  background-color: #444;  /* Slightly lighter gray on hover */
+}

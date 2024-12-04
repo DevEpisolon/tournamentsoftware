@@ -7,6 +7,7 @@ const DEFAULT_IMAGE_URL =
   "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
 
 const PlayerProfilePage: React.FC = () => {
+  const { id } = useParams(); // Get the player ID from the URL
   const { playername } = useParams<{ playername: string }>();
   const [playerData, setPlayerData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);

@@ -7,6 +7,7 @@ from utils import format
 from firebase_admin import auth as firebase_auth
 #from app.firebase_config import cred
 from fastapi_app import db, client
+from bson.regex import Regex
 
 player_router = APIRouter()
 
@@ -78,6 +79,24 @@ def document_to_player(player_document):
         print("Player not found.")
         return None
 
+@player_router.get("/players/search")
+async def search_players(query: str):
+    try:
+        # Using a case-insensitive regular expression to find partial matches
+        regex = Regex(f".*{query}.*", "i")  # "i" makes the regex case-insensitive
+        players = db.players.find({"displayname": regex})
+        
+        # Convert the players cursor to a list
+        players_list = [document_to_player(player).__dict__ for player in players]
+
+        if not players_list:
+            raise HTTPException(status_code=404, detail="No players found.")
+        
+        # Limit search results to 10 players
+        return players_list[:10]
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @player_router.get("/players/get_player/{displayname}")
 async def get_player(displayname: str):
