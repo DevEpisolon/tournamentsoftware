@@ -177,12 +177,37 @@ class Player:
     def set_pendingInvites(self,pending_friends):
         self.pending = pending_friends 
     
+    def append_topendingInvites(self,senderName):
+        self.pending_invites.append(senderName)
+
+    def remove_pendingInvites(self,senderName):
+        if senderName in self.pending_invites:
+            self.pending_invites.remove(senderName)
+    
     def get_friends(self):
         return self.friends
 
     def set_friends(self,friends):
         self.friends = friends
+    
+    def append_Friend(self,friend):
+        self.friends.append(friend)
 
+    def remove_Friend(self,friend):
+        self.friends.remove(friend)
+   
+   '''
+    To accept/decline friendRequest
+    friend : displayname
+    status : boolean True(accepted)  or false(declined) 
+    '''
+    def confirm_pendingFriendRequest(self,name,status):
+        if name in self.pending_invites:
+            remove_pendingInvites(name)
+            if status:
+                if name not in self.friends:
+                    append_Friend(name)    
+         
     def set_firebaseID(self,ID):
         self.firebaseId = ID
 
