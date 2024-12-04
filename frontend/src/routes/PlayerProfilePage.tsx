@@ -117,8 +117,6 @@ const PlayerProfilePage: React.FC = () => {
       const sel = window.getSelection();
       range.selectNodeContents(target);
       range.collapse(false); // Set cursor to end
-      sel.removeAllRanges();
-      sel.addRange(range);
     }
   }}
 >

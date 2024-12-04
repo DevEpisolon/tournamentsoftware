@@ -196,11 +196,12 @@ class Player:
     def remove_Friend(self,friend):
         self.friends.remove(friend)
    
-   '''
+    '''
     To accept/decline friendRequest
     friend : displayname
     status : boolean True(accepted)  or false(declined) 
     '''
+
     def confirm_pendingFriendRequest(self,name,status):
         if name in self.pending_invites:
             remove_pendingInvites(name)

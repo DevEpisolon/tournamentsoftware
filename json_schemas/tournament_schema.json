@@ -18,7 +18,10 @@
             "Players": {"bsonType": "array", "items": {"bsonType": "object"}},
             "tournamentWinner": {"bsonType": ["string", "null"]},
             "droppedPlayers": {"bsonType": "array", "items": {"bsonType": "object"}},
-            "maxSlotsPerMatch": {"bsonType": "int"}
+            "maxSlotsPerMatch": {"bsonType": "int"},
+	    "rounds": {"bsonType":"int"},
+	    "currentRound": {"bsonType":"int"},
+	    "onGoingPlayers": {"bsonType": "array", "items":{"bsonType": "object"}}
         }
     }
 }
