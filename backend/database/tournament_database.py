@@ -9,7 +9,7 @@ from database.player_database import *
 from database.match_database import *
 import asyncio
 from fastapi_app import db, client
-
+from objects.match import Match
 
 tournament_router = APIRouter()
 
@@ -44,6 +44,44 @@ def fetch_tournament_data_from_database(tournament_id: str):
         return tournaments_collection.find_one({"_id": tournament_id_obj})
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid tournament ID")
+
+
+#fetches the objectid for the tourament and promote all players within the round if they are finished
+@tournament_router.put("/tournaments/{tournament_id}/promote_players/{round_number}")
+async def promote_players(tournament_id: str, round_number: int):
+    """
+    Promote players from the current round to the next round.
+    """
+    # Validate tournament ID
+    try:
+        obj_id = ObjectId(tournament_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid tournament ID format.")
+
+    # Fetch the tournament
+    tournament_data = fetch_tournament_data_from_database(tournament_id)
+    if not tournament_data:
+        raise HTTPException(status_code=404, detail="Tournament not found.")
+
+    tournament = create_tournament_object(tournament_data)
+
+    # Promote players
+    try:
+        tournament.promotePlayersInRound(round_number)
+        updated_tournament = tournament_to_document(tournament)
+
+        # Update tournament in the database
+        tournaments_collection.replace_one({"_id": obj_id}, updated_tournament)
+
+        return {
+            "status": "success",
+            "message": f"Players promoted from round {round_number} to round {round_number + 1} successfully.",
+        }
+    except Exception as e:
+        print(f"Error in promoting players: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to promote players: {str(e)}"
+        )
 
 
 @tournament_router.get("/tournaments/{item_id}")

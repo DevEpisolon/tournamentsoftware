@@ -160,9 +160,14 @@ const TournamentPage: React.FC = () => {
   },);
 
   const addPlayerToTournament = async (player: Player) => {
-    setPlayersInTournament([...playersInTournament, player]);
-    setAvailablePlayers(availablePlayers.filter(p => p.displayname !== player.displayname));
-    await axios.put(`http://localhost:8000/api/add_player/${tournamentId}/${player.displayname}`);
+    if (playersInTournament.length === tournament?.MaxSlotsCount) {
+      alert("Cannot add anymore")
+    }
+    else {
+      setPlayersInTournament([...playersInTournament, player]);
+      setAvailablePlayers(availablePlayers.filter(p => p.displayname !== player.displayname));
+      await axios.put(`http://localhost:8000/api/add_player/${tournamentId}/${player.displayname}`);
+    }
   };
 
   const removePlayerFromTournament = async (player: Player) => {
@@ -296,7 +301,9 @@ const TournamentPage: React.FC = () => {
                 <h2 className='ml-5 '>Start Date: {formatDate(tournament?.STARTDATE)}</h2>
                 <h2 className='ml-5 '>Location: </h2>
               </div>
-              <button className='bg-tourney-orange rounded-md px-4 py-2 font-semibold'> Register</button>
+              {status === 1 && (
+                <button className='bg-tourney-orange rounded-md px-4 py-2 font-semibold'> Register</button>
+              )}
             </div>
 
             {selectedPage === 'manage-players' && (
@@ -340,9 +347,6 @@ const TournamentPage: React.FC = () => {
             {selectedPage === 'matches' && (
               <div className='flex'>
                 <MatchSchedule tournament={tournament} />
-                <div className='pl-5'>
-                  <button className='px-4 py-2 font-bold rounded-md bg-tourney-orange'>Promote</button>
-                </div>
               </div>
             )
             }
