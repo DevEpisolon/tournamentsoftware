@@ -62,7 +62,7 @@
 /* Highlight the item on hover */
 .dropdown-item:hover {
   background-color: #444;  /* Slightly lighter gray on hover */
-
+}
 /* width */
 ::-webkit-scrollbar {
     width: 10px;

@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from "react";
 import "../App.css";
-import TournamentForm from "../components/TournamentForm";
-import axios from "axios";
 import TournamentsList from "../components/TournamentsList";
-import SearchPlayerForm from "../components/searchPlayerForm";
 import PlayerProfilePage from "./PlayerProfilePage";
-import { Routes, Route } from "react-router-dom"; // Remove BrowserRouter import
+import { Routes, Route, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { auth } from "../utils/FirbaseConfig";
 
 function OldApp(): JSX.Element {
-  const [showForm, setShowForm] = useState<boolean>(false);
-  const [tournaments, setTournaments] = useState<any[]>([]);
+  const [tournaments, setTournaments] = useState<any[]>([]); // State to store fetched tournaments
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch tournaments data from FastAPI when component mounts
+    // Fetch tournaments data from the FastAPI backend
     axios
       .get("http://localhost:8000/api/tournaments")
       .then((response) => {
@@ -25,59 +23,49 @@ function OldApp(): JSX.Element {
       });
   }, []);
 
-  const handleFormSubmit = (data: any): void => {
-    console.log("Tournament Data:", data);
-    setShowForm(false);
-    // You may want to refresh the tournaments list here after adding a new tournament
+  const handleBackClick = (): void => {
+    navigate(-1); // Navigate to the previous page
   };
 
   return (
-    <div className="app">
-      <div className="flex flex-row w-full">
-        <header
-          className="header relative flex justify-between items-center w-full"
-          style={{ height: "80px" }}
+    <div className="app bg-[#2D3250] text-white min-h-screen flex flex-col">
+      {/* Header Section */}
+      <header
+        className="header flex justify-between items-center w-full px-6 py-4"
+        style={{ height: "80px" }}
+      >
+        <button
+          onClick={handleBackClick}
+          className="rounded-md bg-[#F6B17A] text-[#2D3250] px-4 py-2 hover:bg-[#E89D63] transition-colors"
         >
-          <div className="flex items-center">
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="rounded-md bg-blue-500 text-white px-4 py-2 mt-4 ml-4 absolute top-0 left-0 z-10"
-            >
-              {showForm ? "Close Form" : "Create Tournament"}
-            </button>
-            {showForm && <TournamentForm onSubmit={handleFormSubmit} />}
-          </div>
-          {!showForm && (
-            <div className="relative">
-              <SearchPlayerForm />
-            </div>
-          )}
-        </header>
-        <button className="w-[100px] bg-red-600" onClick={() => auth.signOut()}>
+          Back
+        </button>
+        <button
+          className="rounded-md bg-red-600 text-white px-4 py-2 hover:bg-red-700 transition-colors"
+          onClick={() => auth.signOut()}
+        >
           Sign Out
         </button>
-      </div>
+      </header>
 
-      <div className="main">
-        <div className="content w-3/4">
-          <div className="content-container w-4/5">
-            <Routes>
-              {/* Define routes for main content */}
-              <Route
-                path="/"
-                element={<TournamentsList tournaments={tournaments} />}
-              />
-              <Route
-                path="/player/:playername"
-                element={<PlayerProfilePage />}
-              />{" "}
-              {/* Route for player profile page */}
-            </Routes>
-          </div>
+      {/* Main Content Section */}
+      <main className="main flex justify-center py-6 flex-grow">
+        <div className="content w-4/5 rounded-lg shadow-lg p-6">
+          <Routes>
+            <Route
+              path="/"
+              element={<TournamentsList tournaments={tournaments} />}
+            />
+            <Route
+              path="/player/:playername"
+              element={<PlayerProfilePage />}
+            />
+          </Routes>
         </div>
-      </div>
+      </main>
 
-      <footer className="footer">
+      {/* Footer Section */}
+      <footer className="footer text-center bg-[#424769] py-4">
         <p> TAS-32 &copy; {new Date().getFullYear()} </p>
       </footer>
     </div>
@@ -85,3 +73,4 @@ function OldApp(): JSX.Element {
 }
 
 export default OldApp;
+
