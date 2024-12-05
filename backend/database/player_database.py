@@ -21,14 +21,13 @@ players_collection = db["players"]
 
 
 @player_router.get("/players/get_playerFirebaseID/{displayname}")
-async def verify_firebase_token(id_token: str):
+async def verify_firebase_token(displayname: str, id_token: str = Query(...)):
     try:
         decoded_token = firebase_auth.verify_id_token(id_token)
         uid = decoded_token["uid"]
         return uid
     except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid Firebase token") from e
-
 
 # Convert player object to player document
 def player_to_document(player, firebase_uid):
@@ -132,13 +131,21 @@ async def send_friendRequest(username):
     player_document = db.players.find_one({"displayname": username})
         if
 """
-
-
 @player_router.post("/players/sendFriendRequest")
-async def send_friendRequest(sender, reciever):
+async def send_friendRequest(sender: str, reciever: str):
     player_document = db.players.find_one({"displayname": reciever})
-    player = document_to_player(player_document)
-    player.set_pendingInvites(player.get_pendingInvites.append(sender))
+    if player_document:
+        player = document_to_player(player_document)
+        pending_invites = player.pending_invites or []  # Default to an empty list if None
+        pending_invites.append(sender)  # Add the sender to the pending invites list
+        db.players.update_one(
+            {"displayname": reciever},
+            {"$set": {"pending_invites": pending_invites}}
+        )
+        return {"message": f"Friend request sent to {reciever}"}
+    else:
+        raise HTTPException(status_code=404, detail="Receiver not found.")
+
 
 
 """For regular users to register as a Player/create an account."""

@@ -1,5 +1,6 @@
+// routes/PlayerProfilePage.tsx
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 
 // Default blank image URL
@@ -9,29 +10,37 @@ const DEFAULT_IMAGE_URL =
 const PlayerProfilePage: React.FC = () => {
   const { id } = useParams(); // Get the player ID from the URL
   const { playername } = useParams<{ playername: string }>();
-  const [playerData, setPlayerData] = useState<any>(null);
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  
+  // If data is passed via navigation, use that; else fetch from API.
+  const [playerData, setPlayerData] = useState<any>(state?.playerData || null);
   const [loading, setLoading] = useState<boolean>(true);
   const [aboutMe, setAboutMe] = useState<string>("");
   const [isEditing, setIsEditing] = useState<boolean>(false); // Track editing state
-  const navigate = useNavigate();
-
+  
   useEffect(() => {
-    const fetchPlayerData = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:8000/api/players/get_player/${playername}`
-        );
-        setPlayerData(response.data);
-        setAboutMe(response.data.aboutMe || ""); // Load the initial 'aboutMe' field if it exists
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching player data:", error);
-        setLoading(false);
-      }
-    };
+    // Fetch player data if it is not passed in via state.
+    if (!playerData) {
+      const fetchPlayerData = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:8000/api/players/get_player/${playername}`
+          );
+          setPlayerData(response.data);
+          setAboutMe(response.data.aboutMe || ""); // Load the initial 'aboutMe' field if it exists
+          setLoading(false);
+        } catch (error) {
+          console.error("Error fetching player data:", error);
+          setLoading(false);
+        }
+      };
 
-    fetchPlayerData();
-  }, [playername]);
+      fetchPlayerData();
+    } else {
+      setLoading(false); // If data is passed, no need to load
+    }
+  }, [playername, playerData]);
 
   const handleGoBack = () => {
     navigate("/");
@@ -106,21 +115,21 @@ const PlayerProfilePage: React.FC = () => {
             onBlur={handleAboutMeConfirm}
             onKeyDown={handleAboutMeConfirm}
             onInput={(e) => {
-	const target = e.target as HTMLDivElement;
-    const text = target.innerText;
+              const target = e.target as HTMLDivElement;
+              const text = target.innerText;
 
-    // If the text exceeds 25 characters, truncate it
-    if (text.length > 25) {
-      target.innerText = text.slice(0, 25); // Truncate to 25 characters
-      // Optionally, you can set the cursor to the end of the text
-      const range = document.createRange();
-      const sel = window.getSelection();
-      range.selectNodeContents(target);
-      range.collapse(false); // Set cursor to end
-    }
-  }}
->
-		    {aboutMe}
+              // If the text exceeds 25 characters, truncate it
+              if (text.length > 25) {
+                target.innerText = text.slice(0, 25); // Truncate to 25 characters
+                // Optionally, you can set the cursor to the end of the text
+                const range = document.createRange();
+                const sel = window.getSelection();
+                range.selectNodeContents(target);
+                range.collapse(false); // Set cursor to end
+              }
+            }}
+          >
+            {aboutMe}
           </div>
           <p className="text-sm italic text-gray-600">
             (Max 25 characters. Click to edit.)
