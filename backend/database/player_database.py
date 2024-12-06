@@ -24,7 +24,7 @@ players_collection = db["players"]
 async def verify_firebase_token(displayname: str, id_token: str = Query(...)):
     try:
         decoded_token = firebase_auth.verify_id_token(id_token)
-        uid = decoded_token["uid"]
+        uid = decoded_token["firebase_uid"]
         return uid
     except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid Firebase token") from e
@@ -161,7 +161,7 @@ async def register_player(request: Request,  body: dict):
     email = body.get("email")
 
     token = await verify_token(request)
-    uid = token["uid"]
+    uid = token["firebase_uid"]
     new_player = Player(playername=playername, displayname=displayname, email=email)
 
     # Convert player to document
