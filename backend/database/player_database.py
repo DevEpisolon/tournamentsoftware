@@ -15,10 +15,8 @@ from auth import verify_token
 
 player_router = APIRouter()
 
-
 db = client["tournamentsoftware"]
 players_collection = db["players"]
-
 
 @player_router.get("/players/get_playerFirebaseID/{displayname}")
 async def verify_firebase_token(displayname: str, id_token: str = Query(...)):
@@ -48,11 +46,10 @@ def player_to_document(player, firebase_uid):
         "current_tournament_losses": player.current_tournament_losses,
         "current_tournament_ties": player.current_tournament_ties,
         "aboutMe": player.aboutMe,
-        "pending_invites": player.pending,
+        "pending_invites": player.pending_invites,
         "friends": player.friends,
         "firebase_uid": firebase_uid
     }
-
 
 # Convert player document to player object
 def document_to_player(player_document):
@@ -76,8 +73,8 @@ def document_to_player(player_document):
             aboutMe=player_document.get("aboutMe"),
             pending_invites=player_document.get("pending_invites"),
             friends=player_document.get("friends"),
-            firebase_uid= player_document.get("firebase_uid"), 
-            )
+            firebase_uid=player_document.get("firebase_uid"), 
+        )
         return player
     else:
         print("Player not found.")
@@ -114,7 +111,6 @@ async def get_player(displayname: str):
             status_code=404, detail=f"Player '{displayname}' not found."
         )
 
-
 @player_router.get("/player/email/{email}")
 async def get_player_by_email(email: str):
     player_document = db.players.find_one({"email": email})
@@ -125,13 +121,6 @@ async def get_player_by_email(email: str):
             status_code=404, detail=f"Player with email '{email}' not found."
         )
 
-
-"""
-@player_router.post("/players/sendFriendRequest")
-async def send_friendRequest(username):
-    player_document = db.players.find_one({"displayname": username})
-        if
-"""
 @player_router.post("/players/sendFriendRequest")
 async def send_friendRequest(sender: str, reciever: str):
     player_document = db.players.find_one({"displayname": reciever})
@@ -147,83 +136,56 @@ async def send_friendRequest(sender: str, reciever: str):
     else:
         raise HTTPException(status_code=404, detail="Receiver not found.")
 
-
-
-"""For regular users to register as a Player/create an account."""
-
-
 @player_router.post("/players/register_player")
-async def register_player(request: Request,  body: dict):
-    # playername = input("Enter name: ")
-    # displayname = input("Enter display name: ")
-
+async def register_player(request: Request, body: dict):
     playername = body.get("playername")
     displayname = body.get("displayname")
     email = body.get("email")
 
     token = await verify_token(request)
     uid = token["firebase_uid"]
-    new_player = Player(playername=playername, displayname=displayname, email=email)
+    
+    # Set default values for missing fields
+    new_player = Player(
+        playername=playername,
+        displayname=displayname,
+        email=email,
+        avatar=None,  # Set default to None or a default avatar URL
+        join_date=None,  # Set join_date to None or use current date
+        wins=0,  # Default to 0
+        losses=0,  # Default to 0
+        ties=0,  # Default to 0
+        wlratio=0,  # Default to 0 or None
+        winstreaks=[],  # Default to empty list
+        match_history=[],  # Default to empty list
+        current_tournament_wins=0,  # Default to 0
+        current_tournament_losses=0,  # Default to 0
+        current_tournament_ties=0,  # Default to 0
+        aboutMe=None,  # Default to None or empty string
+        pending_invites=[],  # Default to empty list
+        friends=[],  # Default to empty list
+    )
 
     # Convert player to document
     player_document = player_to_document(new_player, firebase_uid=uid)
 
-
-
-    # check = input("Add player to database? (Y/N): ")
-
+    # Check if player already exists
     cursor = db.players.find_one({"displayname": displayname})
-
-    await firebase_auth.set_custom_user_claims(uid, {
-        ''
-    })
 
     if cursor:
         raise HTTPException(status_code=400, detail="Player already exists")
 
-
+    # Insert the player into the database
     result = db.players.insert_one(player_document)
     player_id = str(result.inserted_id)  # Convert ObjectId to string
 
-    # Set the player_id as custom claim
+    # Set the player_id as custom claim in Firebase
     await firebase_auth.set_custom_user_claims(uid, {
         'player_id': player_id
     })
 
-    return "Player created an registered"
+    return {"message": "Player created and registered successfully"}
 
-
-@player_router.post("/players/admin_create_player")
-async def admin_create_player():
-    playername = input("Enter name: ")
-    displayname = input("Enter display name: ")
-    wins = int(input("Enter wins: "))
-    losses = int(input("Enter losses: "))
-    ties = int(input("Enter ties: "))
-
-    # new_player = Player(playername=playername, displayname=displayname)
-
-    new_player = Player(
-        playername=playername,
-        displayname=displayname,
-        wins=wins,
-        losses=losses,
-        ties=ties,
-    )
-
-    # Convert player to document
-    player_document = player_to_document(new_player)
-
-    check = input("Add player to database? (Y/N): ")
-
-    if check == "Y":
-        # Insert player into database
-        db.players.insert_one(player_document)
-
-    print("Player created.")
-
-
-"""Used to update about me"""
 
 
 @player_router.put("/players/update_about_me/{playername}")
@@ -264,12 +226,6 @@ async def update_avatar(playername: str, body: dict = Body(...)):
 
     return {"message": "Avatar updated successfully"}
 
-
-
-
-"""For removing a player from the database."""
-
-
 @player_router.delete("/players/delete_player/{displayname}")
 async def delete_player(displayname: str):
     # Attempt to delete the player from the database
@@ -284,33 +240,26 @@ async def delete_player(displayname: str):
             status_code=404, detail=f"Player '{displayname}' not found."
         )
 
-
-"""For updating player stats after tourney."""
-
-
 def update_tourney_results(round_wins, round_losses, round_ties, tourney_list):
     for player in tourney_list:
-        if round_wins.get(player.displayname) != None:
+        if round_wins.get(player.displayname) is not None:
             updated_wins = player.get_wins() + round_wins.get(player.displayname)
             players_collection.update_one(
                 {"displayname": player.displayname}, {"$set": {"wins": updated_wins}}
             )
-        if round_losses.get(player.displayname) != None:
+        if round_losses.get(player.displayname) is not None:
             updated_losses = player.get_losses() + round_losses.get(player.displayname)
             players_collection.update_one(
                 {"displayname": player.displayname},
                 {"$set": {"losses": updated_losses}},
             )
-        if round_ties.get(player.displayname) != None:
+        if round_ties.get(player.displayname) is not None:
             updated_ties = player.get_ties() + round_ties.get(player.displayname)
             players_collection.update_one(
                 {"displayname": player.displayname}, {"$set": {"ties": updated_ties}}
             )
         else:
             continue
-
-
-"""For updating a single player's stats.."""
 
 
 """Currently for testing purposes. Players will be able to add

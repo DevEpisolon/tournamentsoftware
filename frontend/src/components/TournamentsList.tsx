@@ -41,6 +41,7 @@ interface Tournament {
   wins_dict: any; // Assuming wins_dict is a dictionary
   losses_dict: any; // Assuming losses_dict is a dictionary
   ties_dict: any; // Assuming ties_dict is a dictionary
+  join_id: string;
 }
 
 // Props interface for the component

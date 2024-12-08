@@ -1,49 +1,57 @@
-// routes/PlayerProfilePage.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
-import {useAuth} from "../utils/AuthContext"
+import { useAuth } from "../utils/AuthContext.tsx";
+
+
 // Default blank image URL
 const DEFAULT_IMAGE_URL =
   "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
 
 const PlayerProfilePage: React.FC = () => {
-  const { id } = useParams(); // Get the player ID from the URL
-  const { playername } = useParams<{ playername: string }>();
+  const { playername } = useParams<{ playername: string }>(); // Get the playername from the URL
   const navigate = useNavigate();
   const { state } = useLocation();
+  const { currentUser } = useAuth(); // Firebase authentication hook to get the current user
   
   // If data is passed via navigation, use that; else fetch from API.
   const [playerData, setPlayerData] = useState<any>(state?.playerData || null);
   const [loading, setLoading] = useState<boolean>(true);
   const [aboutMe, setAboutMe] = useState<string>("");
   const [isEditing, setIsEditing] = useState<boolean>(false); // Track editing state
-  
+  const [isOwner, setIsOwner] = useState<boolean>(false); // Check if the current user is the owner of the profile
+
   useEffect(() => {
     // Fetch player data if it is not passed in via state.
-    if (!playerData) {
-      const fetchPlayerData = async () => {
-        try {
-          const response = await axios.get(
-            `http://localhost:8000/api/players/get_player/${playername}`
-          );
-          setPlayerData(response.data);
-          setAboutMe(response.data.aboutMe || ""); // Load the initial 'aboutMe' field if it exists
-          setLoading(false);
-        } catch (error) {
-          console.error("Error fetching player data:", error);
-          setLoading(false);
+    const fetchPlayerData = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/api/players/get_player/${playername}`
+        );
+        const data = response.data;
+        setPlayerData(data);
+        setAboutMe(data.aboutMe || ""); // Load the initial 'aboutMe' field if it exists
+        
+        // Check if the logged-in user is the owner of this profile
+        if (currentUser && data.firebase_uid === currentUser.uid) {
+          setIsOwner(true); // Allow editing if the user owns the profile
         }
-      };
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching player data:", error);
+        setLoading(false);
+      }
+    };
 
+    if (!playerData) {
       fetchPlayerData();
     } else {
       setLoading(false); // If data is passed, no need to load
     }
-  }, [playername, playerData]);
+  }, [playername, playerData, currentUser]);
 
   const handleGoBack = () => {
-    navigate("/");
+    navigate("/"); // Navigate back to the homepage
   };
 
   // Function to update 'aboutMe' when the user presses Enter
@@ -105,36 +113,38 @@ const PlayerProfilePage: React.FC = () => {
         </header>
 
         {/* Editable About Me Section */}
-        <div className="border-4 border-white p-4 rounded-md shadow-md mb-8 bg-gray-200">
-          <h2 className="text-lg font-semibold mb-2 text-black">About Me</h2>
-          <div
-            contentEditable={true}
-            suppressContentEditableWarning={true}
-            className="p-2 text-gray-800 bg-gray-200 cursor-text outline-none min-h-[50px]"
-            onClick={handleEditClick}
-            onBlur={handleAboutMeConfirm}
-            onKeyDown={handleAboutMeConfirm}
-            onInput={(e) => {
-              const target = e.target as HTMLDivElement;
-              const text = target.innerText;
+        {isOwner && (
+          <div className="border-4 border-white p-4 rounded-md shadow-md mb-8 bg-gray-200">
+            <h2 className="text-lg font-semibold mb-2 text-black">About Me</h2>
+            <div
+              contentEditable={true}
+              suppressContentEditableWarning={true}
+              className="p-2 text-gray-800 bg-gray-200 cursor-text outline-none min-h-[50px]"
+              onClick={handleEditClick}
+              onBlur={handleAboutMeConfirm}
+              onKeyDown={handleAboutMeConfirm}
+              onInput={(e) => {
+                const target = e.target as HTMLDivElement;
+                const text = target.innerText;
 
-              // If the text exceeds 25 characters, truncate it
-              if (text.length > 25) {
-                target.innerText = text.slice(0, 25); // Truncate to 25 characters
-                // Optionally, you can set the cursor to the end of the text
-                const range = document.createRange();
-                const sel = window.getSelection();
-                range.selectNodeContents(target);
-                range.collapse(false); // Set cursor to end
-              }
-            }}
-          >
-            {aboutMe}
+                // If the text exceeds 25 characters, truncate it
+                if (text.length > 25) {
+                  target.innerText = text.slice(0, 25); // Truncate to 25 characters
+                  // Optionally, you can set the cursor to the end of the text
+                  const range = document.createRange();
+                  const sel = window.getSelection();
+                  range.selectNodeContents(target);
+                  range.collapse(false); // Set cursor to end
+                }
+              }}
+            >
+              {aboutMe}
+            </div>
+            <p className="text-sm italic text-gray-600">
+              (Max 25 characters. Click to edit.)
+            </p>
           </div>
-          <p className="text-sm italic text-gray-600">
-            (Max 25 characters. Click to edit.)
-          </p>
-        </div>
+        )}
 
         <div className="grid grid-cols-2 gap-32 mt-12">
           {/* Diamond shape for Wins (Red) */}

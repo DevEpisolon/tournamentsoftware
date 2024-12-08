@@ -10,6 +10,8 @@ from database.match_database import *
 import asyncio
 from fastapi_app import db, client
 from objects.match import Match
+import random
+import string
 
 tournament_router = APIRouter()
 
@@ -19,6 +21,22 @@ tournaments_collection = db["tournaments"]
 # db = MongoDB().getDb()
 # tournaments_collection = db["tournaments"]
 players_collection = db["players"]
+
+
+
+def generate_join_id():
+    """Generate a unique 4-character join ID consisting of digits and letters."""
+    characters = string.ascii_letters + string.digits  # a-z, A-Z, 0-9
+    return ''.join(random.choices(characters, k=4))
+
+def generate_unique_join_id():
+    """Generate a unique 4-character join ID and ensure no duplicates."""
+    while True:
+        join_id = generate_join_id()
+        # Check if the join_id already exists in the database
+        existing_tournament = tournaments_collection.find_one({"join_id": join_id})
+        if not existing_tournament:  # If no existing tournament with this join_id
+            return join_id
 
 
 def document_to_tournament(tournament_document):
@@ -107,6 +125,8 @@ def view_tournaments():
 
 @tournament_router.post("/tournaments/create/{tournament_name}:{max_slots}")
 def create_tournament(tournament_name: str, max_slots: int):
+    join_id = generate_unqiue_join_id()
+
     tournament = Tournament(
         tournamentName=tournament_name,
         STATUS=1,
@@ -126,9 +146,10 @@ def create_tournament(tournament_name: str, max_slots: int):
         wins_dict={},
         losses_dict={},
         ties_dict={},
+        join_id=None,
     )
 
-    tournament_data = tournament.to_dict()
+    tournament_data = tournament.__to_dict()  # Using the __to_dict() method
 
     # Insert tournament data into collection
     tournaments_collection.insert_one(tournament_data)
@@ -276,6 +297,7 @@ def tournament_to_document(tournament):
         "wins_dict": tournament.wins_dict,
         "losses_dict": tournament.losses_dict,
         "ties_dict": tournament.ties_dict,
+        "join_id": tournament.join_id, 
     }
 
 
