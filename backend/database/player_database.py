@@ -17,6 +17,41 @@ player_router = APIRouter()
 
 db = client["tournamentsoftware"]
 players_collection = db["players"]
+@player_router.post("/players/test_insert")
+async def test_insert_player():
+    test_player = {
+        "playername": "TestPlayer",
+        "displayname": "TestDisplay",
+        "uniqueid": "test123",
+        "email": "test@example.com",
+        "avatar": None,
+        "join_date": None,
+        "wins": 0,
+        "losses": 0,
+        "ties": 0,
+        "wlratio": 0,
+        "winstreaks": [],
+        "match_history": [],
+        "current_tournament_wins": 0,
+        "current_tournament_losses": 0,
+        "current_tournament_ties": 0,
+        "aboutMe": "This is a test player.",
+        "pending_invites": [],
+        "friends": [],
+        "firebase_uid": "testFirebaseUID"
+    }
+
+    try:
+        # Insert the test player into the database
+        result = db.players.insert_one(test_player)
+        inserted_id = str(result.inserted_id)  # Convert ObjectId to string
+        return {
+            "message": "Test player inserted successfully.",
+            "inserted_id": inserted_id
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error inserting test player: {e}")
+
 
 @player_router.get("/players/get_playerFirebaseID/{displayname}")
 async def verify_firebase_token(displayname: str, id_token: str = Query(...)):

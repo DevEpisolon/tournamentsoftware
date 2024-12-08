@@ -1,19 +1,25 @@
 import React, { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../utils/FirbaseConfig"; // Adjust the import if necessary
 import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      // Redirect or handle successful sign-up
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, {
+          displayName,
+        });
+      }
+      navigate("/"); // Redirect to home page on successful sign-up
     } catch (err) {
       setError("Failed to sign up. Please try again.");
     }
@@ -41,6 +47,17 @@ const SignUp = () => {
               className="w-full p-3 rounded-lg bg-white text-black"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="displayName" className="block text-white mb-2">Display Name</label>
+            <input
+              type="text"
+              id="displayName"
+              className="w-full p-3 rounded-lg bg-white text-black"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
               required
             />
           </div>
