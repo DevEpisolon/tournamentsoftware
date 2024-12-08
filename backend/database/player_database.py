@@ -1,5 +1,5 @@
 import asyncio
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Body 
 from pymongo import MongoClient
 from mongo import MongoDB
 from objects.player import Player
@@ -76,7 +76,8 @@ def document_to_player(player_document):
             aboutMe=player_document.get("aboutMe"),
             pending_invites=player_document.get("pending_invites"),
             friends=player_document.get("friends"),
-        )
+            firebase_uid= player_document.get("firebase_uid"), 
+            )
         return player
     else:
         print("Player not found.")
@@ -242,6 +243,28 @@ async def update_about_me(playername: str, body: dict):
         return {"message": f"Player '{playername}' updated successfully."}
     else:
         raise HTTPException(status_code=404, detail=f"Player '{playername}' not found.")
+
+@player_router.put("/players/update_avatar/{playername}")
+async def update_avatar(playername: str, body: dict = Body(...)):
+    new_avatar = body.get("avatar")
+    if not new_avatar or len(new_avatar) > 255:  # Ensure the avatar URL isn't excessively long
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid input: 'avatar' must be a valid URL and less than 255 characters."
+        )
+
+    result = db.players.update_one(
+        {"playername": playername}, {"$set": {"avatar": new_avatar}}
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(
+            status_code=404, detail=f"Player '{playername}' not found."
+        )
+
+    return {"message": "Avatar updated successfully"}
+
+
 
 
 """For removing a player from the database."""
