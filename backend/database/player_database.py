@@ -103,7 +103,7 @@ def player_to_document(player):
         "aboutMe": player.aboutMe,
         "pending_invites": player.pending_invites,
         "friends": player.friends,
-        "firebase_uid": firebase_uid
+        "firebase_uid": player.firebase_uid,
     }
 
 # Convert player document to player object
@@ -201,18 +201,18 @@ async def register_player(body:dict):
     firebase_uid = body.get("firebase_uid")
 
     # Check if the displayname is already taken
-    existing_player_by_displayname = db["players"].find_one({"displayname": player.displayname})
+    existing_player_by_displayname = db["players"].find_one({"displayname": displayname})
     if existing_player_by_displayname:
         raise HTTPException(status_code=400, detail="Display name is already taken")
 
     # Insert the player document into the database
     #player_document = player.dict()
     new_player = Player(playername=playername,displayname=displayname,email=email,firebase_uid=firebase_uid) 
-    player_document = player_to_document(player_document)
+    player_document = player_to_document(new_player)
     result = db.players.insert_one(player_document)
 
     # Return a success message or player data after insertion
-    return {"message": "Player registered successfully", "player": player_document}
+    return {"Recieved"}
 
 
 
