@@ -8,19 +8,28 @@ from objects.player import Player
 from database.player_database import *
 from database.match_database import *
 import asyncio
-from fastapi_app import db, client
 from objects.match import Match
 import random
 import string
 
 tournament_router = APIRouter()
 
-b = client["tournamentsoftware"]
+
+from pymongo import MongoClient
+from dotenv import load_dotenv
+# Load environment variables from .env file
+load_dotenv()
+
+# Get the MongoDB connection string from the environment variable
+MONGODB_CONNECTION_STRING = os.getenv("MONGODB_URI")
+if not MONGODB_CONNECTION_STRING:
+    raise ValueError("MONGODB_URI is not set in the environment")
+
+# Initialize MongoDB client
+client = MongoClient(MONGODB_CONNECTION_STRING)
+db = client["tournamentsoftware"]
 tournaments_collection = db["tournaments"]
 
-# db = MongoDB().getDb()
-# tournaments_collection = db["tournaments"]
-players_collection = db["players"]
 
 
 

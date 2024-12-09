@@ -1,22 +1,31 @@
 import asyncio
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, Body 
-from pymongo import MongoClient
-from mongo import MongoDB
+from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from objects.player import Player
-from urllib3 import request
-from utils import format
 from firebase_admin import auth as firebase_auth
-
-# from app.firebase_config import cred
-from fastapi_app import db, client
 from bson.regex import Regex
-
 from auth import verify_token
+import os
+from dotenv import load_dotenv
+from pymongo import MongoClient
 
 player_router = APIRouter()
 
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Get the MongoDB connection string from the environment variable
+MONGODB_CONNECTION_STRING = os.getenv("MONGODB_URI")
+if not MONGODB_CONNECTION_STRING:
+    raise ValueError("MONGODB_URI is not set in the environment")
+
+# Initialize MongoDB client
+client = MongoClient(MONGODB_CONNECTION_STRING)
 db = client["tournamentsoftware"]
 players_collection = db["players"]
+
+
+# Modified to inject db dynamically
 @player_router.post("/players/test_insert")
 async def test_insert_player():
     test_player = {
@@ -42,8 +51,8 @@ async def test_insert_player():
     }
 
     try:
-        # Insert the test player into the database
-        result = db.players.insert_one(test_player)
+        # Insert the test player into the "players" collection
+        result = db["players"].insert_one(test_player)
         inserted_id = str(result.inserted_id)  # Convert ObjectId to string
         return {
             "message": "Test player inserted successfully.",
@@ -52,6 +61,17 @@ async def test_insert_player():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error inserting test player: {e}")
 
+
+
+async def verify_token(request):
+    id_token = request.headers.get("Authorization")
+    if not id_token:
+        raise HTTPException(status_code=400, detail="Token is required.")
+    try:
+        decoded_token = firebase_auth.verify_id_token(id_token)
+        return decoded_token
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid Firebase token") from e
 
 @player_router.get("/players/get_playerFirebaseID/{displayname}")
 async def verify_firebase_token(displayname: str, id_token: str = Query(...)):
@@ -116,7 +136,7 @@ def document_to_player(player_document):
         return None
 
 @player_router.get("/players/search")
-async def search_players(query: str):
+async def search_players(query: str ):
     try:
         # Using a case-insensitive regular expression to find partial matches
         regex = Regex(f".*{query}.*", "i")  # "i" makes the regex case-insensitive
@@ -135,7 +155,7 @@ async def search_players(query: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @player_router.get("/players/get_player/{displayname}")
-async def get_player(displayname: str):
+async def get_player(displayname: str ):
     player_document = db.players.find_one({"displayname": displayname})
     player = document_to_player(player_document)
     if player:
@@ -171,60 +191,63 @@ async def send_friendRequest(sender: str, reciever: str):
     else:
         raise HTTPException(status_code=404, detail="Receiver not found.")
 
-@player_router.post("/players/register_player")
-async def register_player(request: Request, body: dict):
+
+@player_router.post("/players/register")
+async def register_new_player(request, body: dict):
+    return await register_player(request, body, db)
+
+# Register a new player in the database
+async def register_player(request, body, db: MongoClient):
     playername = body.get("playername")
     displayname = body.get("displayname")
     email = body.get("email")
 
-    token = await verify_token(request)
-    uid = token["firebase_uid"]
-    
-    # Set default values for missing fields
-    new_player = Player(
-        playername=playername,
-        displayname=displayname,
-        email=email,
-        avatar=None,  # Set default to None or a default avatar URL
-        join_date=None,  # Set join_date to None or use current date
-        wins=0,  # Default to 0
-        losses=0,  # Default to 0
-        ties=0,  # Default to 0
-        wlratio=0,  # Default to 0 or None
-        winstreaks=[],  # Default to empty list
-        match_history=[],  # Default to empty list
-        current_tournament_wins=0,  # Default to 0
-        current_tournament_losses=0,  # Default to 0
-        current_tournament_ties=0,  # Default to 0
-        aboutMe=None,  # Default to None or empty string
-        pending_invites=[],  # Default to empty list
-        friends=[],  # Default to empty list
-    )
+    if not playername or not displayname or not email:
+        raise HTTPException(status_code=400, detail="playername, displayname, and email are required.")
 
-    # Convert player to document
-    player_document = player_to_document(new_player, firebase_uid=uid)
+    # Verify Firebase token and get the firebase_uid (assuming you have a verify_token function in this file)
+    token = await verify_token(request)
+    firebase_uid = token["firebase_uid"]
+
+    # Set default values for missing fields
+    new_player = {
+        "playername": playername,
+        "displayname": displayname,
+        "email": email,
+        "avatar": None,
+        "join_date": None,  # You can set it to the current date if needed
+        "wins": 0,
+        "losses": 0,
+        "ties": 0,
+        "wlratio": 0,
+        "winstreaks": [],
+        "match_history": [],
+        "current_tournament_wins": 0,
+        "current_tournament_losses": 0,
+        "current_tournament_ties": 0,
+        "aboutMe": None,
+        "pending_invites": [],
+        "friends": [],
+        "firebase_uid": firebase_uid,  # Set firebase_uid in MongoDB player document
+    }
 
     # Check if player already exists
-    cursor = db.players.find_one({"displayname": displayname})
-
-    if cursor:
+    if db.players.find_one({"displayname": displayname}):
         raise HTTPException(status_code=400, detail="Player already exists")
 
-    # Insert the player into the database
-    result = db.players.insert_one(player_document)
-    player_id = str(result.inserted_id)  # Convert ObjectId to string
+    # Insert the player document into the database
+    result = db.players.insert_one(new_player)
+    player_id = str(result.inserted_id)
 
-    # Set the player_id as custom claim in Firebase
-    await firebase_auth.set_custom_user_claims(uid, {
+    # Set player_id as a custom claim in Firebase (using Firebase Admin SDK)
+    await firebase_admin.auth.set_custom_user_claims(firebase_uid, {
         'player_id': player_id
     })
 
-    return {"message": "Player created and registered successfully"}
-
-
+    return {"message": "Player created and registered successfully", "player_id": player_id}
 
 @player_router.put("/players/update_about_me/{playername}")
-async def update_about_me(playername: str, body: dict):
+async def update_about_me(playername: str, body: dict): 
     new_about_me = body.get("aboutMe")
     if not new_about_me or len(new_about_me) > 25:
         raise HTTPException(
@@ -233,13 +256,17 @@ async def update_about_me(playername: str, body: dict):
         )
 
     result = db.players.update_one(
-        {"playername": playername}, {"$set": {"aboutMe": new_about_me}}
+        {"playername": playername},
+        {"$set": {"aboutMe": new_about_me}},
     )
 
-    if result.modified_count == 1:
-        return {"message": f"Player '{playername}' updated successfully."}
-    else:
-        raise HTTPException(status_code=404, detail=f"Player '{playername}' not found.")
+    if result.modified_count == 0:
+        raise HTTPException(
+            status_code=404, detail=f"Player '{playername}' not found."
+        )
+
+    return {"message": f"About me for player '{playername}' updated successfully."}
+
 
 @player_router.put("/players/update_avatar/{playername}")
 async def update_avatar(playername: str, body: dict = Body(...)):

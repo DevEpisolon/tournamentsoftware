@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../utils/FirbaseConfig"; // Adjust the import if necessary
 import { useNavigate } from "react-router-dom";
+import axios from "axios"; // Import axios
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -13,13 +14,34 @@ const SignUp = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Create user with Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       if (auth.currentUser) {
         await updateProfile(auth.currentUser, {
           displayName,
         });
       }
-      navigate("/"); // Redirect to home page on successful sign-up
+
+      // Now, call your FastAPI backend to register the player
+      const playerData = {
+        playername: displayName,  // Assuming you want to use display name as player name
+        displayname: displayName,
+        email,
+      };
+
+      // Send POST request to backend
+      const response = await axios.post("http://localhost:8000/players/register_player", playerData, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${userCredential.user.accessToken}`, // Pass Firebase token for validation if needed
+        },
+      });
+
+      console.log(response.data); // You can handle the response from your backend here
+
+      // Redirect to home page on successful sign-up
+      navigate("/");
+
     } catch (err) {
       setError("Failed to sign up. Please try again.");
     }
