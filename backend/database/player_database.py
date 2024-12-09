@@ -193,11 +193,12 @@ async def send_friendRequest(sender: str, reciever: str):
 
 
 @player_router.post("/players/register_player")
-async def register_player(player: Player):
-    # Check if the player already exists by firebase_uid
-    existing_player_by_uid = db["players"].find_one({"firebase_uid": player.firebase_uid})
-    if existing_player_by_uid:
-        raise HTTPException(status_code=400, detail="Player with this Firebase UID already exists")
+async def register_player(body:dict):
+   
+    playername = body.get("playername")
+    displayname = body.get("displayname")
+    email = body.get("email")
+    firebase_uid = body.get("firebase_uid")
 
     # Check if the displayname is already taken
     existing_player_by_displayname = db["players"].find_one({"displayname": player.displayname})
@@ -206,6 +207,7 @@ async def register_player(player: Player):
 
     # Insert the player document into the database
     #player_document = player.dict()
+    new_player = Player(playername=playername,displayname=displayname,email=email,firebase_uid=firebase_uid) 
     player_document = player_to_document(player_document)
     result = db.players.insert_one(player_document)
 

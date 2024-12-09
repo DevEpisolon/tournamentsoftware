@@ -4,6 +4,7 @@ import { auth } from "../utils/FirbaseConfig"; // Adjust the import if necessary
 import { useNavigate } from "react-router-dom";
 import axios from "axios"; // Import axios
 
+
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,9 +25,10 @@ const SignUp = () => {
 
       // Now, call your FastAPI backend to register the player
       const playerData = {
-        playername: displayName,  // Assuming you want to use display name as player name
+        playername: displayName,  
         displayname: displayName,
-        email,
+        email: email,
+	firebase_uid: userCredential.user.uid,
       };
 
       // Send POST request to backend
