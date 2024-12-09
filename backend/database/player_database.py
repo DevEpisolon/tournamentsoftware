@@ -1,5 +1,5 @@
 import asyncio
-from fastapi import APIRouter, Depends, HTTPException, Query, Body
+from fastapi import APIRouter, Depends, HTTPException, Query, Body, Request
 from objects.player import Player
 from firebase_admin import auth as firebase_auth
 from bson.regex import Regex
@@ -7,6 +7,10 @@ from auth import verify_token
 import os
 from dotenv import load_dotenv
 from pymongo import MongoClient
+from objects.player import Player
+import firebase_admin
+from firebase_admin import credentials, auth
+
 
 player_router = APIRouter()
 
@@ -63,15 +67,11 @@ async def test_insert_player():
 
 
 
-async def verify_token(request):
-    id_token = request.headers.get("Authorization")
-    if not id_token:
-        raise HTTPException(status_code=400, detail="Token is required.")
-    try:
-        decoded_token = firebase_auth.verify_id_token(id_token)
-        return decoded_token
-    except Exception as e:
-        raise HTTPException(status_code=401, detail="Invalid Firebase token") from e
+async def verify_token(request: Request):
+    token = request.headers.get("Authorization").split("Bearer ")[-1]  # Extract token
+    decoded_token = auth.verify_id_token(token)  
+    return decoded_token
+
 
 @player_router.get("/players/get_playerFirebaseID/{displayname}")
 async def verify_firebase_token(displayname: str, id_token: str = Query(...)):
@@ -83,7 +83,7 @@ async def verify_firebase_token(displayname: str, id_token: str = Query(...)):
         raise HTTPException(status_code=401, detail="Invalid Firebase token") from e
 
 # Convert player object to player document
-def player_to_document(player, firebase_uid):
+def player_to_document(player):
     return {
         "playername": player.playername,
         "displayname": player.displayname,
@@ -192,59 +192,27 @@ async def send_friendRequest(sender: str, reciever: str):
         raise HTTPException(status_code=404, detail="Receiver not found.")
 
 
-@player_router.post("/players/register")
-async def register_new_player(request, body: dict):
-    return await register_player(request, body, db)
+@player_router.post("/players/register_player")
+async def register_player(player: Player):
+    # Check if the player already exists by firebase_uid
+    existing_player_by_uid = db["players"].find_one({"firebase_uid": player.firebase_uid})
+    if existing_player_by_uid:
+        raise HTTPException(status_code=400, detail="Player with this Firebase UID already exists")
 
-# Register a new player in the database
-async def register_player(request, body, db: MongoClient):
-    playername = body.get("playername")
-    displayname = body.get("displayname")
-    email = body.get("email")
-
-    if not playername or not displayname or not email:
-        raise HTTPException(status_code=400, detail="playername, displayname, and email are required.")
-
-    # Verify Firebase token and get the firebase_uid (assuming you have a verify_token function in this file)
-    token = await verify_token(request)
-    firebase_uid = token["firebase_uid"]
-
-    # Set default values for missing fields
-    new_player = {
-        "playername": playername,
-        "displayname": displayname,
-        "email": email,
-        "avatar": None,
-        "join_date": None,  # You can set it to the current date if needed
-        "wins": 0,
-        "losses": 0,
-        "ties": 0,
-        "wlratio": 0,
-        "winstreaks": [],
-        "match_history": [],
-        "current_tournament_wins": 0,
-        "current_tournament_losses": 0,
-        "current_tournament_ties": 0,
-        "aboutMe": None,
-        "pending_invites": [],
-        "friends": [],
-        "firebase_uid": firebase_uid,  # Set firebase_uid in MongoDB player document
-    }
-
-    # Check if player already exists
-    if db.players.find_one({"displayname": displayname}):
-        raise HTTPException(status_code=400, detail="Player already exists")
+    # Check if the displayname is already taken
+    existing_player_by_displayname = db["players"].find_one({"displayname": player.displayname})
+    if existing_player_by_displayname:
+        raise HTTPException(status_code=400, detail="Display name is already taken")
 
     # Insert the player document into the database
-    result = db.players.insert_one(new_player)
-    player_id = str(result.inserted_id)
+    #player_document = player.dict()
+    player_document = player_to_document(player_document)
+    result = db.players.insert_one(player_document)
 
-    # Set player_id as a custom claim in Firebase (using Firebase Admin SDK)
-    await firebase_admin.auth.set_custom_user_claims(firebase_uid, {
-        'player_id': player_id
-    })
+    # Return a success message or player data after insertion
+    return {"message": "Player registered successfully", "player": player_document}
 
-    return {"message": "Player created and registered successfully", "player_id": player_id}
+
 
 @player_router.put("/players/update_about_me/{playername}")
 async def update_about_me(playername: str, body: dict): 

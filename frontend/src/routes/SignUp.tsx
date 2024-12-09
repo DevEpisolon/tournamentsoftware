@@ -30,7 +30,7 @@ const SignUp = () => {
       };
 
       // Send POST request to backend
-      const response = await axios.post("http://localhost:8000/players/register_player", playerData, {
+      const response = await axios.post("http://localhost:8000/api/players/register_player", playerData, {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${userCredential.user.accessToken}`, // Pass Firebase token for validation if needed
