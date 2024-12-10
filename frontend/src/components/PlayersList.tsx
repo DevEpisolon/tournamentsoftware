@@ -52,7 +52,7 @@ const PlayerList = ({
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">{title} {maxPlayers ? `(${players.length} / ${maxPlayers})` : `(${players.length})`}</h2>
+        <h2 className="sm:text-sm md:text-lg font-semibold">{title} {maxPlayers ? `(${players.length} / ${maxPlayers})` : `(${players.length})`}</h2>
       </div>
       <div className="relative mb-4">
         <input

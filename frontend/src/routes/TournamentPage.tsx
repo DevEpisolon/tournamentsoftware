@@ -249,7 +249,7 @@ const TournamentPage: React.FC = () => {
   return (
 
     <TournamentPageProvider value={contextValue}>
-      <div className="bg-tourney-navy1 text-white p-8 pl-0 pt-0 pb-0 ">
+      <div className="bg-tourney-navy1 text-white p-8 pl-0 pt-0 pb-0 w-screen h-screen m-0">
         <div className="flex left-10 ">
           <SideBar>
             <SideBarItem icon={<LuLayoutDashboard size={25} />} text="Dashboard" link="/" alert onClick={() => handleTabClick('none')} />
@@ -259,29 +259,29 @@ const TournamentPage: React.FC = () => {
             <SideBarItem icon={<MdPerson size={25} />} text="Players" active={selectedPage === 'manage-players'} onClick={() => handleTabClick('manage-players')} />
             <SideBarItem icon={<FaListAlt size={25} />} text='Matches' active={selectedPage === 'matches'} onClick={() => handleTabClick('matches')} />
           </SideBar>
-          <div className={`relative z-0 flex-1 pl-10 pt-5`}>
+          <div className={`relative z-0 flex-1 sm:pl-5 sm:pt-2.5 md:pl-10 md:pt-5`}>
             <div className={`flex justify-between pb-10`}>
               <div>
                 <h1 className="text-5xl font-bold">{tournament && tournament.tournamentName}</h1>
               </div>
               <div>
-                <button className="bg-red-500 text-white px-4 py-2 mr-2 rounded-md font-semibold" onClick={deleteTournament}>Delete Tournament</button>
-                <button className="bg-green-500 text-white px-4 py-2 rounded-md font-semibold" onClick={startTournament}>Start Tournament</button>
+                <button className="bg-red-500 text-white md:px-4 md:py-2 mr-2 rounded-md md:font-semibold" onClick={deleteTournament}>Delete Tournament</button>
+                <button className="bg-green-500 text-white md:px-4 md:py-2 rounded-md md:font-semibold" onClick={startTournament}>Start Tournament</button>
               </div>
             </div>
             <div className='flex justify-between'>
               <div id='header2' className='flex items-center'>
                 <div id='StatusMenu' className='flex relative items-center '>
-                  <h2 className='font-semibold '>Status:</h2>
+                  <h2 className='sm:text-xs md:text-lg font-semibold '>Status:</h2>
                   <div className='pl-2'>
                     <div id='Status' className={`${editStatus ? "flex shadow-lg rounded-md mb-1 mr-1 bg-gray-800 py-2 px-2" : "flex rounded-sm "}`}>
-                      <span className={``}>{enumToStatus()}</span>
+                      <span className={`sm:text-xs md:text-lg`}>{enumToStatus()}</span>
                       <div id='DropdownArrow' className={`relative mt-1 ml-1 button`}>
                         {editStatus && <MdOutlineArrowDropDown></MdOutlineArrowDropDown>}
                       </div>
                     </div>
                     {editStatus &&
-                      <ul id='StatusOptions' className={`${editStatus ? "absolute w-32 transistion ease-in-out delay-150 duration-300 bg-gray-800 translate-x--2 rounded-md" : "hidden"}`}>
+                      <ul id='StatusOptions' className={`${editStatus ? "absolute sm:w-1/2 md:w-32 transistion ease-in-out delay-150 duration-300 bg-gray-800 translate-x--2 rounded-md" : "hidden"}`}>
                         <li className={`flex justify-center py-2 rounded-sm`}>
                           <button className='relative items-center hover:bg-tourney-navy2 w-4/5 rounded-sm' onClick={() => handleStatus(1)}>Not Started</button>
                         </li>
@@ -298,18 +298,18 @@ const TournamentPage: React.FC = () => {
                     <MdOutlineModeEdit></MdOutlineModeEdit>
                   </button>
                 </div>
-                <h2 className='ml-5 '>Start Date: {formatDate(tournament?.STARTDATE)}</h2>
-                <h2 className='ml-5 '>Location: </h2>
+                <h2 className='ml-5 sm:text-xs md:text-lg px-5'>Start Date: {formatDate(tournament?.STARTDATE)}</h2>
+                <h2 className='ml-5 sm:text-xs md:text-lg'>Location: </h2>
               </div>
               {status === 1 && (
-                <button className='bg-tourney-orange rounded-md px-4 py-2 font-semibold'> Register</button>
+                <button className='bg-tourney-orange rounded-md md:px-4 md:py-2 md:text-lg sm:text-xs font-semibold'> Register</button>
               )}
             </div>
 
             {selectedPage === 'manage-players' && (
-              <div className='flex justify-evenly mt-20'>
+              <div className='flex flex-wrap justify-evenly mt-20'>
                 <div className="flex justify-start w-1/2">
-                  <div className="w-full pr-4">
+                  <div className="md:w-full sm:w-full pr-4">
                     <PlayersList
                       players={playersInTournament}
                       onPlayerClick={removePlayerFromTournament}
@@ -319,7 +319,7 @@ const TournamentPage: React.FC = () => {
                     />
                   </div>
                   {status === 1 && (
-                    <div className="w-full pl-4">
+                    <div className="md:w-full sm:w-full pl-4">
                       <PlayersList
                         players={availablePlayers}
                         onPlayerClick={addPlayerToTournament}

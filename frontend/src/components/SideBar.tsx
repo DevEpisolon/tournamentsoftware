@@ -22,16 +22,16 @@ export default function SideBar({ children }: SideBarProps): React.ReactNode {
   return (
     <aside className="h-screen sticky self-start top-0 transition-width z-20">
       <nav className="h-full flex flex-col bg-tourney-navy2 border-r shadow-md border-tourney-navy1">
-        <div className="p-5 pb-2 flex justify-between items-center">
-          <span className={`overflow-hidden transition-all ${expanded ? "w-32" : "w-0"}`}>
+        <div className="sm:p-0 sm:pb-1 md:p-5 md:pb-2 flex justify-between items-center">
+          <span className={`overflow-hidden transition-all ${expanded ? "sm:w-16 md:w-32" : "w-0"}`}>
             TAS-32
           </span>
-          <button onClick={() => setExpanded((curr) => !curr)} className='bg-tourney-navy2 p-1.5 rounded-lg hover:bg-tourney-orange'>
+          <button onClick={() => setExpanded((curr) => !curr)} className='bg-tourney-navy2 sm:w-3/4 md:w-full sm:p-0.5 md:p-1.5 rounded-lg hover:bg-tourney-orange'>
             {expanded ? <MdClose size={20} /> : <MdOutlineDehaze size={20} />}
           </button>
         </div>
         <SideBarContext.Provider value={{ expanded }}>
-          <ul className='flex-1 px-3'>
+          <ul className='flex-1 md:px-3 sm:px-1 sm:w-11/12 md:w-full'>
             {children}
           </ul>
         </SideBarContext.Provider>
