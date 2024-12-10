@@ -4,10 +4,28 @@ from pymongo import MongoClient
 from objects.match import Match
 from utils import format
 from database.player_database import *
-from fastapi_app import db, client
 
 # Router for match-related endpoints
 match_router = APIRouter()
+
+
+
+from pymongo import MongoClient
+from dotenv import load_dotenv
+# Load environment variables from .env file
+load_dotenv()
+
+# Get the MongoDB connection string from the environment variable
+MONGODB_CONNECTION_STRING = os.getenv("MONGODB_URI")
+if not MONGODB_CONNECTION_STRING:
+    raise ValueError("MONGODB_URI is not set in the environment")
+
+# Initialize MongoDB client
+client = MongoClient(MONGODB_CONNECTION_STRING)
+db = client["tournamentsoftware"]
+matches_collection = db["matches"]
+
+
 
 
 class MatchDatabase:
@@ -24,10 +42,6 @@ class MatchDatabase:
         match = Match(**match_data) 
         self.matches[match.matchid] = match
         return match
-
-
-db = client["tournamentsoftware"]
-match_collection = db["matches"]
 
 match_db = MatchDatabase()
 

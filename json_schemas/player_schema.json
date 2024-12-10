@@ -1,11 +1,12 @@
 {
   "$jsonSchema": {
     "bsonType": "object",
-    "required": ["playername", "displayname", "uniqueid", "email", "join_date", "stats", "match_history"],
+    "required": ["playername", "displayname", "uniqueid", "email", "join_date", "stats", "match_history","firebase_uid"],
     "properties": {
       "playername": { "bsonType": "string" },
       "displayname": { "bsonType": "string" },
       "uniqueid": { "bsonType": "string" },
+      "firebase_uid": {"bsonType": "string"},
       "email": { "bsonType": "string" },
       "avatar": { "bsonType": ["string", "null"] },
       "join_date": { "bsonType": ["date", "null"] },

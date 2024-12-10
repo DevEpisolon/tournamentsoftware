@@ -13,6 +13,7 @@ class Tournament:
         max_rounds,
         maxSlotsPerMatch,
         MaxSlotsCount,
+        join_code,
         matches=None,
         TournamentType=None,
         TeamBoolean=None,
@@ -51,7 +52,8 @@ class Tournament:
         self.wins_dict = wins_dict if wins_dict else {}
         self.losses_dict = losses_dict if losses_dict else {}
         self.ties_dict = ties_dict if ties_dict else {}
-        self.rounds = math.log2(len(Players) + 1)
+       # self.rounds = math.log2(len(Players) + 1)
+        self.rounds = math.ceil(math.log2(len(Players))) if Players else 0 
         self.currentRound = currentRound
         self.onGoingPlayers = Players if Players else []
 
@@ -421,7 +423,7 @@ class Tournament:
         print("Alloted Match Time:", self.AllotedMatchTime)
         print("Players:", self.Players)
 
-    def to_dict(self):
+    def __to_dict(self):
         return {
             "tournamentName": self.tournamentName,
             "STATUS": self.STATUS,
@@ -429,17 +431,22 @@ class Tournament:
             "ENDDATE": self.ENDDATE,
             "createdAt": self.createdAt,
             "updatedAt": self.updatedAt,
-            "max_rounds": self.max_rounds,
-            "maxSlotsPerMatch": self.maxSlotsPerMatch,
+            "matches": [match.__to_dict() for match in self.matches],  # Assuming Match class has __to_dict method
             "MaxSlotsCount": self.MaxSlotsCount,
             "TournamentType": self.TournamentType,
             "TeamBoolean": self.TeamBoolean,
             "AllotedMatchTime": self.AllotedMatchTime,
-            "Players": self.Players,
-            "tournamentWinner": self.tournamentWinner,
-            "droppedPlayers": self.droppedPlayers,
+            "Players": [player.__to_dict() for player in self.Players],  # Assuming Player class has __to_dict method
+            "tournamentWinner": self.tournamentWinner.__to_dict() if self.tournamentWinner else None,  # Assuming Player class
+            "droppedPlayers": [player.__to_dict() for player in self.droppedPlayers],  # Assuming Player class
+            "maxSlotsPerMatch": self.maxSlotsPerMatch,
+            "max_rounds": self.max_rounds,
             "wins_dict": self.wins_dict,
             "losses_dict": self.losses_dict,
             "ties_dict": self.ties_dict,
             "rounds": self.rounds,
+            "currentRound": self.currentRound,
+            "onGoingPlayers": [player.__to_dict() for player in self.onGoingPlayers],  # Assuming Player class
+            "join_code": self.join_code,
         }
+

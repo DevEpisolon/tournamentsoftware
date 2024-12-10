@@ -1,42 +1,42 @@
-// routes/PlayerProfilePage.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import axios from "axios";
+import { useAuth } from "../utils/AuthContext";
+import UpdateAvatar from "../components/UpdateAvatar";
 
-// Default blank image URL
 const DEFAULT_IMAGE_URL =
   "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
 
 const PlayerProfilePage: React.FC = () => {
-  const { id } = useParams(); // Get the player ID from the URL
   const { playername } = useParams<{ playername: string }>();
   const navigate = useNavigate();
   const { state } = useLocation();
-  
-  // If data is passed via navigation, use that; else fetch from API.
+  const { currentUser } = useAuth();
+
   const [playerData, setPlayerData] = useState<any>(state?.playerData || null);
   const [loading, setLoading] = useState<boolean>(true);
   const [aboutMe, setAboutMe] = useState<string>("");
-  const [isEditing, setIsEditing] = useState<boolean>(false); // Track editing state
-  
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [showUpdateAvatar, setShowUpdateAvatar] = useState<boolean>(false);
+
   useEffect(() => {
-    // Fetch player data if it is not passed in via state.
     if (!playerData) {
       const fetchPlayerData = async () => {
         try {
-          const response = await axios.get(`http://localhost:8000/api/players/get_player/${playername}`);
-          setPlayerData(response.data);
-          setAboutMe(response.data.aboutMe || ""); // Load the initial 'aboutMe' field if it exists
+          const response = await fetch(
+            `http://localhost:8000/api/players/get_player/${playername}`
+          );
+          const data = await response.json();
+          setPlayerData(data);
+          setAboutMe(data.aboutMe || "");
           setLoading(false);
         } catch (error) {
           console.error("Error fetching player data:", error);
           setLoading(false);
         }
       };
-
       fetchPlayerData();
     } else {
-      setLoading(false); // If data is passed, no need to load
+      setLoading(false);
     }
   }, [playername, playerData]);
 
@@ -44,31 +44,41 @@ const PlayerProfilePage: React.FC = () => {
     navigate("/");
   };
 
-  // Function to update 'aboutMe' when the user presses Enter
   const handleAboutMeConfirm = async (
     e: React.FocusEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>
   ) => {
     if (e.type === "blur" || (e as React.KeyboardEvent<HTMLDivElement>).key === "Enter") {
-      e.preventDefault(); // Prevents new line when pressing Enter
+      e.preventDefault();
       const updatedAboutMe = (e.target as HTMLDivElement).innerText.trim();
       if (updatedAboutMe !== aboutMe) {
         try {
-          await axios.put(
+          await fetch(
             `http://localhost:8000/api/players/update_about_me/${playername}`,
-            { aboutMe: updatedAboutMe }
+            {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ aboutMe: updatedAboutMe }),
+            }
           );
-          setAboutMe(updatedAboutMe); // Update state after successful API call
+          setAboutMe(updatedAboutMe);
         } catch (error) {
           console.error("Error updating About Me:", error);
         }
       }
-      setIsEditing(false); // Exit editing mode
+      setIsEditing(false);
     }
   };
 
-  // Handle when the About Me box is clicked to start editing
   const handleEditClick = () => {
     setIsEditing(true);
+  };
+
+  const handleAvatarClick = () => {
+    if (currentUser?.uid === playerData?.firebase_uid) {
+      setShowUpdateAvatar(true);
+    } else {
+      alert("You are not authorized to update this avatar.");
+    }
   };
 
   if (loading) {
@@ -96,13 +106,15 @@ const PlayerProfilePage: React.FC = () => {
           <img
             src={playerImage}
             alt="Player Avatar"
-            className="rounded-full w-32 h-32 mx-auto mb-4 border-4 border-white transition-transform duration-300 hover:scale-105 hover:filter hover:grayscale"
+            className="rounded-full w-32 h-32 mx-auto mb-4 border-4 border-white cursor-pointer"
+            onClick={handleAvatarClick}
           />
           <h1 className="text-4xl font-bold">{playerData.displayname}</h1>
           <p className="text-sm italic">Joined: {playerData.join_date}</p>
         </header>
 
-        {/* Editable About Me Section */}
+        {showUpdateAvatar && <UpdateAvatar />}
+
         <div className="border-4 border-white p-4 rounded-md shadow-md mb-8 bg-gray-200">
           <h2 className="text-lg font-semibold mb-2 text-black">About Me</h2>
           <div
@@ -112,20 +124,6 @@ const PlayerProfilePage: React.FC = () => {
             onClick={handleEditClick}
             onBlur={handleAboutMeConfirm}
             onKeyDown={handleAboutMeConfirm}
-            onInput={(e) => {
-              const target = e.target as HTMLDivElement;
-              const text = target.innerText;
-
-              // If the text exceeds 25 characters, truncate it
-              if (text.length > 25) {
-                target.innerText = text.slice(0, 25); // Truncate to 25 characters
-                // Optionally, you can set the cursor to the end of the text
-                const range = document.createRange();
-                const sel = window.getSelection();
-                range.selectNodeContents(target);
-                range.collapse(false); // Set cursor to end
-              }
-            }}
           >
             {aboutMe}
           </div>
@@ -135,32 +133,25 @@ const PlayerProfilePage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 gap-32 mt-12">
-          {/* Diamond shape for Wins (Red) */}
-          <div className="transform rotate-45 border-4 border-white w-36 h-36 mx-auto flex items-center justify-center bg-red-500 shadow-md transition-transform duration-300 hover:scale-110">
+          <div className="transform rotate-45 border-4 border-white w-36 h-36 mx-auto flex items-center justify-center bg-red-500 shadow-md">
             <div className="transform -rotate-45 text-center">
               <h2 className="text-lg font-semibold">Wins</h2>
               <p className="text-xl">{playerData.wins}</p>
             </div>
           </div>
-
-          {/* Diamond shape for Losses (Blue) */}
-          <div className="transform rotate-45 border-4 border-white w-36 h-36 mx-auto flex items-center justify-center bg-blue-500 shadow-md transition-transform duration-300 hover:scale-110">
+          <div className="transform rotate-45 border-4 border-white w-36 h-36 mx-auto flex items-center justify-center bg-blue-500 shadow-md">
             <div className="transform -rotate-45 text-center">
               <h2 className="text-lg font-semibold">Losses</h2>
               <p className="text-xl">{playerData.losses}</p>
             </div>
           </div>
-
-          {/* Diamond shape for Ties (#F6B17A) */}
-          <div className="transform rotate-45 border-4 border-white w-36 h-36 mx-auto flex items-center justify-center bg-[#F6B17A] shadow-md transition-transform duration-300 hover:scale-110">
+          <div className="transform rotate-45 border-4 border-white w-36 h-36 mx-auto flex items-center justify-center bg-[#F6B17A] shadow-md">
             <div className="transform -rotate-45 text-center">
               <h2 className="text-lg font-semibold">Ties</h2>
               <p className="text-xl">{playerData.ties}</p>
             </div>
           </div>
-
-          {/* Diamond shape for Winstreak (Green) */}
-          <div className="transform rotate-45 border-4 border-white w-36 h-36 mx-auto flex items-center justify-center bg-green-500 shadow-md transition-transform duration-300 hover:scale-110">
+          <div className="transform rotate-45 border-4 border-white w-36 h-36 mx-auto flex items-center justify-center bg-green-500 shadow-md">
             <div className="transform -rotate-45 text-center">
               <h2 className="text-lg font-semibold">Winstreak</h2>
               <p className="text-xl">{playerData.winstreaks}</p>
