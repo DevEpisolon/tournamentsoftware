@@ -17,6 +17,7 @@ tournament_router = APIRouter()
 
 from pymongo import MongoClient
 from dotenv import load_dotenv
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -31,12 +32,11 @@ db = client["tournamentsoftware"]
 tournaments_collection = db["tournaments"]
 
 
-
-
 def generate_join_id():
     """Generate a unique 4-character join ID consisting of digits and letters."""
     characters = string.ascii_letters + string.digits  # a-z, A-Z, 0-9
-    return ''.join(random.choices(characters, k=4))
+    return "".join(random.choices(characters, k=4))
+
 
 def generate_unique_join_id():
     """Generate a unique 4-character join ID and ensure no duplicates."""
@@ -73,7 +73,7 @@ def fetch_tournament_data_from_database(tournament_id: str):
         raise HTTPException(status_code=400, detail="Invalid tournament ID")
 
 
-#fetches the objectid for the tourament and promote all players within the round if they are finished
+# fetches the objectid for the tourament and promote all players within the round if they are finished
 @tournament_router.put("/tournaments/{tournament_id}/promote_players/{round_number}")
 async def promote_players(tournament_id: str, round_number: int):
     """
@@ -134,7 +134,7 @@ def view_tournaments():
 
 @tournament_router.post("/tournaments/create/{tournament_name}:{max_slots}")
 def create_tournament(tournament_name: str, max_slots: int):
-    join_id = generate_unqiue_join_id()
+    join_id = generate_unique_join_id()
 
     tournament = Tournament(
         tournamentName=tournament_name,
@@ -155,13 +155,14 @@ def create_tournament(tournament_name: str, max_slots: int):
         wins_dict={},
         losses_dict={},
         ties_dict={},
-        join_id=None,
+        join_code=join_id,
     )
 
-    tournament_data = tournament.__to_dict()  # Using the __to_dict() method
+    tournament_data = tournament._to_dict()  # Using the _to_dict() method
 
     # Insert tournament data into collection
     tournaments_collection.insert_one(tournament_data)
+    return "Message: Tournament successfully created"
 
 
 @tournament_router.put("/add_player/{tournament_id}/{player_display_name}")
@@ -306,7 +307,7 @@ def tournament_to_document(tournament):
         "wins_dict": tournament.wins_dict,
         "losses_dict": tournament.losses_dict,
         "ties_dict": tournament.ties_dict,
-        "join_id": tournament.join_id, 
+        "join_id": tournament.join_id,
     }
 
 
