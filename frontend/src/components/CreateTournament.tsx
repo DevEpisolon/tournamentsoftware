@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const CreateTournament: React.FC = () => {
@@ -7,31 +7,36 @@ const CreateTournament: React.FC = () => {
   const [maxPlayers, setMaxPlayers] = useState<number>(8); // Default to 8 players
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   // Handle form submission
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     // Validate input
-    if (!tournamentName) {
+    if (!tournamentName.trim()) {
       setError("Tournament name is required.");
       return;
     }
 
     setLoading(true);
+    setError(null); // Reset error on retry
+
     try {
       // Send POST request to create tournament
-      const response = await axios.post("/api/tournaments", {
+      const response = await axios.post("http://localhost:8000/api/tournaments", {
         tournamentName,
         maxPlayers,
       });
 
       // Redirect to tournament list or newly created tournament page
-      history.push(`/tournament/${response.data._id}`);
-    } catch (error) {
-      setError("Error creating tournament.");
-      console.error("Error creating tournament:", error);
+      navigate(`/tournament/${response.data._id}`);
+    } catch (err: any) {
+      // Extract detailed error message if available
+      const errorMessage =
+        err.response?.data?.message || "Error creating tournament.";
+      setError(errorMessage);
+      console.error("Error creating tournament:", err);
     } finally {
       setLoading(false);
     }
@@ -45,9 +50,15 @@ const CreateTournament: React.FC = () => {
         </h1>
       </header>
 
-      <form onSubmit={handleSubmit} className="max-w-lg mx-auto bg-gray-800 p-8 rounded-lg shadow-md">
+      <form
+        onSubmit={handleSubmit}
+        className="max-w-lg mx-auto bg-gray-800 p-8 rounded-lg shadow-md"
+      >
         <div className="mb-4">
-          <label htmlFor="tournamentName" className="block text-white text-lg mb-2">
+          <label
+            htmlFor="tournamentName"
+            className="block text-white text-lg mb-2"
+          >
             Tournament Name
           </label>
           <input
@@ -96,4 +107,3 @@ const CreateTournament: React.FC = () => {
 };
 
 export default CreateTournament;
-

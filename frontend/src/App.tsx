@@ -28,13 +28,6 @@ function App(): JSX.Element {
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      setUser(currentUser || null);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
     const fetchTournaments = async () => {
       try {
         const [featured, recent, upcoming, friends, last, onlineFriends] = await Promise.all([
@@ -98,8 +91,8 @@ function App(): JSX.Element {
   };
 
   const handleProfile = () => {
-    if (user) {
-      navigate(`/player/${user.uid}`);
+    if (currentUser) {
+      navigate(`/player/${currentUser.uid}`);
     }
     setDropdownOpen(false);
   };
@@ -118,7 +111,7 @@ function App(): JSX.Element {
   const handleTournamentDropdown = (action: string) => {
     setTournamentDropdownOpen(false);
     if (action === "create") {
-      setShowForm(true);
+      navigate("/createTournament")
     } else if (action === "view") {
       console.log("View Tournament clicked");
       navigate("/OldMain");
@@ -132,7 +125,7 @@ function App(): JSX.Element {
       try {
         const response = await axios.post(
           `http://localhost:8000/api/tournaments/join`,
-          { joinCode, userId: user.uid }
+          { joinCode, userId: currentUser.uid }
         );
         if (response.data.success) {
           alert("Successfully joined the tournament!");
@@ -161,8 +154,8 @@ function App(): JSX.Element {
               className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#7077A1] focus:outline-none"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              {user?.photoURL ? (
-                <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+              {currentUser?.photoURL ? (
+                <img src={currentUser.photoURL} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-gray-300"></div>
               )}
@@ -190,9 +183,9 @@ function App(): JSX.Element {
               </div>
             )}
           </div>
-          {user && (
+          {currentUser && (
             <span className="font-semibold" style={{ color: "#F6B17A" }}>
-              {user.displayName ? user.displayName : "User"}
+              {currentUser.displayName ? currentUser.displayName : "User"}
             </span>
           )}
         </div>

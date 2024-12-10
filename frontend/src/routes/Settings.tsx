@@ -18,7 +18,7 @@ const Settings: React.FC = () => {
   useEffect(() => {
     const fetchAccountInfo = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/account"); // Replace with your API endpoint
+        const response = await axios.get("http://localhost:8000/api/players/get_player/Kayz}");
         console.log("Account info response:", response.data); // Log the response data to the console
         setAccountInfo(response.data);
       } catch (error) {

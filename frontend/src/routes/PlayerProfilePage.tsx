@@ -24,9 +24,7 @@ const PlayerProfilePage: React.FC = () => {
     if (!playerData) {
       const fetchPlayerData = async () => {
         try {
-          const response = await axios.get(
-            `http://localhost:8000/api/players/get_player/${playername}`
-          );
+          const response = await axios.get(`http://localhost:8000/api/players/get_player/${playername}`);
           setPlayerData(response.data);
           setAboutMe(response.data.aboutMe || ""); // Load the initial 'aboutMe' field if it exists
           setLoading(false);
