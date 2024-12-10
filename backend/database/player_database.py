@@ -192,6 +192,20 @@ async def send_friendRequest(sender: str, reciever: str):
         raise HTTPException(status_code=404, detail="Receiver not found.")
 
 
+@player_router.post("/players/updateAvatar")
+async def update_avatar(displayname: str, avatar: str):
+    player_document = db.players.find_one({"displayname": displayname})
+    if player_document:
+        db.players.update_one(
+            {"displayname": displayname},
+            {"$set": {"avatar": avatar}}
+        )
+        return {"message": f"Avatar updated for {displayname}"}
+    else:
+        raise HTTPException(status_code=404, detail="Player not found.")
+
+
+
 @player_router.post("/players/register_player")
 async def register_player(body:dict):
    

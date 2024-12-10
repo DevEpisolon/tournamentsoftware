@@ -13,7 +13,8 @@ const SignIn = () => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // Redirect or handle successful login
+      // Navigate to home after successful login
+      navigate("/");
     } catch (err) {
       setError("Failed to sign in. Please check your credentials.");
     }
