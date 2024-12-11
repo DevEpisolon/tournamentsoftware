@@ -1,11 +1,13 @@
 class Player:
-    def __init__(self, playername, displayname, uniqueid=None, email=None, avatar=None, join_date=None, # user info
+    def __init__(self, playername, displayname, uniqueid=None, email=None, avatar=None, join_date=None, aboutMe=None, firebaseID=None, # user info
                     wins=0, losses=0, ties=0, wlratio=0, winstreaks=0, match_history=[], # general stats
-                    current_tournament_wins=0, current_tournament_losses=0, current_tournament_ties=0): # tourney info
+                    current_tournament_wins=0, current_tournament_losses=0, current_tournament_ties=0,
+                    pending_invites=None, friends=None): # tourney info
         self.playername = playername
         self.displayname = displayname
         self.uniqueid = uniqueid
         self.email = email
+        self.avatar = avatar
         self.wins = wins
         self.losses = losses
         self.ties = ties
@@ -17,18 +19,29 @@ class Player:
         self.current_tournament_wins = current_tournament_wins
         self.current_tournament_losses = current_tournament_losses
         self.current_tournament_ties = current_tournament_ties
+        self.aboutMe = aboutMe
+        self.pending_invites = pending_invites
+        self.friends = friends
+        self.firebaseID = firebaseID
+
 
     # for calling print() on a player
     def __str__(self):
-        return f'''Dummy Player Info:
-Player: {self.displayname}-{self.playername} | ID: {self.uniqueid}
-Email: {self.email} | Join Date: {self.join_date}
-Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlratio}%
-'''
+        return f"""Dummy Player Info:
+            Player: {self.displayname}-{self.playername} | ID: {self.uniqueid}
+            Email: {self.email} | Join Date: {self.join_date}
+            Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlratio}%
+            """
 
     @classmethod
     def create_dummy(cls, playername, displayname, wins=0, losses=0, ties=0):
-        return cls(playername=playername, displayname=displayname, wins=wins, losses=losses, ties=ties)
+        return cls(
+            playername=playername,
+            displayname=displayname,
+            wins=wins,
+            losses=losses,
+            ties=ties,
+        )
 
     # Getters
     def get_playername(self):
@@ -75,6 +88,8 @@ Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlrat
 
     def get_current_tournament_ties(self):
         return self.current_tournament_ties
+    def get_firebaseID(self):
+        return self.firebaseID
 
     # Setters
     def set_playername(self, playername):
@@ -99,7 +114,7 @@ Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlrat
         self.ties = ties
 
     def set_wlratio(self, wins, losses):
-        self.wlratio = wins if losses == 0 else wins / losses
+        return wins if losses == 0 else wins / losses
 
     def set_winstreaks(self, winstreaks):
         self.winstreaks = winstreaks
@@ -131,6 +146,14 @@ Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlrat
         else:
             print("Error: Number of wins cannot be negative.")
 
+    def get_aboutMe():
+        return self.aboutMe
+
+    def set_aboutMe(info):
+        if aboutMe and len(aboutMe) > 25:
+            raise ValueError("About Me section cannot exceed 25 characters.")
+        self.aboutMe = aboutMe
+
     def increase_losses(self):
         self.losses += 1
 
@@ -148,9 +171,49 @@ Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlrat
             self.ties -= 1
         else:
             print("Error: Number of ties cannot be negative.")
+    def get_pendingInvites(self):
+        return self.pending_invites
+    
+    def set_pendingInvites(self,pending_friends):
+        self.pending = pending_friends 
+    
+    def append_topendingInvites(self,senderName):
+        self.pending_invites.append(senderName)
+
+    def remove_pendingInvites(self,senderName):
+        if senderName in self.pending_invites:
+            self.pending_invites.remove(senderName)
+    
+    def get_friends(self):
+        return self.friends
+
+    def set_friends(self,friends):
+        self.friends = friends
+    
+    def append_Friend(self,friend):
+        self.friends.append(friend)
+
+    def remove_Friend(self,friend):
+        self.friends.remove(friend)
+   
+    '''
+    To accept/decline friendRequest
+    friend : displayname
+    status : boolean True(accepted)  or false(declined) 
+    '''
+
+    def confirm_pendingFriendRequest(self,name,status):
+        if name in self.pending_invites:
+            remove_pendingInvites(name)
+            if status:
+                if name not in self.friends:
+                    append_Friend(name)    
+         
+    def set_firebaseID(self,ID):
+        self.firebaseId = ID
 
     def update_wl_ratio(self):
-        self.wlratio = round(self.wins/(self.wins+self.losses) * 100, 1)
+        self.wlratio = round(self.wins / (self.wins + self.losses) * 100, 1)
 
     def update_match_history(self, match):
         pass
