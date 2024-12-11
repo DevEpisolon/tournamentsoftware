@@ -1,5 +1,5 @@
 class Player:
-    def __init__(self, playername, displayname, uniqueid=None, email=None, avatar=None, join_date=None, aboutMe=None, firebaseID=None, # user info
+    def __init__(self, playername, displayname, uniqueid=None, email=None, avatar=None, join_date=None, aboutMe=None, firebase_uid=None, # user info
                     wins=0, losses=0, ties=0, wlratio=0, winstreaks=0, match_history=[], # general stats
                     current_tournament_wins=0, current_tournament_losses=0, current_tournament_ties=0,
                     pending_invites=None, friends=None): # tourney info
@@ -22,7 +22,7 @@ class Player:
         self.aboutMe = aboutMe
         self.pending_invites = pending_invites
         self.friends = friends
-        self.firebaseID = firebaseID
+        self.firebase_uid = firebase_uid
 
 
     # for calling print() on a player
@@ -89,7 +89,7 @@ class Player:
     def get_current_tournament_ties(self):
         return self.current_tournament_ties
     def get_firebaseID(self):
-        return self.firebaseID
+        return self.firebase_uid
 
     # Setters
     def set_playername(self, playername):
@@ -146,13 +146,13 @@ class Player:
         else:
             print("Error: Number of wins cannot be negative.")
 
-    def get_aboutMe():
+    def get_aboutMe(self):
         return self.aboutMe
 
-    def set_aboutMe(info):
-        if aboutMe and len(aboutMe) > 25:
+    def set_aboutMe(self, info):
+        if info and len(info) > 25:
             raise ValueError("About Me section cannot exceed 25 characters.")
-        self.aboutMe = aboutMe
+        self.aboutMe = info
 
     def increase_losses(self):
         self.losses += 1
@@ -204,16 +204,18 @@ class Player:
 
     def confirm_pendingFriendRequest(self,name,status):
         if name in self.pending_invites:
-            remove_pendingInvites(name)
+            self.remove_pendingInvites(name)
             if status:
                 if name not in self.friends:
-                    append_Friend(name)    
+                    self.append_Friend(name)    
          
     def set_firebaseID(self,ID):
-        self.firebaseId = ID
+        self.firebase_uid = ID
 
     def update_wl_ratio(self):
         self.wlratio = round(self.wins / (self.wins + self.losses) * 100, 1)
 
     def update_match_history(self, match):
-        pass
+        if(len(self.match_history) > 7):
+            self.match_history.pop(0)
+        self.match_history.append(match)
