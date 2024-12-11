@@ -4,21 +4,49 @@ from datetime import datetime
 from pymongo import MongoClient
 from bson import ObjectId
 from objects.tournament import Tournament
+from objects.match import Match
 from objects.player import Player
 from database.player_database import *
 from database.match_database import *
 import asyncio
-from fastapi_app import db, client
 from objects.match import Match
+import random
+import string
 
 tournament_router = APIRouter()
 
-b = client["tournamentsoftware"]
+
+from pymongo import MongoClient
+from dotenv import load_dotenv
+# Load environment variables from .env file
+load_dotenv()
+
+# Get the MongoDB connection string from the environment variable
+MONGODB_CONNECTION_STRING = os.getenv("MONGODB_URI")
+if not MONGODB_CONNECTION_STRING:
+    raise ValueError("MONGODB_URI is not set in the environment")
+
+# Initialize MongoDB client
+client = MongoClient(MONGODB_CONNECTION_STRING)
+db = client["tournamentsoftware"]
 tournaments_collection = db["tournaments"]
 
-# db = MongoDB().getDb()
-# tournaments_collection = db["tournaments"]
-players_collection = db["players"]
+
+
+
+def generate_join_id():
+    """Generate a unique 4-character join ID consisting of digits and letters."""
+    characters = string.ascii_letters + string.digits  # a-z, A-Z, 0-9
+    return ''.join(random.choices(characters, k=4))
+
+def generate_unique_join_id():
+    """Generate a unique 4-character join ID and ensure no duplicates."""
+    while True:
+        join_id = generate_join_id()
+        # Check if the join_id already exists in the database
+        existing_tournament = tournaments_collection.find_one({"join_id": join_id})
+        if not existing_tournament:  # If no existing tournament with this join_id
+            return join_id
 
 
 def document_to_tournament(tournament_document):
@@ -107,6 +135,8 @@ def view_tournaments():
 
 @tournament_router.post("/tournaments/create/{tournament_name}:{max_slots}")
 def create_tournament(tournament_name: str, max_slots: int):
+    join_id = generate_unique_join_id()
+
     tournament = Tournament(
         tournamentName=tournament_name,
         STATUS=1,
@@ -117,7 +147,6 @@ def create_tournament(tournament_name: str, max_slots: int):
         max_rounds=1,
         maxSlotsPerMatch=2,
         MaxSlotsCount=max_slots,
-        matches=None,
         TournamentType=None,
         TeamBoolean=None,
         AllotedMatchTime=None,
@@ -127,9 +156,10 @@ def create_tournament(tournament_name: str, max_slots: int):
         wins_dict={},
         losses_dict={},
         ties_dict={},
+        join_code=join_id,
     )
 
-    tournament_data = tournament.to_dict()
+    tournament_data = tournament_to_document(tournament)  # Using the __to_dict() method
 
     # Insert tournament data into collection
     tournaments_collection.insert_one(tournament_data)
@@ -277,8 +307,57 @@ def tournament_to_document(tournament):
         "wins_dict": tournament.wins_dict,
         "losses_dict": tournament.losses_dict,
         "ties_dict": tournament.ties_dict,
+        "join_code": tournament.join_code, 
     }
 
+@tournament_router.put("/create_matches/{tournament_id}")
+async def create_matches(tournament_id):
+    from database.match_database import post_match
+
+    obj_id = ObjectId(tournament_id)
+    tournament = get_tournament_byid(tournament_id)
+    tournament.createMatches()
+    updated_tournament = tournament_to_document(tournament)
+    tournaments_collection.replace_one(
+                {"_id": obj_id}, updated_tournament
+            )
+    for match in tournament.matches:
+        match_doc = match_to_document(match)
+        await post_match(match_doc)
+
+def match_to_document(match):
+    serialized_players = [player for player in match.players]
+    serialized_winner = None
+    serialized_loser = None
+    if match.match_winner is not None:
+        serialized_winner = player_to_document(match.match_winner)
+    if match.match_loser is not None:
+        serialized_loser = player_to_document(match.match_loser)
+    return {
+        "matchid": match.matchid,
+        "slots": match.slots,
+        "match_status": match.match_status,
+        "winner_next_match_id": match.winner_next_match_id,
+        "previous_match_id": match.previous_match_id,
+        "match_winner": serialized_winner,
+        "match_loser": serialized_loser,
+        "loser_next_match_id": match.loser_next_match_id,
+        "start_date": match.start_date,
+        "end_date": match.end_date,
+        "players": serialized_players,
+        "max_rounds": match.max_rounds,
+        "num_wins": match.num_wins,
+        "round_wins": match.round_wins,
+        "round_losses": match.round_losses,
+        "round_ties": match.round_ties,
+        "startTime": match.startTime,
+        "endTime": match.endTime,
+        "tournamentName": match.tournamentName,
+        "bracket_position": match.bracket_position,
+        "tournamentRoundNumber" : match.tournamentRoundNumber,
+    }
+
+'''
 @tournament_router.put("/create_matches/{tournament_id}")
 async def create_matches(tournament_id):
     # 1. First, validate tournament_id format
@@ -313,7 +392,7 @@ async def create_matches(tournament_id):
 
         # Update in database
         try:
-            # print(updated_tournament)
+            print(updated_tournament)
             result = tournaments_collection.replace_one(
                 {"_id": obj_id}, updated_tournament
             )
@@ -351,3 +430,4 @@ async def create_matches(tournament_id):
         "message": "Matches created successfully",
         "tournament_id": str(tournament_id),
     }
+'''
