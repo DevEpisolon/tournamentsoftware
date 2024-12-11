@@ -54,20 +54,34 @@ function App(): JSX.Element {
   const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     setSearchQuery(query);
-
+  
     if (query.trim() !== "") {
       try {
         const response = await axios.get(`http://localhost:8000/api/players/search?query=${query}`);
         const players = response.data;
+
+        // Debug: Log the players array to the console
+        console.log("Players array:", players);
+        console.log("Test 1")
+
+        players.forEach((player: { displayname: string }) => {
+          console.log(player.displayname);
+        });        
+
+        // Filter players to show only those whose displayName starts with the search query
         const filteredPlayers = players.filter((player: { displayname: string }) =>
-          player.displayname && player.displayname.toLowerCase().startsWith(query.toLowerCase())
-        );
-        setSearchResults(filteredPlayers.slice(0, 10));
+        player.displayname && player.displayname.toLowerCase().startsWith(query.toLowerCase())); // Case-insensitive match for display names starting with query
+
+        // Debug: Log the players array to the console
+        console.log("Players array:", filteredPlayers);
+        console.log("Test 2")
+
+        setSearchResults(filteredPlayers.slice(0, 10)); // Limit to 10 results
       } catch (error) {
         console.error("Error searching players:", error);
       }
     } else {
-      setSearchResults([]);
+      setSearchResults([]); // Clear results if search query is empty
     }
   };
 
@@ -214,11 +228,13 @@ function App(): JSX.Element {
               </div>
             )}
           </div>
-
-          <Routes>
-            <Route path="/player/:playername" element={<PlayerProfilePage />} />
-          </Routes>
-
+          
+        {/* Define Routes */}
+        <Routes>
+        <Route path="/player/:playername" element={<PlayerProfilePage />} />
+        </Routes>
+          
+          {/* Search Players Textbox */}
           <div className="ml-4 relative">
             <input
               type="text"
@@ -228,6 +244,7 @@ function App(): JSX.Element {
               className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none text-black"
             />
 
+            {/* Display Player Search Results */}
             {searchResults.length > 0 && (
               <ul className="absolute bg-gray-800 text-white mt-1 w-full max-h-60 overflow-auto rounded-md border border-gray-600">
                 {searchResults.map((player) => (
