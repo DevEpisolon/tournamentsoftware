@@ -1,9 +1,157 @@
-from match import Match
-from database import match_collection
-from fastapi import APIRouter, HTTPException, status
-from player_database import*
+from fastapi import APIRouter, Depends, HTTPException
+from mongo import MongoDB
+from pymongo import MongoClient
+from objects.match import Match
+from utils import format
+from database.player_database import *
+from database.tournament_database import *
+from fastapi_app import db, client
+from bson import ObjectId
 
+# Router for match-related endpoints
 match_router = APIRouter()
+
+
+class MatchDatabase:
+    def __init__(self):
+        self.matches = {}
+
+    def get_match(self, matchid):
+        match = self.matches.get(matchid)
+        if not match:
+            raise HTTPException(status_code=404, detail="Match not found")
+        return match
+
+    def create_match(self, match_data: dict):
+        match = Match(**match_data) 
+        self.matches[match.matchid] = match
+        return match
+
+
+db = client["tournamentsoftware"]
+match_collection = db["matches"]
+
+match_db = MatchDatabase()
+
+'''
+@match_router.get("/matches/tournament/{tournamentName}")
+async def get_matches_by_tournament(tournamentName):
+    matches = match_collection.find({"tournamentName": tournamentName})
+    if not matches:
+        raise HTTPException(status_code=404, detail="Matches not found")
+    return matches
+'''
+
+
+@match_router.get("/matches/players/{displayname}")
+def get_matches_by_player(displayname: str):
+    matches = match_collection.find({"players.player_id": displayname})
+    if not matches:
+        raise HTTPException(status_code=404, detail="Matches not found")
+    return format(matches)
+
+
+@match_router.post("/match")
+async def post_match(match: dict):
+    match_collection.insert_one(match)
+    return "Successfully added match"
+
+
+@match_router.patch("/matches/{match_id}")
+async def update_match(match_id: str, update_fields: dict):
+    result = match_collection.find_one_and_update(
+        {"matchid": match_id}, {"$set": update_fields}, return_document=True
+    )
+    if not result:
+        raise HTTPException(status_code=404, detail="Match not found")
+    return "Successfully updated match"
+
+
+@match_router.post("/matches/")
+async def create_match(match_data: dict):
+    print(match_data)
+    return match_db.create_match(match_data)
+
+
+@match_router.get("/matches/{matchid}/")
+async def read_match(matchid: int):
+    return await match_db.get_match(matchid)
+
+'''
+@match_router.put("/match/{matchid}/promote_player/{winner}")
+async def promote_player(matchid, displayname):
+    match = await get_match(matchid)
+    matches = await get_all_matches()
+    player = await get_player(displayname)
+    for next_match in matches:
+        if next_match.get_matchid() == match.matchid + match.winner_next_match_id:
+            next_match.add_players(player)
+            updated_match = match_to_document(next_match)
+            match_collection.replace_one(
+                {"matchid": int(next_match.matchid)}, updated_match
+            )
+            break
+'''
+
+@match_router.get("/matches/tournament/{tournamentName}")
+async def get_matches_by_tournament(tournamentName):
+    matches = []
+    match_documents = match_collection.find({"tournamentName": tournamentName})
+    for match_document in match_documents:
+        match = document_to_match(match_document)
+        matches.append(match)
+    return matches
+
+
+@match_router.get("/match/{objectid}")
+async def get_match(objectid):
+    match_document = match_collection.find_one({"_id": ObjectId(objectid)})
+    match = document_to_match(match_document)
+    if match:
+        return match
+    else:
+        raise HTTPException(status_code=404, detail=f"Match '{matchid}' not found.")
+
+@match_router.put("/match/{tournamentName}:{matchid}/promote_player/{winner}")
+async def promote_player(tournamentName, matchid, displayname):
+    matches = await get_matches_by_tournament(tournamentName)
+    match = matches[int(matchid)-1]
+    player = await get_player(displayname)
+    for next_match in matches:
+        if next_match.get_matchid() == match.matchid + match.winner_next_match_id:
+            next_match.add_players(player)
+            updated_match = match_to_document(next_match)
+            match_collection.replace_one(
+                {"matchid": int(next_match.matchid), "tournamentName": tournamentName}, updated_match
+            )
+            break
+    updated_matches = match_collection.find({"tournamentName": tournamentName})
+    tournaments_collection.replace_one(
+        {"tournamentName": tournamentName}, {"matches": updated_matches}
+    )
+
+@match_router.put("/update_match_history/{objectid}")
+async def update_match_history(objectid):
+    match = await get_match(objectid)
+    if match.match_status != 2:
+        raise HTTPException(status_code=404, detail=f"Match '{match.matchid}' is not finished.")
+    tourn_info = f"{match.tournamentName} Match {match.matchid}"
+
+    winner = await get_player(match.match_winner.displayname)
+    winner_info = {
+        tourn_info: 'winner'
+    }
+    winner.update_match_history(winner_info)
+    updated_winner = player_to_document(winner)
+    players_collection.replace_one({"displayname": winner.displayname}, updated_winner)
+
+    loser = await get_player(match.match_loser.displayname)
+    loser_info = {
+        tourn_info: 'loser'
+    }
+    loser.update_match_history(loser_info)
+    updated_loser = player_to_document(loser)
+    players_collection.replace_one({"displayname": loser.displayname}, updated_loser)
 
 def match_to_document(match):
     serialized_players = [player_to_document(player) for player in match.players]
@@ -30,11 +178,12 @@ def match_to_document(match):
         "round_wins": match.round_wins,
         "round_losses": match.round_losses,
         "round_ties": match.round_ties,
-        "start_time": match.startTime,
-        "end_time": match.endTime,
-        "tournament_name": match.tournamentName,
+        "startTime": match.startTime,
+        "endTime": match.endTime,
+        "tournamentName": match.tournamentName,
+        "bracket_position": match.bracket_position,
+        "tournamentRoundNumber" : match.tournamentRoundNumber,
     }
-
 
 def document_to_match(match_document):
     players = []
@@ -55,71 +204,17 @@ def document_to_match(match_document):
             end_date=match_document.get("end_date"),
             players=players,
             max_rounds=match_document.get("max_rounds"),
-            startTime=match_document.get("start_time"),
-            endTime=match_document.get("end_time"),
-            tournamentName=match_document.get("tournament_name"),
+            num_wins=match_document.get("num_wins"),
             round_wins=match_document.get("round_wins"),
             round_losses=match_document.get("round_losses"),
-            round_ties=match_document.get("round_ties")
+            round_ties=match_document.get("round_ties"),
+            startTime=match_document.get("startTime"),
+            endTime=match_document.get("endTime"),
+            tournamentName=match_document.get("tournamentName"),
+            bracket_position=match_document.get("bracket_position"),
+            tournamentRoundNumber=match_document.get("tournamentRoundNumber"),
         )
         return match
     else:
         print("Match not found.")
         return None
-
-
-@match_router.get("/match/{matchid}")
-async def get_match(matchid):
-    match_document = match_collection.find_one({"matchid": int(matchid)})
-    match = document_to_match(match_document)
-    if match:
-        return match
-    else:
-        raise HTTPException(status_code=404, detail=f"Match '{matchid}' not found.")
-
-
-@match_router.get("/matches")
-async def get_all_matches():
-    matches = []
-    match_documents = match_collection.find({})
-    for match_document in match_documents:
-        match = document_to_match(match_document)
-        matches.append(match)
-    return matches
-
-
-@match_router.post("/create_match")
-async def create_match(matchid, slots, max_rounds, tournament_name, players, winner_next_match):
-    new_match = Match(matchid=matchid, slots=slots, max_rounds=max_rounds, winner_next_match_id=winner_next_match,
-                      tournamentName=tournament_name, players=players)
-    match_document = match_to_document(new_match)
-    match_collection.insert_one(match_document)
-
-
-@match_router.put("/match/{matchid}/add_player/{displayname}")
-async def add_player(matchid, displayname):
-    match = await get_match(matchid)
-    player = await get_player(displayname)
-    if match.slots < len(match.players) + 1:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Match is already full. Cannot add more players.")
-    match.players.append(player)
-    updated_match = match_to_document(match)
-    match_collection.replace_one({"matchid": int(matchid)}, updated_match)
-
-
-@match_router.put("/match/{matchid}/update_round/{winner}")
-async def update_round(matchid, displayname):
-    match = await get_match(matchid)
-    matches = await get_all_matches()
-    winner = await get_player(displayname)
-    match.update_rounds(winner, matches)
-    for player in match.players:
-        updated_player = player_to_document(player)
-        player_collection.replace_one({"displayname": player.displayname}, updated_player)
-    updated_match = match_to_document(match)
-    match_collection.replace_one({"matchid": int(matchid)}, updated_match)
-    for other_match in matches:
-        if other_match.get_matchid() == match.matchid + match.winner_next_match_id:
-            other_updated_match = match_to_document(other_match)
-            match_collection.replace_one({"matchid": int(other_match.matchid)}, other_updated_match)
-            break
