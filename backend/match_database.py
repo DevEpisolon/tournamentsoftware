@@ -5,11 +5,29 @@ from objects.match import Match
 from utils import format
 from database.player_database import *
 from database.tournament_database import *
-from fastapi_app import db, client
 from bson import ObjectId
 
 # Router for match-related endpoints
 match_router = APIRouter()
+
+
+
+from pymongo import MongoClient
+from dotenv import load_dotenv
+# Load environment variables from .env file
+load_dotenv()
+
+# Get the MongoDB connection string from the environment variable
+MONGODB_CONNECTION_STRING = os.getenv("MONGODB_URI")
+if not MONGODB_CONNECTION_STRING:
+    raise ValueError("MONGODB_URI is not set in the environment")
+
+# Initialize MongoDB client
+client = MongoClient(MONGODB_CONNECTION_STRING)
+db = client["tournamentsoftware"]
+match_collection = db["matches"]
+
+
 
 
 class MatchDatabase:
@@ -27,21 +45,16 @@ class MatchDatabase:
         self.matches[match.matchid] = match
         return match
 
-
-db = client["tournamentsoftware"]
-match_collection = db["matches"]
-
 match_db = MatchDatabase()
 
 '''
 @match_router.get("/matches/tournament/{tournamentName}")
-async def get_matches_by_tournament(tournamentName):
+async def get_matches_by_tournament(tournamentName: int):
     matches = match_collection.find({"tournamentName": tournamentName})
     if not matches:
         raise HTTPException(status_code=404, detail="Matches not found")
-    return matches
+    return format(matches)
 '''
-
 
 @match_router.get("/matches/players/{displayname}")
 def get_matches_by_player(displayname: str):
@@ -102,7 +115,6 @@ async def get_matches_by_tournament(tournamentName):
         matches.append(match)
     return matches
 
-
 @match_router.get("/match/{objectid}")
 async def get_match(objectid):
     match_document = match_collection.find_one({"_id": ObjectId(objectid)})
@@ -110,48 +122,58 @@ async def get_match(objectid):
     if match:
         return match
     else:
-        raise HTTPException(status_code=404, detail=f"Match '{matchid}' not found.")
+        raise HTTPException(status_code=404, detail=f"Match '{objectid}' not found.")
 
-@match_router.put("/match/{tournamentName}:{matchid}/promote_player/{winner}")
-async def promote_player(tournamentName, matchid, displayname):
-    matches = await get_matches_by_tournament(tournamentName)
-    match = matches[int(matchid)-1]
-    player = await get_player(displayname)
+@match_router.put("/match/{objectid}/promote_player/{winner}")
+async def promote_player(objectid, displayname):
+    match = await get_match(objectid)
+    for player in match.players:
+        if player.displayname == displayname:
+            match.set_match_winner(player)
+            match_collection.update_one({"_id": ObjectId(objectid)}, {"$set": {"match_winner": player_to_document(match.match_winner)}})
+        else:
+            match.set_match_loser(player)
+            match_collection.update_one({"_id": ObjectId(objectid)}, {"$set": {"match_loser": player_to_document(match.match_loser)}})
+
+    matches = await get_matches_by_tournament(match.tournamentName)
     for next_match in matches:
-        if next_match.get_matchid() == match.matchid + match.winner_next_match_id:
-            next_match.add_players(player)
-            updated_match = match_to_document(next_match)
-            match_collection.replace_one(
-                {"matchid": int(next_match.matchid), "tournamentName": tournamentName}, updated_match
-            )
+        if next_match.matchid == match.matchid + match.winner_next_match_id:
+            next_match.add_players(match.match_winner)
+            temp = match_collection.find_one({"$and": [{"matchid": next_match.matchid}, {"tournamentName": match.tournamentName}]})
+            # For each document, access the _id
+            next_match_object_id = temp["_id"]
+            updated_players = []
+            for player in next_match.players:
+                updated_players.append(player_to_document(player))
+            match_collection.update_one({"_id": ObjectId(next_match_object_id)}, {"$set": {"players": updated_players}})
             break
-    updated_matches = match_collection.find({"tournamentName": tournamentName})
-    tournaments_collection.replace_one(
-        {"tournamentName": tournamentName}, {"matches": updated_matches}
-    )
-
+    
+    
 @match_router.put("/update_match_history/{objectid}")
 async def update_match_history(objectid):
     match = await get_match(objectid)
-    if match.match_status != 2:
-        raise HTTPException(status_code=404, detail=f"Match '{match.matchid}' is not finished.")
     tourn_info = f"{match.tournamentName} Match {match.matchid}"
 
-    winner = await get_player(match.match_winner.displayname)
-    winner_info = {
-        tourn_info: 'winner'
-    }
-    winner.update_match_history(winner_info)
-    updated_winner = player_to_document(winner)
-    players_collection.replace_one({"displayname": winner.displayname}, updated_winner)
+    winner = await get_player(match.match_winner["displayname"])
+    winner = document_to_player(winner)
+    if winner is None:
+         return
+    else:
+        winner_info = {
+            tourn_info: 'winner'
+        }
+        winner.update_match_history(winner_info)
+        updated_history = winner.match_history
+        players_collection.update_one({"displayname": winner.displayname}, {"$set": {"match_history": updated_history}})
 
-    loser = await get_player(match.match_loser.displayname)
-    loser_info = {
-        tourn_info: 'loser'
-    }
-    loser.update_match_history(loser_info)
-    updated_loser = player_to_document(loser)
-    players_collection.replace_one({"displayname": loser.displayname}, updated_loser)
+        loser = await get_player(match.match_loser["displayname"])
+        loser = document_to_player(loser)
+        loser_info = {
+            tourn_info: 'loser'
+        }
+        loser.update_match_history(loser_info)
+        updated_history = loser.match_history
+        players_collection.update_one({"displayname": loser.displayname}, {"$set": {"match_history": updated_history}})
 
 def match_to_document(match):
     serialized_players = [player_to_document(player) for player in match.players]
