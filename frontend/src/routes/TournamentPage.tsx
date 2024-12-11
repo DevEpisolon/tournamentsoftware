@@ -249,7 +249,7 @@ const TournamentPage: React.FC = () => {
   return (
 
     <TournamentPageProvider value={contextValue}>
-      <div className="bg-tourney-navy1 text-white p-8 pl-0 pt-0 pb-0 w-screen h-screen m-0">
+      <div className="bg-tourney-navy1 text-white p-8 pl-0 pt-0 pb-0  m-0">
         <div className="flex left-10 ">
           <SideBar>
             <SideBarItem icon={<LuLayoutDashboard size={25} />} text="Dashboard" link="/" alert onClick={() => handleTabClick('none')} />
