@@ -27,26 +27,9 @@ import {
   LuTable,
   LuX
 } from 'react-icons/lu'
-import { TournamentPageProvider, useTournamentPage } from '../../context/TournamentPageProvider'
+import { useTournamentPage } from '../../context/TournamentPageProvider'
 
-// Configure DOMPurify with allowed tags and attributes
-const purifyConfig = {
-  ALLOWED_TAGS: [
-    'p', 'br', 'strong', 'em', 'u', 'strike', 'ul', 'ol', 'li',
-    'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
-  ],
-  ALLOWED_ATTR: [], // No attributes allowed by default
-};
 
-// Create a type-safe sanitize function
-const sanitizeContent = (content: string): string => {
-  try {
-    return DOMPurify.sanitize(content, purifyConfig);
-  } catch (error) {
-    console.error('Sanitization error:', error);
-    return '<p></p>'; // Return safe empty content on error
-  }
-};
 // Define interface for MenuBar props
 interface MenuBarProps {
   editor: Editor | null;
@@ -375,28 +358,8 @@ const TipTapEditor = () => {
         },
       }),
     ],
-    content: `
-        <p>
-          I like lists. Let’s add one:
-        </p>
-        <ul>
-          <li>This is a bullet list.</li>
-          <li>And it has three list items.</li>
-          <li>Here is the third one.</li>
-        </ul>
-        <p>
-          Do you want to see one more? I bet! Here is another one:
-        </p>
-        <ol>
-          <li>That’s a different list, actually it’s an ordered list.</li>
-          <li>It also has three list items.</li>
-          <li>And all of them are numbered.</li>
-        </ol>
-        <p>
-          Lists would be nothing without list items.
-        </p>
-      `,
-    editable: isPreview && status == 1,
+    content: ``,
+    editable: isPreview == false && status == 1,
     editorProps: {
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none',

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 
 // Define TypeScript interfaces for Tournament and Player
 interface Player {
@@ -41,6 +41,7 @@ interface Tournament {
   wins_dict: any; // Assuming wins_dict is a dictionary
   losses_dict: any; // Assuming losses_dict is a dictionary
   ties_dict: any; // Assuming ties_dict is a dictionary
+  join_id: string;
 }
 
 // Props interface for the component
@@ -53,13 +54,21 @@ const TournamentsList: React.FC<Props> = ({ tournaments }) => {
   return (
     <div className="tournament-scroll-pane">
       {tournaments.map((tournament) => (
-        <Link key={tournament._id} to={`/tournament/${tournament._id}`} className="tournament-link">
-          <div className="bg-white rounded-lg p-4 mb-4 relative cursor-pointer border-2 border-black">
+        <Link
+          key={tournament._id}
+          to={`/tournament/${tournament._id}`}
+          className="tournament-link"
+        >
+          <div className="bg-gray-150 w-1/2 rounded-lg p-6 mb-6 relative cursor-pointer shadow-lg hover:scale-105 transition-transform">
             {/* MongoDB ID */}
-            <p className="text-md text-blue-900 absolute top-2 right-2">{tournament._id}</p>
-            <h3 className="text-lg font-semibold mb-2 text-blue-900">{tournament.tournamentName}</h3>
+            <p className="text-lg text-[#2D3250] absolute top-2 right-2">
+              {tournament._id}
+            </p>
+            <h3 className="text-2xl font-semibold mb-2 text-[#7077A1]">
+              {tournament.tournamentName}
+            </h3>
             {/* Player count and max slots */}
-            <div className="flex items-center justify-center bg-purple-500 text-white text-xs font-bold rounded border border-black w-20 h-6 absolute bottom-2 right-2">
+            <div className="flex items-center justify-center bg-[#7077A1] text-white text-sm font-bold rounded w-24 h-8 absolute bottom-2 right-2">
               {tournament.Players.length} / {tournament.MaxSlotsCount}
             </div>
           </div>

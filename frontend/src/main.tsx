@@ -12,7 +12,8 @@ import RegisterPlayer from "./routes/RegisterPlayer";
 import OldApp from "./routes/OldApp"
 import "./App.css"
 import Settings from "./routes/Settings.tsx";
-import {DialogProvider} from "./utils/DialogProvider.tsx";
+import { DialogProvider } from "./utils/DialogProvider.tsx";
+import CreateTournament from "./components/CreateTournament.tsx";
 
 const Index = () => {
   return (
@@ -29,13 +30,14 @@ const Index = () => {
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/registerPlayer" element={<RegisterPlayer />} />
-            <Route path="/oldMain/*" element={<OldApp />} />
+            <Route path="/viewTournaments/*" element={<OldApp />} />
             <Route path="/featured" element={<div>Featured Tournaments</div>} />
             <Route path="/recent" element={<div>Recent Tournaments</div>} />
             <Route path="/upcoming" element={<div>Upcoming Tournaments</div>} />
             <Route path="/friends" element={<div>Friends Tournaments</div>} />
             <Route path="/player/:id" element={<div>Player Profile</div>} />
             <Route path="/settings" element={<Settings />} /> {/* Add this line */}
+            <Route path="/createTournament" element={<CreateTournament />} /> {/* Add this line */}
           </Routes>
         </Router>
       </DialogProvider>
