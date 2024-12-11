@@ -9,9 +9,9 @@ from database.player_database import *
 match_router = APIRouter()
 
 
-
 from pymongo import MongoClient
 from dotenv import load_dotenv
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -23,9 +23,7 @@ if not MONGODB_CONNECTION_STRING:
 # Initialize MongoDB client
 client = MongoClient(MONGODB_CONNECTION_STRING)
 db = client["tournamentsoftware"]
-matches_collection = db["matches"]
-
-
+match_collection = db["matches"]
 
 
 class MatchDatabase:
@@ -39,9 +37,10 @@ class MatchDatabase:
         return match
 
     def create_match(self, match_data: dict):
-        match = Match(**match_data) 
+        match = Match(**match_data)
         self.matches[match.matchid] = match
         return match
+
 
 match_db = MatchDatabase()
 
@@ -153,5 +152,5 @@ def match_to_document(match):
         "end_time": match.endTime,
         "tournament_name": match.tournamentName,
         "bracket_position": match.bracket_position,
-        "round" : match.tournamentRoundNumber,
+        "round": match.tournamentRoundNumber,
     }

@@ -1,5 +1,6 @@
 from datetime import datetime
 import math
+from objects.match import Match
 
 
 class Tournament:
@@ -14,7 +15,7 @@ class Tournament:
         max_rounds,
         maxSlotsPerMatch,
         MaxSlotsCount,
-        join_code,
+        join_id,
         matches=None,
         TournamentType=None,
         TeamBoolean=None,
@@ -56,7 +57,7 @@ class Tournament:
         self.rounds = math.ceil(math.log2(len(Players))) if Players else 0
         self.currentRound = currentRound
         self.onGoingPlayers = Players if Players else []
-        self.join_code = join_code
+        self.join_id = join_id
 
     # Getter and setter methods for each attribute
     def get_tournamentName(self):
@@ -458,5 +459,5 @@ class Tournament:
             "onGoingPlayers": [
                 player.__to_dict() for player in self.onGoingPlayers
             ],  # Assuming Player class
-            "join_code": self.join_code,
+            "join_id": self.join_id,
         }

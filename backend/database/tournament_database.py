@@ -155,7 +155,7 @@ def create_tournament(tournament_name: str, max_slots: int):
         wins_dict={},
         losses_dict={},
         ties_dict={},
-        join_code=join_id,
+        join_id=join_id,
     )
 
     tournament_data = tournament._to_dict()  # Using the _to_dict() method
@@ -368,8 +368,6 @@ async def create_matches(tournament_id):
                 status_code=500, detail=f"Failed to create match documents: {str(e)}"
             )
 
-    except HTTPException:
-        raise  # Re-raise HTTP exceptions
     except Exception as e:
         # Log the full error for debugging
         print(f"Unexpected error in create_matches: {str(e)}")
