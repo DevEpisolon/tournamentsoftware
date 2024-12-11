@@ -5,21 +5,35 @@ import { IoArrowBack } from "react-icons/io5";
 import { FaSignOutAlt } from "react-icons/fa";
 import { GiCharacter } from "react-icons/gi";
 import { ImStatsDots } from "react-icons/im";
-import { getAuth, signOut } from 'firebase/auth';
+import { getAuth, signOut } from "firebase/auth";
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
   const auth = getAuth();
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [accountInfo, setAccountInfo] = useState<any>(null);
-  const [playerStats, setPlayerStats] = useState<any>(null); // State to store player stats
-  const [selectedView, setSelectedView] = useState<string>("playerInfo"); // Default view is "playerInfo"
+  const [playerStats, setPlayerStats] = useState<any>(null);
+  const [selectedView, setSelectedView] = useState<string>("playerInfo");
 
-  // Fetch account info on component mount
+  // Fetch the current user from Firebase Auth
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (user) {
+      setCurrentUser(user);
+    } else {
+      console.error("No user is signed in.");
+      navigate("/routes/sign-in"); // Redirect to sign-in if no user is logged in
+    }
+  }, [auth, navigate]);
+
+  // Fetch account info dynamically based on the current user
   useEffect(() => {
     const fetchAccountInfo = async () => {
+      if (!currentUser) return;
+
       try {
-        const response = await axios.get("http://localhost:8000/api/players/get_player/Kayz}");
-        console.log("Account info response:", response.data); // Log the response data to the console
+        const response = await axios.get(`http://localhost:8000/api/players/get_player/${currentUser.uid}`);
+        console.log("Account info response:", response.data);
         setAccountInfo(response.data);
       } catch (error) {
         console.error("Error fetching account info:", error);
@@ -27,13 +41,15 @@ const Settings: React.FC = () => {
     };
 
     fetchAccountInfo();
-  }, []);
+  }, [currentUser]);
 
-  // Fetch player stats from the backend
+  // Fetch player stats
   const fetchPlayerStats = async () => {
+    if (!currentUser) return;
+
     try {
-      const response = await axios.get("http://localhost:8000/api/player-stats"); // Replace with your API endpoint for stats
-      setPlayerStats(response.data); // Set player stats in the state
+      const response = await axios.get(`http://localhost:8000/api/player-stats/${currentUser.uid}`);
+      setPlayerStats(response.data);
     } catch (error) {
       console.error("Error fetching player stats:", error);
     }
@@ -49,24 +65,22 @@ const Settings: React.FC = () => {
   };
 
   const handlePlayerInfo = () => {
-    setSelectedView("playerInfo"); // Switch to Player Info view
+    setSelectedView("playerInfo");
   };
 
   const handlePlayerStats = () => {
-    setSelectedView("playerStats"); // Switch to Player Stats view
-    fetchPlayerStats(); // Fetch player stats when the button is clicked
+    setSelectedView("playerStats");
+    fetchPlayerStats();
   };
 
-  // Render Player Info content
   const renderPlayerInfo = () => {
     if (!accountInfo) return <p>Loading account information...</p>;
 
     return (
       <div className="account-info space-y-6">
-        {/* Profile Picture */}
         <div className="flex items-center space-x-4">
           <img
-            src={accountInfo.profilePicture || "/default-avatar.png"} // Fallback to a default image
+            src={accountInfo.profilePicture || "/default-avatar.png"}
             alt="Profile"
             className="w-24 h-24 rounded-full border border-gray-300"
           />
@@ -75,27 +89,22 @@ const Settings: React.FC = () => {
             <p className="text-gray-400">{accountInfo.playername || "Player Name"}</p>
           </div>
         </div>
-
-        {/* Account Details */}
         <div className="space-y-2">
           <p><strong>Email:</strong> {accountInfo.email || "Email not provided"}</p>
+          <p><strong>Rank:</strong> {accountInfo.rank || "Unranked"}</p>
         </div>
       </div>
     );
   };
 
-  // Render Player Stats content
   const renderPlayerStats = () => {
     if (!playerStats) return <p>Loading player stats...</p>;
 
-    // Calculate Win-Loss ratio
     const winLossRatio = playerStats.losses > 0 ? (playerStats.wins / playerStats.losses).toFixed(2) : "N/A";
 
     return (
       <div className="player-stats space-y-6">
         <h2 className="text-xl font-bold mb-4">Player Stats</h2>
-
-        {/* Displaying Player Stats */}
         <div className="space-y-2">
           <p><strong>Wins:</strong> {playerStats.wins}</p>
           <p><strong>Losses:</strong> {playerStats.losses}</p>
@@ -104,8 +113,6 @@ const Settings: React.FC = () => {
           <p><strong>Tournament Losses:</strong> {playerStats.tournamentLosses}</p>
           <p><strong>Win-Loss Ratio:</strong> {winLossRatio}</p>
         </div>
-
-        {/* Match History */}
         <div className="match-history space-y-2">
           <h3 className="font-semibold">Match History</h3>
           {playerStats.matchHistory && playerStats.matchHistory.length > 0 ? (
@@ -127,100 +134,22 @@ const Settings: React.FC = () => {
 
   return (
     <div className="settings-page h-screen flex">
-      {/* Sidebar / Taskbar */}
-      <div
-        className="taskbar text-white w-24 p-6 flex flex-col items-center"
-        style={{ minWidth: "90px", backgroundColor: "#424769" }} // Taskbar background changed
-      >
-        {/* Back Button */}
-        <button
-          className="mb-6 p-4 flex items-center justify-center"
-          onClick={handleBackToHome}
-          style={{
-            backgroundColor: "#F6B17A", // Yellow background
-            color: "white",
-            border: "2px solid #F6B17A",
-            borderRadius: "8px",
-            width: "70px",
-            height: "30px",
-            cursor: "pointer",
-            fontSize: "16px",
-            textAlign: "center",
-            padding: "0",
-          }}
-        >
+      <div className="taskbar text-white w-24 p-6 flex flex-col items-center" style={{ minWidth: "90px", backgroundColor: "#424769" }}>
+        <button className="mb-6 p-4" onClick={handleBackToHome} style={{ backgroundColor: "#F6B17A", color: "white" }}>
           <IoArrowBack size={20} />
         </button>
-
-        {/* Player Information Button */}
-        <button
-          className="mb-6 p-4 flex items-center justify-center"
-          onClick={handlePlayerInfo}
-          style={{
-            backgroundColor: "#4F81FF", // Blue background for player info
-            color: "white",
-            border: "2px solid #4F81FF",
-            borderRadius: "8px",
-            width: "70px",
-            height: "30px",
-            cursor: "pointer",
-            fontSize: "16px",
-            textAlign: "center",
-            padding: "0",
-          }}
-        >
+        <button className="mb-6 p-4" onClick={handlePlayerInfo} style={{ backgroundColor: "#4F81FF", color: "white" }}>
           <GiCharacter />
         </button>
-
-        {/* Player Stats Button */}
-        <button
-          className="mb-6 p-4 flex items-center justify-center"
-          onClick={handlePlayerStats}
-          style={{
-            backgroundColor: "#76B041", // Green background for stats
-            color: "white",
-            border: "2px solid #76B041",
-            borderRadius: "8px",
-            width: "70px",
-            height: "30px",
-            cursor: "pointer",
-            fontSize: "16px",
-            textAlign: "center",
-            padding: "0",
-          }}
-        >
+        <button className="mb-6 p-4" onClick={handlePlayerStats} style={{ backgroundColor: "#76B041", color: "white" }}>
           <ImStatsDots />
         </button>
-
-        {/* Sign Out Button */}
-        <button
-          className="mt-auto p-4 flex items-center justify-center"
-          onClick={handleSignOut}
-          style={{
-            backgroundColor: "#FF4F4F", // Red background for sign-out
-            color: "white",
-            border: "2px solid #FF4F4F",
-            borderRadius: "8px",
-            width: "70px",
-            height: "30px",
-            cursor: "pointer",
-            fontSize: "16px",
-            textAlign: "center",
-            padding: "0",
-          }}
-        >
+        <button className="mt-auto p-4" onClick={handleSignOut} style={{ backgroundColor: "#FF4F4F", color: "white" }}>
           <FaSignOutAlt />
         </button>
       </div>
-
-      {/* Main Content Area */}
-      <div
-        className="content flex-1 p-6"
-        style={{ backgroundColor: "#2D3250", color: "white" }}
-      >
+      <div className="content flex-1 p-6" style={{ backgroundColor: "#2D3250", color: "white" }}>
         <h1 className="text-2xl font-bold mb-4">Account Settings</h1>
-
-        {/* Render the selected view */}
         {selectedView === "playerInfo" && renderPlayerInfo()}
         {selectedView === "playerStats" && renderPlayerStats()}
       </div>
