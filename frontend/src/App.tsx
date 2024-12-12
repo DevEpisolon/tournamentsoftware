@@ -153,7 +153,7 @@ function App(): JSX.Element {
   const handleJoinTournament = async () => {
   if (joinCode.length === 6) {
     try {
-      const response = await axios.get(`http://localhost:8000/api/tournaments/${joinCode}`);
+      const response = await axios.get(`http://localhost:8000/api/tournaments/join/${joinCode}`);
       if (response.data.success) {
         const tournamentId = response.data.tournament._id; // Extract the tournament ID
         navigate(`/tournament/${tournamentId}`); // Navigate to the desired URL
