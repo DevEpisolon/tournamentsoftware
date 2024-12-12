@@ -72,6 +72,19 @@ def fetch_tournament_data_from_database(tournament_id: str):
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid tournament ID")
 
+def fetch_tournament_data_from_database_by_join_code(join_code: str):
+    try:
+        # Query the database using the join_code field
+        tournament_data = tournaments_collection.find_one({"join_code": join_code})
+        
+        # Check if the tournament data exists
+        if not tournament_data:
+            raise HTTPException(status_code=404, detail="Tournament not found")
+        
+        return tournament_data
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 
 # fetches the objectid for the tourament and promote all players within the round if they are finished
 @tournament_router.put("/tournaments/{tournament_id}/promote_players/{round_number}")
@@ -120,7 +133,7 @@ def get_tournament_byid(item_id: str):
 
 @tournament_router.get("/tournaments/{join_code}")
 def get_tournament_byJoinCode(item_id:str):
-    tournament_data = fetch_tournament_data_from_database(item_id)
+    tournament_data = fetch_tournament_data_from_database_by_join_code(item_id)
     if tournament_data is None:
         raise HTTPException(status_code=404, detail="Tournament not found!")
     return create_tournament_object(tournament_data)
