@@ -15,7 +15,6 @@ const PlayerProfilePage: React.FC = () => {
   const [playerData, setPlayerData] = useState<any>(state?.playerData || null);
   const [loading, setLoading] = useState<boolean>(true);
   const [aboutMe, setAboutMe] = useState<string>("");
-  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [showUpdateAvatar, setShowUpdateAvatar] = useState<boolean>(false);
 
   useEffect(() => {
@@ -44,44 +43,7 @@ const PlayerProfilePage: React.FC = () => {
     navigate("/");
   };
 
-  const handleAboutMeConfirm = async (
-    e: React.FocusEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>
-  ) => {
-    if (e.type === "blur" || (e as React.KeyboardEvent<HTMLDivElement>).key === "Enter") {
-      e.preventDefault();
-      const updatedAboutMe = (e.target as HTMLDivElement).innerText.trim();
-      if (updatedAboutMe !== aboutMe) {
-        try {
-          await fetch(
-            `http://localhost:8000/api/players/update_about_me/${playername}`,
-            {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ aboutMe: updatedAboutMe }),
-            }
-          );
-          setAboutMe(updatedAboutMe);
-        } catch (error) {
-          console.error("Error updating About Me:", error);
-        }
-      }
-      setIsEditing(false);
-    }
-  };
-
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
-
-  const handleAvatarClick = () => {
-    if (currentUser?.uid === playerData?.firebase_uid) {
-      setShowUpdateAvatar(true);
-    } else {
-      alert("You are not authorized to update this avatar.");
-    }
-  };
-
-  if (loading) {
+      if (loading) {
     return <div className="container mx-auto mt-8 text-center">Loading...</div>;
   }
 
@@ -107,7 +69,6 @@ const PlayerProfilePage: React.FC = () => {
             src={playerImage}
             alt="Player Avatar"
             className="rounded-full w-32 h-32 mx-auto mb-4 border-4 border-white cursor-pointer"
-            onClick={handleAvatarClick}
           />
           <h1 className="text-4xl font-bold">{playerData.displayname}</h1>
           <p className="text-sm italic">Joined: {playerData.join_date}</p>
@@ -118,17 +79,11 @@ const PlayerProfilePage: React.FC = () => {
         <div className="border-4 border-white p-4 rounded-md shadow-md mb-8 bg-gray-200">
           <h2 className="text-lg font-semibold mb-2 text-black">About Me</h2>
           <div
-            contentEditable={true}
-            suppressContentEditableWarning={true}
             className="p-2 text-gray-800 bg-gray-200 cursor-text outline-none min-h-[50px]"
-            onClick={handleEditClick}
-            onBlur={handleAboutMeConfirm}
-            onKeyDown={handleAboutMeConfirm}
           >
             {aboutMe}
           </div>
           <p className="text-sm italic text-gray-600">
-            (Max 25 characters. Click to edit.)
           </p>
         </div>
 
