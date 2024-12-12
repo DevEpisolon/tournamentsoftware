@@ -371,10 +371,10 @@ class Tournament:
                       tournamentName=self.get_tournamentName(), players=None,
                        previous_match_id=None, match_winner=None,
                       match_loser=None, start_date=None, end_date=None,
-                      startTime=None, endTime=None, roundNumber = x)
+                      startTime=None, endTime=None, roundNumber = x, winner_next_match_id=None)
                 matches.append(m)
                      
-        self.set_matches(matches)
+        self.set_Matches(matches)
     """
     Used to assign the players to the match 
     """
