@@ -107,42 +107,49 @@ async def create_match(match_data: dict):
 async def read_match(matchid: int):
     return await match_db.get_match(matchid)
 
-
-@match_router.put("/match/{matchid}/promote_player/{displayname}")
+@match_router.put("/match/{matchid}/set_winner/{displayname}")
 async def set_winner(matchid: int, displayname: str):
     """
-    Set the winner of a match by assigning the player object to the 'winner' field
-    and updating the match's status to 'finished'.
+    Set the winner of a match and update the match's status to 'Finished'.
 
     Args:
         matchid (int): The unique ID of the match.
         displayname (str): The display name of the player to set as the winner.
 
     Returns:
-        dict: A response with the updated match details or an error message.
+        dict: Response with the updated match details or an error message.
     """
-    # Fetch the match and the player
-    match = await get_match(matchid)
-    player = await get_player(displayname)
+    try:
+        # Fetch the match by matchid
+        match_document = match_collection.find_one({"matchid": matchid})
+        if not match_document:
+            raise HTTPException(status_code=404, detail="Match not found")
 
-    if not match:
-        return {"error": "Match not found"}
-    if not player:
-        return {"error": "Player not found"}
+        # Fetch the player by display name
+        player = await get_player(displayname)  # Ensure this function retrieves the player from the database
+        if not player:
+            raise HTTPException(status_code=404, detail="Player not found")
 
-    # Update the match with the winner as the player object and set status to finished
-    match["match_winner"] = player  # Store the entire player object as the winner
-    match["status"] = "Finished"
+        # Update the match with the winner and status
+        match_document["match_winner"] = player  # Store player details
+        match_document["match_status"] = "Finished"
 
-    # Save the updated match document
-    updated_match = match_to_document(match)
-    match_collection.replace_one({"matchid": matchid}, updated_match)
+        # Save the updated match back to the database
+        result = match_collection.update_one(
+            {"matchid": matchid}, {"$set": match_document}
+        )
+        if result.matched_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to update match")
 
-    return {
-        "message": f"Match {matchid} updated successfully.",
-        "updated_match": updated_match,
-    }
+        return {
+            "message": f"Match {matchid} updated successfully.",
+            "updated_match": match_document,
+        }
 
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 @match_router.get("/matches")
 async def get_all_matches():
