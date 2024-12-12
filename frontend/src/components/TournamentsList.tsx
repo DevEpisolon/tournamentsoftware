@@ -56,7 +56,7 @@ const TournamentsList: React.FC<Props> = ({ tournaments }) => {
       {tournaments.map((tournament) => (
         <Link
           key={tournament._id}
-          to={`/tournament/${tournament._id}`}
+          to={`/tournament/${tournament.join_code}`}
           className="tournament-link"
         >
           <div className="bg-gray-150 w-1/2 rounded-lg p-6 mb-6 relative cursor-pointer shadow-lg hover:scale-105 transition-transform">
