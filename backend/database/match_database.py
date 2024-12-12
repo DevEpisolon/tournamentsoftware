@@ -4,7 +4,6 @@ from pymongo import MongoClient
 from objects.match import Match
 from utils import format
 from database.player_database import *
-
 # Router for match-related endpoints
 match_router = APIRouter()
 
@@ -87,9 +86,20 @@ async def create_match(match_data: dict):
 async def read_match(matchid: int):
     return await match_db.get_match(matchid)
 
-
-@match_router.put("/match/{matchid}/promote_player/{winner}")
+@match_router.put("/match/{matchid}/promote_player/{displayname}")
 async def set_winner(matchid: int, displayname: str):
+    """
+    Set the winner of a match by assigning the player object to the 'winner' field
+    and updating the match's status to 'finished'.
+
+    Args:
+        matchid (int): The unique ID of the match.
+        displayname (str): The display name of the player to set as the winner.
+
+    Returns:
+        dict: A response with the updated match details or an error message.
+    """
+    # Fetch the match and the player
     match = await get_match(matchid)
     player = await get_player(displayname)
 
@@ -98,8 +108,9 @@ async def set_winner(matchid: int, displayname: str):
     if not player:
         return {"error": "Player not found"}
 
-    match["match_winner"] = player["displayname"]  #we can then grab the displayname and cast document to player?
-    match["status"] = "Finished"  
+    # Update the match with the winner as the player object and set status to finished
+    match["match_winner"] = player  # Store the entire player object as the winner
+    match["status"] = "Finished"
 
     # Save the updated match document
     updated_match = match_to_document(match)
@@ -107,7 +118,12 @@ async def set_winner(matchid: int, displayname: str):
         {"matchid": matchid}, updated_match
     )
 
-    return {"message": f"Match {matchid} updated. Winner: {displayname}"}
+    return {
+        "message": f"Match {matchid} updated successfully.",
+        "updated_match": updated_match
+    }
+
+
 
 @match_router.get("/matches")
 async def get_all_matches():
