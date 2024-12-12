@@ -36,7 +36,7 @@ const Settings: React.FC = () => {
         return;
       }
 
-      const url = `http://localhost:8000/api/players/settings/${playerData.displayName}`;
+      const url = `http://localhost:8000/api/players/settings/${currentUser.displayName}`;
       console.log("Fetching player data from:", url);
 
       try {
@@ -86,6 +86,15 @@ const Settings: React.FC = () => {
     if (error) return <p>{error}</p>;
     if (!playerData) return <p>No player data available.</p>;
 
+    // Format join date
+    const joinDate = playerData.join_date 
+      ? new Date(playerData.join_date).toLocaleDateString('en-US', {
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric'
+        }) 
+      : "Not available";
+
     return (
       <div className="account-info space-y-6">
         <div className="flex items-center space-x-4">
@@ -100,8 +109,10 @@ const Settings: React.FC = () => {
           </div>
         </div>
         <div className="space-y-2">
-          <p><strong>Email:</strong> {playerData.email || "Email not provided"}</p>
-          <p><strong>Rank:</strong> {playerData.rank || "Unranked"}</p>
+          <p><strong>Display Name:</strong> {playerData.displayname || "Not set"}</p>
+          <p><strong>Player Name:</strong> {playerData.playername || "Not set"}</p>
+          <p><strong>Join Date:</strong> {joinDate}</p>
+          <p><strong>About Me:</strong> {playerData.about_me || "No description provided"}</p>
         </div>
       </div>
     );

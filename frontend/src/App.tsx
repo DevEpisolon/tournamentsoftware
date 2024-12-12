@@ -3,10 +3,11 @@ import "./App.css";
 import axios from "axios";
 import PlayerProfilePage from './routes/PlayerProfilePage';
 import SearchPlayerForm from "./components/searchPlayerForm";
-import { Routes, Route, useNavigate, Link } from "react-router-dom";
+import { Routes, Route, useNavigate, Link, useLocation, useParams} from "react-router-dom";
 import { auth } from "./utils/FirbaseConfig";
 import Settings from "./routes/Settings";
 import { useAuth } from "./utils/AuthContext.tsx";
+
 
 function App(): JSX.Element {
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -18,9 +19,10 @@ function App(): JSX.Element {
   const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
   const [joinCode, setJoinCode] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { state } = useLocation();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const [playerData, setPlayerData] = useState<any>(null); // Add state for player data
+  const [playerData, setPlayerData] = useState<any>(state?.playerData || null);
 
   // Fetch player data from API (assuming it's available through a fetch or axios call)
   useEffect(() => {
@@ -28,7 +30,7 @@ function App(): JSX.Element {
       const fetchPlayerData = async () => {
         try {
           const response = await fetch(
-            `http://localhost:8000/api/players/get_player/${playerData.playername}`
+            `http://localhost:8000/api/players/get_player/${currentUser.uid}`
           );
           setPlayerData(response); // Assuming the player data has the avatar
         } catch (error) {
@@ -144,11 +146,10 @@ function App(): JSX.Element {
               className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#7077A1] focus:outline-none"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              {playerData?.avatar ? (
-                <img src={playerData.avatar} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-gray-300"></div>
-              )}
+              {playerData?.avatar && (
+              <img src={playerData.avatar} alt="Profile Picture" className="w-48 h-48 rounded-full" />
+            )}
+            <div className="w-full h-full bg-gray-300"></div>
             </button>
 
             {dropdownOpen && (

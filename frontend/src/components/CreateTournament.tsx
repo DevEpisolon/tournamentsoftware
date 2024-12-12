@@ -57,27 +57,7 @@ const CreateTournament: React.FC = () => {
         Back
       </button>
 
-      {/* Color Picker */}
-      <div className="absolute top-4 right-4 flex space-x-4">
-        <div className="flex flex-col items-center">
-          <label className="text-white text-sm mb-1">Background</label>
-          <input
-            type="color"
-            value={bgColor}
-            onChange={(e) => setBgColor(e.target.value)}
-            className="w-8 h-8 border-none rounded-full cursor-pointer"
-          />
-        </div>
-        <div className="flex flex-col items-center">
-          <label className="text-white text-sm mb-1">Box</label>
-          <input
-            type="color"
-            value={boxColor}
-            onChange={(e) => setBoxColor(e.target.value)}
-            className="w-8 h-8 border-none rounded-full cursor-pointer"
-          />
-        </div>
-      </div>
+      
 
       {/* Content Box */}
       <div
