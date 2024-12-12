@@ -89,19 +89,25 @@ async def read_match(matchid: int):
 
 
 @match_router.put("/match/{matchid}/promote_player/{winner}")
-async def promote_player(matchid, displayname):
+async def set_winner(matchid: int, displayname: str):
     match = await get_match(matchid)
-    matches = await get_all_matches()
     player = await get_player(displayname)
-    for next_match in matches:
-        if next_match.get_matchid() == match.matchid + match.winner_next_match_id:
-            next_match.add_players(player)
-            updated_match = match_to_document(next_match)
-            match_collection.replace_one(
-                {"matchid": int(next_match.matchid)}, updated_match
-            )
-            break
 
+    if not match:
+        return {"error": "Match not found"}
+    if not player:
+        return {"error": "Player not found"}
+
+    match["match_winner"] = player["displayname"]  #we can then grab the displayname and cast document to player?
+    match["status"] = "Finished"  
+
+    # Save the updated match document
+    updated_match = match_to_document(match)
+    match_collection.replace_one(
+        {"matchid": matchid}, updated_match
+    )
+
+    return {"message": f"Match {matchid} updated. Winner: {displayname}"}
 
 @match_router.get("/matches")
 async def get_all_matches():
