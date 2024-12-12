@@ -5,21 +5,25 @@ import { IoArrowBack } from "react-icons/io5";
 import { FaSignOutAlt, FaTrash } from "react-icons/fa";
 import { GiCharacter } from "react-icons/gi";
 import { ImStatsDots } from "react-icons/im";
+import { IoMdHome } from "react-icons/io";
+import { IoChevronBack, IoChevronForward } from "react-icons/io5"; // Added icons for expanding/collapsing
 import { getAuth, signOut, deleteUser } from "firebase/auth";
 import { useAuth } from "../utils/AuthContext";
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
-  const {currentUser} = useAuth()
+  const { currentUser } = useAuth();
+  
+  // State management
   const [playerData, setPlayerData] = useState<any>(null);
   const [selectedView, setSelectedView] = useState<string>("playerInfo");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState<string>("");
+  const [isTaskbarExpanded, setIsTaskbarExpanded] = useState<boolean>(false);
 
-
-  // Fetch player data from the backend
+  // Fetch player data
   useEffect(() => {
     const fetchPlayerData = async () => {
       if (!currentUser || !currentUser.uid) {
@@ -50,6 +54,7 @@ const Settings: React.FC = () => {
     fetchPlayerData();
   }, [currentUser]);
 
+  // Handlers
   const handleBackToHome = () => {
     navigate("/");
   };
@@ -65,23 +70,19 @@ const Settings: React.FC = () => {
   };
 
   const handleDeleteAccount = async () => {
-    // Check if confirmation matches
     if (deleteConfirmation.toLowerCase() !== "delete") {
       alert("Confirmation does not match. Account not deleted.");
       return;
     }
 
     try {
-      // First, delete from backend
       const deleteUrl = `http://localhost:8000/api/players/delete_player/${currentUser.displayName}`;
       await axios.delete(deleteUrl);
 
-      // Then delete from Firebase
       if (currentUser) {
         await deleteUser(currentUser);
       }
 
-      // Redirect to sign-in page
       navigate("/routes/sign-in");
     } catch (error) {
       console.error("Error deleting account:", error);
@@ -89,14 +90,11 @@ const Settings: React.FC = () => {
     }
   };
 
-  const handlePlayerInfo = () => {
-    setSelectedView("playerInfo");
+  const toggleTaskbar = () => {
+    setIsTaskbarExpanded(!isTaskbarExpanded);
   };
 
-  const handlePlayerStats = () => {
-    setSelectedView("playerStats");
-  };
-
+  // Render sections
   const renderDeleteAccountModal = () => {
     if (!showDeleteModal) return null;
 
@@ -110,21 +108,21 @@ const Settings: React.FC = () => {
           <p className="mb-4">
             To confirm, type <strong>DELETE</strong> in the box below:
           </p>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={deleteConfirmation}
             onChange={(e) => setDeleteConfirmation(e.target.value)}
             className="w-full p-2 border rounded mb-4"
             placeholder="Type DELETE to confirm"
           />
           <div className="flex justify-between">
-            <button 
+            <button
               onClick={() => setShowDeleteModal(false)}
               className="bg-gray-300 text-black px-4 py-2 rounded"
             >
               Cancel
             </button>
-            <button 
+            <button
               onClick={handleDeleteAccount}
               className="bg-red-600 text-white px-4 py-2 rounded"
             >
@@ -141,13 +139,12 @@ const Settings: React.FC = () => {
     if (error) return <p>{error}</p>;
     if (!playerData) return <p>No player data available.</p>;
 
-    // Format join date
-    const joinDate = playerData["join date"] 
-      ? new Date(playerData["join date"]).toLocaleDateString('en-US', {
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric'
-        }) 
+    const joinDate = playerData["join date"]
+      ? new Date(playerData["join date"]).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
       : "Not available";
 
     return (
@@ -170,9 +167,9 @@ const Settings: React.FC = () => {
           <p><strong>About Me:</strong> {playerData.about_me || "No description provided"}</p>
         </div>
         <div className="pt-4">
-          <button 
+          <button
             onClick={() => setShowDeleteModal(true)}
-            className="bg-red-600 text-white px-4 py-2 rounded flex items-center space-x-2 hover:bg-red-700 transition-colors"
+            className="bg-red-600 text-white px-6 py-3 rounded flex items-center space-x-2 hover:bg-red-700 transition-colors"
           >
             <FaTrash /> <span>Delete Account</span>
           </button>
@@ -182,20 +179,35 @@ const Settings: React.FC = () => {
   };
 
   const renderPlayerStats = () => {
-    if (!playerData) return <p>No stats data available.</p>;
+    if (loading) return <p>Loading player stats...</p>;
+    if (error) return <p>{error}</p>;
+    if (!playerData) return <p>No player data available.</p>;
 
-    const winLossRatio = playerData.losses > 0 ? (playerData.wins / playerData.losses).toFixed(2) : "N/A";
 
     return (
       <div className="player-stats space-y-6">
-        <h2 className="text-xl font-bold mb-4">Player Stats</h2>
         <div className="space-y-2">
-          <p><strong>Wins:</strong> {playerData.wins}</p>
-          <p><strong>Losses:</strong> {playerData.losses}</p>
-          <p><strong>Ties:</strong> {playerData.ties}</p>
-          <p><strong>Tournament Wins:</strong> {playerData.tournamentWins}</p>
-          <p><strong>Tournament Losses:</strong> {playerData.tournamentLosses}</p>
-          <p><strong>Win-Loss Ratio:</strong> {winLossRatio}</p>
+          <p><strong>Wins:</strong> {playerData.wins || "Not available"}</p>
+          <p><strong>Losses:</strong> {playerData.losses || "Not available"}</p>
+          <p><strong>Ties:</strong> {playerData.ties || "Not available"}</p>
+          <p><strong>Win/Loss Ratio:</strong> {playerData.wlratio || "Not available"}</p>
+          <p><strong>Tournament Wins:</strong> {playerData.current_tournament_wins || "Not available"}</p>
+          <p><strong>Tournament Losses:</strong> {playerData.current_tournament_losses || "Not available"}</p>
+        </div>
+
+        <div className="space-y-2">
+          <h3 className="font-semibold">Match History</h3>
+          <ul>
+            {playerData.match_history && playerData.match_history.length > 0 ? (
+              playerData.match_history.map((match: any, index: number) => (
+                <li key={index}>
+                  {match.date}: {match.result}
+                </li>
+              ))
+            ) : (
+              <p>No match history available</p>
+            )}
+          </ul>
         </div>
       </div>
     );
@@ -203,18 +215,43 @@ const Settings: React.FC = () => {
 
   return (
     <div className="settings-page h-screen flex">
-      <div className="taskbar text-white w-24 p-6 flex flex-col items-center" style={{ minWidth: "90px", backgroundColor: "#424769" }}>
-        <button className="mb-6 p-4" onClick={handleBackToHome} style={{ backgroundColor: "#F6B17A", color: "white" }}>
-          <IoArrowBack size={20} />
+      <div
+        className={`taskbar text-white p-6 flex flex-col items-center transition-all duration-300 ${isTaskbarExpanded ? "w-64" : "w-16"}`}
+        style={{ backgroundColor: "#424769" }}
+      >
+        <button
+          className="mb-6 text-white hover:bg-[#F6B17A] hover:text-gray-300 transition-all duration-200 w-12 h-12 flex items-center justify-center"
+          onClick={toggleTaskbar}
+        >
+          {isTaskbarExpanded ? <IoChevronBack size={32} /> : <IoChevronForward size={32} />}
         </button>
-        <button className="mb-6 p-4" onClick={handlePlayerInfo} style={{ backgroundColor: "#4F81FF", color: "white" }}>
-          <GiCharacter />
+        <button
+          className={`mb-6 text-white hover:bg-[#F6B17A] hover:text-gray-300 transition-all duration-200 ${isTaskbarExpanded ? "w-full" : "w-16"} h-12 flex items-center justify-center space-x-2`}
+          onClick={handleBackToHome}
+        >
+          <IoMdHome size={32} />
+          {isTaskbarExpanded && <span className="ml-2">Home</span>}
         </button>
-        <button className="mb-6 p-4" onClick={handlePlayerStats} style={{ backgroundColor: "#76B041", color: "white" }}>
-          <ImStatsDots />
+        <button
+          className={`mb-6 text-white hover:bg-[#F6B17A] hover:text-gray-300 transition-all duration-200 ${isTaskbarExpanded ? "w-full" : "w-16"} h-12 flex items-center justify-center space-x-2`}
+          onClick={() => setSelectedView("playerInfo")}
+        >
+          <GiCharacter size={32} />
+          {isTaskbarExpanded && <span className="ml-2">Player Info</span>}
         </button>
-        <button className="mt-auto p-4" onClick={handleSignOut} style={{ backgroundColor: "#FF4F4F", color: "white" }}>
-          <FaSignOutAlt />
+        <button
+          className={`mb-6 text-white hover:bg-[#F6B17A] hover:text-gray-300 transition-all duration-200 ${isTaskbarExpanded ? "w-full" : "w-16"} h-12 flex items-center justify-center space-x-2`}
+          onClick={() => setSelectedView("playerStats")}
+        >
+          <ImStatsDots size={32} />
+          {isTaskbarExpanded && <span className="ml-2">Player Stats</span>}
+        </button>
+        <button
+          className={`mt-auto text-white hover:bg-[#F6B17A] hover:text-gray-300 transition-all duration-200 ${isTaskbarExpanded ? "w-full" : "w-16"} h-12 flex items-center justify-center space-x-2`}
+          onClick={handleSignOut}
+        >
+          <FaSignOutAlt size={32} />
+          {isTaskbarExpanded && <span className="ml-2">Sign Out</span>}
         </button>
       </div>
       <div className="content flex-1 p-6" style={{ backgroundColor: "#2D3250", color: "white" }}>
