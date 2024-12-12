@@ -13,12 +13,6 @@ function App(): JSX.Element {
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [tournamentDropdownOpen, setTournamentDropdownOpen] = useState<boolean>(false);
   const [user, setUser] = useState<any>(null);
-  const [featuredTournaments, setFeaturedTournaments] = useState<any[]>([]);
-  const [recentTournaments, setRecentTournaments] = useState<any[]>([]);
-  const [upcomingTournaments, setUpcomingTournaments] = useState<any[]>([]);
-  const [friendsTournaments, setFriendsTournaments] = useState<any[]>([]);
-  const [lastTournament, setLastTournament] = useState<any>(null);
-  const [friendsOnline, setFriendsOnline] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
@@ -26,55 +20,37 @@ function App(): JSX.Element {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const [playerData, setPlayerData] = useState<any>(null); // Add state for player data
 
+  // Fetch player data from API (assuming it's available through a fetch or axios call)
   useEffect(() => {
-    const fetchTournaments = async () => {
-      try {
-        const [featured, recent, upcoming, friends, last, onlineFriends] = await Promise.all([
-          axios.get("http://localhost:8000/api/tournaments/featured"),
-          axios.get("http://localhost:8000/api/tournaments/recent"),
-          axios.get("http://localhost:8000/api/tournaments/upcoming"),
-          axios.get("http://localhost:8000/api/tournaments/friends"),
-          axios.get("http://localhost:8000/api/tournaments/last"),
-          axios.get("http://localhost:8000/api/friends/online"),
-        ]);
-        setFeaturedTournaments(featured.data);
-        setRecentTournaments(recent.data);
-        setUpcomingTournaments(upcoming.data);
-        setFriendsTournaments(friends.data);
-        setLastTournament(last.data);
-        setFriendsOnline(onlineFriends.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchTournaments();
-  }, []);
+    if (currentUser) {
+      const fetchPlayerData = async () => {
+        try {
+          const response = await fetch(
+            `http://localhost:8000/api/players/get_player/${playerData.playername}`
+          );
+          setPlayerData(response); // Assuming the player data has the avatar
+        } catch (error) {
+          console.error("Error fetching player data:", error);
+        }
+      };
+      fetchPlayerData();
+    }
+  }, [currentUser]);
 
   const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     setSearchQuery(query);
-  
+
     if (query.trim() !== "") {
       try {
         const response = await axios.get(`http://localhost:8000/api/players/search?query=${query}`);
         const players = response.data;
 
-        // Debug: Log the players array to the console
-        console.log("Players array:", players);
-        console.log("Test 1")
-
-        players.forEach((player: { displayname: string }) => {
-          console.log(player.displayname);
-        });        
-
         // Filter players to show only those whose displayName starts with the search query
         const filteredPlayers = players.filter((player: { displayname: string }) =>
-        player.displayname && player.displayname.toLowerCase().startsWith(query.toLowerCase())); // Case-insensitive match for display names starting with query
-
-        // Debug: Log the players array to the console
-        console.log("Players array:", filteredPlayers);
-        console.log("Test 2")
+          player.displayname && player.displayname.toLowerCase().startsWith(query.toLowerCase())); // Case-insensitive match for display names starting with query
 
         setSearchResults(filteredPlayers.slice(0, 10)); // Limit to 10 results
       } catch (error) {
@@ -106,7 +82,7 @@ function App(): JSX.Element {
 
   const handleProfile = () => {
     if (currentUser) {
-      navigate(`/player/${currentUser.uid}`);
+      navigate(`/player/${currentUser.displayName}`);
     }
     setDropdownOpen(false);
   };
@@ -127,7 +103,6 @@ function App(): JSX.Element {
     if (action === "create") {
       navigate("/createTournament")
     } else if (action === "view") {
-      console.log("View Tournament clicked");
       navigate("/OldMain");
     } else if (action === "join") {
       setShowJoinModal(true); // Show the join modal
@@ -168,8 +143,8 @@ function App(): JSX.Element {
               className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#7077A1] focus:outline-none"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              {currentUser?.photoURL ? (
-                <img src={currentUser.photoURL} alt="Profile" className="w-full h-full object-cover" />
+              {playerData?.avatar ? (
+                <img src={playerData.avatar} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-gray-300"></div>
               )}
@@ -228,12 +203,7 @@ function App(): JSX.Element {
               </div>
             )}
           </div>
-          
-        {/* Define Routes */}
-        <Routes>
-        <Route path="/player/:playername" element={<PlayerProfilePage />} />
-        </Routes>
-          
+
           {/* Search Players Textbox */}
           <div className="ml-4 relative">
             <input
@@ -292,51 +262,6 @@ function App(): JSX.Element {
           </div>
         </div>
       )}
-
-      <div className="main flex flex-col items-center w-full mt-4 space-y-4" style={{ color: "white" }}>
-        <div className="w-4/5 p-4 border border-gray-300 rounded-lg">
-          <h3 className="text-xl font-bold mb-4">Last Tournament</h3>
-          {lastTournament ? <div>{lastTournament.name}</div> : <div>No tournament history available.</div>}
-        </div>
-
-        <div className="w-4/5 p-4 border border-gray-300 rounded-lg">
-          <h3 className="text-xl font-bold mb-4">Friends Online</h3>
-          {friendsOnline.length > 0 ? (
-            friendsOnline.map((friend) => <div key={friend.id}>{friend.username}</div>)
-          ) : (
-            <div>No friends online.</div>
-          )}
-        </div>
-
-        <div className="w-4/5 p-4 border border-gray-300 rounded-lg">
-          <h3 className="text-xl font-bold mb-4">Featured Tournaments</h3>
-          {featuredTournaments.length > 0 ? (
-            featuredTournaments.map((tournament) => <div key={tournament.id}>{tournament.name}</div>)
-          ) : (
-            <div>No featured tournaments available.</div>
-          )}
-        </div>
-
-        <div className="w-4/5 p-4 border border-gray-300 rounded-lg">
-          <h3 className="text-xl font-bold mb-4">Upcoming Tournaments</h3>
-          {upcomingTournaments.length > 0 ? (
-            upcomingTournaments.map((tournament) => <div key={tournament.id}>{tournament.name}</div>)
-          ) : (
-            <div>No upcoming tournaments available.</div>
-          )}
-        </div>
-
-        <div className="w-4/5 p-4 border border-gray-300 rounded-lg">
-          <h3 className="text-xl font-bold mb-4">Recent Tournaments</h3>
-          {recentTournaments.length > 0 ? (
-            recentTournaments.map((tournament) => <div key={tournament.id}>{tournament.name}</div>)
-          ) : (
-            <div>No recent tournaments available.</div>
-          )}
-        </div>
-
-        {showForm && <SearchPlayerForm />}
-      </div>
     </div>
   );
 }

@@ -11,57 +11,66 @@ const Settings: React.FC = () => {
   const navigate = useNavigate();
   const auth = getAuth();
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [accountInfo, setAccountInfo] = useState<any>(null);
-  const [playerStats, setPlayerStats] = useState<any>(null);
+  const [playerData, setPlayerData] = useState<any>(null);
   const [selectedView, setSelectedView] = useState<string>("playerInfo");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch the current user from Firebase Auth
   useEffect(() => {
     const user = auth.currentUser;
     if (user) {
+      console.log("Current user found:", user);
       setCurrentUser(user);
     } else {
-      console.error("No user is signed in.");
-      navigate("/routes/sign-in"); // Redirect to sign-in if no user is logged in
+      console.error("No user is signed in. Redirecting to sign-in.");
+      navigate("/routes/sign-in");
     }
   }, [auth, navigate]);
 
-  // Fetch account info dynamically based on the current user
+  // Fetch player data from the backend
   useEffect(() => {
-    const fetchAccountInfo = async () => {
-      if (!currentUser) return;
+    const fetchPlayerData = async () => {
+      if (!currentUser || !currentUser.uid) {
+        console.error("No valid current user found.");
+        return;
+      }
+
+      const url = `http://localhost:8000/api/players/settings/${playerData.displayName}`;
+      console.log("Fetching player data from:", url);
 
       try {
-        const response = await axios.get(`http://localhost:8000/api/players/get_player/${currentUser.uid}`);
-        console.log("Account info response:", response.data);
-        setAccountInfo(response.data);
-      } catch (error) {
-        console.error("Error fetching account info:", error);
+        const response = await axios.get(url);
+        console.log("Player data response:", response.data);
+        setPlayerData(response.data);
+        setLoading(false);
+      } catch (err: any) {
+        setLoading(false);
+        setError("Failed to load player data.");
+
+        if (err.response) {
+          console.error("Error response from server:", err.response.data);
+        } else {
+          console.error("Network or other error:", err.message);
+        }
       }
     };
 
-    fetchAccountInfo();
+    fetchPlayerData();
   }, [currentUser]);
-
-  // Fetch player stats
-  const fetchPlayerStats = async () => {
-    if (!currentUser) return;
-
-    try {
-      const response = await axios.get(`http://localhost:8000/api/player-stats/${currentUser.uid}`);
-      setPlayerStats(response.data);
-    } catch (error) {
-      console.error("Error fetching player stats:", error);
-    }
-  };
 
   const handleBackToHome = () => {
     navigate("/");
   };
 
   const handleSignOut = async () => {
-    await signOut(auth);
-    navigate("/routes/sign-in");
+    try {
+      await signOut(auth);
+      console.log("User signed out successfully.");
+      navigate("/routes/sign-in");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   const handlePlayerInfo = () => {
@@ -70,63 +79,49 @@ const Settings: React.FC = () => {
 
   const handlePlayerStats = () => {
     setSelectedView("playerStats");
-    fetchPlayerStats();
   };
 
   const renderPlayerInfo = () => {
-    if (!accountInfo) return <p>Loading account information...</p>;
+    if (loading) return <p>Loading player information...</p>;
+    if (error) return <p>{error}</p>;
+    if (!playerData) return <p>No player data available.</p>;
 
     return (
       <div className="account-info space-y-6">
         <div className="flex items-center space-x-4">
           <img
-            src={accountInfo.profilePicture || "/default-avatar.png"}
+            src={playerData.avatar || "/default-avatar.png"}
             alt="Profile"
             className="w-24 h-24 rounded-full border border-gray-300"
           />
           <div>
-            <p className="text-xl font-semibold">{accountInfo.displayname || "Display Name"}</p>
-            <p className="text-gray-400">{accountInfo.playername || "Player Name"}</p>
+            <p className="text-xl font-semibold">{playerData.displayname || "Display Name"}</p>
+            <p className="text-gray-400">{playerData.playername || "Player Name"}</p>
           </div>
         </div>
         <div className="space-y-2">
-          <p><strong>Email:</strong> {accountInfo.email || "Email not provided"}</p>
-          <p><strong>Rank:</strong> {accountInfo.rank || "Unranked"}</p>
+          <p><strong>Email:</strong> {playerData.email || "Email not provided"}</p>
+          <p><strong>Rank:</strong> {playerData.rank || "Unranked"}</p>
         </div>
       </div>
     );
   };
 
   const renderPlayerStats = () => {
-    if (!playerStats) return <p>Loading player stats...</p>;
+    if (!playerData) return <p>No stats data available.</p>;
 
-    const winLossRatio = playerStats.losses > 0 ? (playerStats.wins / playerStats.losses).toFixed(2) : "N/A";
+    const winLossRatio = playerData.losses > 0 ? (playerData.wins / playerData.losses).toFixed(2) : "N/A";
 
     return (
       <div className="player-stats space-y-6">
         <h2 className="text-xl font-bold mb-4">Player Stats</h2>
         <div className="space-y-2">
-          <p><strong>Wins:</strong> {playerStats.wins}</p>
-          <p><strong>Losses:</strong> {playerStats.losses}</p>
-          <p><strong>Ties:</strong> {playerStats.ties}</p>
-          <p><strong>Tournament Wins:</strong> {playerStats.tournamentWins}</p>
-          <p><strong>Tournament Losses:</strong> {playerStats.tournamentLosses}</p>
+          <p><strong>Wins:</strong> {playerData.wins}</p>
+          <p><strong>Losses:</strong> {playerData.losses}</p>
+          <p><strong>Ties:</strong> {playerData.ties}</p>
+          <p><strong>Tournament Wins:</strong> {playerData.tournamentWins}</p>
+          <p><strong>Tournament Losses:</strong> {playerData.tournamentLosses}</p>
           <p><strong>Win-Loss Ratio:</strong> {winLossRatio}</p>
-        </div>
-        <div className="match-history space-y-2">
-          <h3 className="font-semibold">Match History</h3>
-          {playerStats.matchHistory && playerStats.matchHistory.length > 0 ? (
-            <ul>
-              {playerStats.matchHistory.map((match: any, index: number) => (
-                <li key={index} className="flex justify-between">
-                  <span>{match.date}</span>
-                  <span>{match.opponent} - {match.result}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No match history available.</p>
-          )}
         </div>
       </div>
     );

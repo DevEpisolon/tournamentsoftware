@@ -307,6 +307,31 @@ def update_tourney_results(round_wins, round_losses, round_ties, tourney_list):
         else:
             continue
 
+@player_router.get("/players/settings/{displayname}")
+async def get_player_settings(displayname: str):
+    player_document = db.players.find_one({"displayname": displayname})
+    if player_document:
+        player = document_to_player(player_document)
+        return {
+            "playername": player.playername,
+            "displayname": player.displayname,
+            "avatar": player.avatar,
+            "email": player.email,
+            "wins": player.wins,
+            "losses": player.losses,
+            "ties": player.ties,
+            "wlratio": player.wlratio,
+            "tournament wins": player.current_tournament_wins,
+            "tournament losses": player.current_tournament_losses,
+            "join date": player_document.get("join_date"),
+            "uniqueid": player_document.get("uniqueid"),
+            "aboutme": player_document.get("aboutme"),
+            "friends": player_document.get("friends", []),
+            "pending invites": player_document.get("pending_invites", []),
+            "match history": player_document.get("match_history", [])
+        }
+    raise HTTPException(status_code=404, detail="Player not found.")
+
 
 """Currently for testing purposes. Players will be able to add
 themselves to the tourney list, playerlist, which will then be used by this function"""
