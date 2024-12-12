@@ -79,7 +79,7 @@ const Settings: React.FC = () => {
       const deleteUrl = `http://localhost:8000/api/players/delete_player/${currentUser.displayName}`;
       await axios.delete(deleteUrl);
 
-      if (currentUser) {
+      if (currentUser.uid) {
         await deleteUser(currentUser);
       }
 
