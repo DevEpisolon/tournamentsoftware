@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React from 'react';
 import { MdPerson, MdOutlineSchedule } from 'react-icons/md';
 
@@ -80,6 +81,14 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
     return `${month}/${day}/${year}`;
   };
 
+  const promoteRound = async () => {
+    await axios.put(`http://localhost:8000/api/${tournament._id}/promote_round`)
+  }
+
+  const declareWinner = async () => {
+    await axios.put(`http://localhost:8000/api/${tournament._id}/match_winner`)
+  }
+
   if (!tournament) {
     return (
       <div className="bg-tourney-navy2 rounded-lg p-6">
@@ -90,11 +99,12 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
 
   return (
     <div className="relative bg-tourney-navy2 rounded-lg p-6 w-5/6">
-      <div className="pb-4 border-b border-gray-700">
+      <div className="flex pb-4 border-b border-gray-700 justify-between">
         <h2 className="text-xl font-bold flex items-center gap-2">
           <MdOutlineSchedule className="text-tourney-orange" />
           Match Schedule
         </h2>
+        <button className='bg-tourney-orange md:px-4 md:text-xl rounded-lg font-semibold hover:scale-105' onClick={() => promoteRound()}>Promote Round</button>
       </div>
 
       <div className="pt-4">
@@ -140,10 +150,13 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
                         <span className='text-xl'>{players.displayname}</span>
                       )}
                       {idx === 0 && (
-                        <div className='flex absolute text-3xl left-72'>
-                          <button className='bg-tourney-orange rounded-md md:px-4 hover:scale-105 md:text-2xl font-semibold'>Promote</button>
-                          <span className='sm:px-5 md:mx-10'>|</span>
-                          <button className='bg-tourney-orange rounded-md md:px-4 hover:scale-105 md:text-2xl font-semibold'>Promote</button>
+                        <div className='flex absolute text-3xl left-48'>
+                          <button className='bg-tourney-orange rounded-md md:px-6 hover:scale-105 md:text-base font-semibold'>Declare Winner</button>
+                        </div>
+                      )}
+                      {idx === 1 && (
+                        <div className='flex absolute text-3xl right-48'>
+                          <button className='bg-tourney-orange rounded-md md:px-6 hover:scale-105 md:text-base font-semibold'>Declare Winner</button>
                         </div>
                       )}
                     </div>
