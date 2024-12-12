@@ -30,7 +30,7 @@ function App(): JSX.Element {
       const fetchPlayerData = async () => {
         try {
           const response = await fetch(
-            `http://localhost:8000/api/players/get_player/${currentUser.uid}`
+            `http://localhost:8000/api/players/get_player/${currentUser.displayName}`
           );
           setPlayerData(response); // Assuming the player data has the avatar
         } catch (error) {

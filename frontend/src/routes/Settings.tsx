@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { IoArrowBack } from "react-icons/io5";
-import { FaSignOutAlt } from "react-icons/fa";
+import { FaSignOutAlt, FaTrash } from "react-icons/fa";
 import { GiCharacter } from "react-icons/gi";
 import { ImStatsDots } from "react-icons/im";
-import { getAuth, signOut } from "firebase/auth";
+import { getAuth, signOut, deleteUser } from "firebase/auth";
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
@@ -15,6 +15,8 @@ const Settings: React.FC = () => {
   const [selectedView, setSelectedView] = useState<string>("playerInfo");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<string>("");
 
   // Fetch the current user from Firebase Auth
   useEffect(() => {
@@ -73,12 +75,76 @@ const Settings: React.FC = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    // Check if confirmation matches
+    if (deleteConfirmation.toLowerCase() !== "delete") {
+      alert("Confirmation does not match. Account not deleted.");
+      return;
+    }
+
+    try {
+      // First, delete from backend
+      const deleteUrl = `http://localhost:8000/api/players/delete_player/${currentUser.displayName}`;
+      await axios.delete(deleteUrl);
+
+      // Then delete from Firebase
+      if (auth.currentUser) {
+        await deleteUser(auth.currentUser);
+      }
+
+      // Redirect to sign-in page
+      navigate("/routes/sign-in");
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      alert("Failed to delete account. Please try again.");
+    }
+  };
+
   const handlePlayerInfo = () => {
     setSelectedView("playerInfo");
   };
 
   const handlePlayerStats = () => {
     setSelectedView("playerStats");
+  };
+
+  const renderDeleteAccountModal = () => {
+    if (!showDeleteModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-lg w-96 text-black">
+          <h2 className="text-xl font-bold mb-4 text-red-600">Delete Account</h2>
+          <p className="mb-4">
+            This will permanently delete your account. This action cannot be undone.
+          </p>
+          <p className="mb-4">
+            To confirm, type <strong>DELETE</strong> in the box below:
+          </p>
+          <input 
+            type="text" 
+            value={deleteConfirmation}
+            onChange={(e) => setDeleteConfirmation(e.target.value)}
+            className="w-full p-2 border rounded mb-4"
+            placeholder="Type DELETE to confirm"
+          />
+          <div className="flex justify-between">
+            <button 
+              onClick={() => setShowDeleteModal(false)}
+              className="bg-gray-300 text-black px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleDeleteAccount}
+              className="bg-red-600 text-white px-4 py-2 rounded"
+            >
+              Delete Account
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const renderPlayerInfo = () => {
@@ -113,6 +179,14 @@ const Settings: React.FC = () => {
           <p><strong>Player Name:</strong> {playerData.playername || "Not set"}</p>
           <p><strong>Join Date:</strong> {joinDate}</p>
           <p><strong>About Me:</strong> {playerData.about_me || "No description provided"}</p>
+        </div>
+        <div className="pt-4">
+          <button 
+            onClick={() => setShowDeleteModal(true)}
+            className="bg-red-600 text-white px-4 py-2 rounded flex items-center space-x-2 hover:bg-red-700 transition-colors"
+          >
+            <FaTrash /> <span>Delete Account</span>
+          </button>
         </div>
       </div>
     );
@@ -159,6 +233,7 @@ const Settings: React.FC = () => {
         {selectedView === "playerInfo" && renderPlayerInfo()}
         {selectedView === "playerStats" && renderPlayerStats()}
       </div>
+      {renderDeleteAccountModal()}
     </div>
   );
 };
