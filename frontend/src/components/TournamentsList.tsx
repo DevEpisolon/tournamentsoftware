@@ -41,7 +41,7 @@ interface Tournament {
   wins_dict: any; // Assuming wins_dict is a dictionary
   losses_dict: any; // Assuming losses_dict is a dictionary
   ties_dict: any; // Assuming ties_dict is a dictionary
-  join_id: string;
+  join_code: string;
 }
 
 // Props interface for the component
@@ -62,7 +62,7 @@ const TournamentsList: React.FC<Props> = ({ tournaments }) => {
           <div className="bg-gray-150 w-1/2 rounded-lg p-6 mb-6 relative cursor-pointer shadow-lg hover:scale-105 transition-transform">
             {/* MongoDB ID */}
             <p className="text-lg text-[#2D3250] absolute top-2 right-2">
-              {tournament._id}
+              {tournament.join_code}
             </p>
             <h3 className="text-2xl font-semibold mb-2 text-[#7077A1]">
               {tournament.tournamentName}

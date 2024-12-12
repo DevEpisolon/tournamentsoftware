@@ -35,7 +35,7 @@ tournaments_collection = db["tournaments"]
 def generate_join_id():
     """Generate a unique 4-character join ID consisting of digits and letters."""
     characters = string.ascii_letters + string.digits  # a-z, A-Z, 0-9
-    return "".join(random.choices(characters, k=4))
+    return "".join(random.choices(characters, k=6))
 
 
 def generate_unique_join_id():
@@ -118,6 +118,12 @@ def get_tournament_byid(item_id: str):
         raise HTTPException(status_code=404, detail="Tournament not found!")
     return create_tournament_object(tournament_data)
 
+@tournament.router.get("/tournaments/{join_code}")
+def get_tournament_byJoinCode(item_id:str):
+    tournament_data = fetch_tournament_data_from_database(join_code)
+    if tournament_data is None:
+        raise HTTPException(status_code=404, detail="Tournament not found!")
+    return create_touranment_object(tournament_data)
 
 @tournament_router.get("/tournaments")
 def view_tournaments():
