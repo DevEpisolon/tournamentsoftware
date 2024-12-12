@@ -134,7 +134,7 @@ def view_tournaments():
 
 @tournament_router.post("/tournaments/create/{tournament_name}:{max_slots}")
 def create_tournament(tournament_name: str, max_slots: int):
-    join_id = generate_unique_join_id()
+    #join_id = generate_unique_join_id()
 
     tournament = Tournament(
         tournamentName=tournament_name,
@@ -155,7 +155,7 @@ def create_tournament(tournament_name: str, max_slots: int):
         wins_dict={},
         losses_dict={},
         ties_dict={},
-        join_code=join_id,
+        join_code=None,
     )
 
     tournament_data = tournament._to_dict()  # Using the _to_dict() method

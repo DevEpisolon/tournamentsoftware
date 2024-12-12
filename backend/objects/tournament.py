@@ -356,7 +356,7 @@ class Tournament:
     """Updated create match function used with roundNumber so that we can promote users all at once"""
 
     def CreateMatches1(self):
-        tempPlayers = self.get_Players().copy()
+        
         self.set_rounds(int(self.rounds))
         matchCount = self.getPlayerCount() - 1
         totalMatches = math.log2(len(self.Players))

@@ -26,13 +26,13 @@ const CreateTournament: React.FC = () => {
 
     try {
       // Send POST request to create tournament
-      const response = await axios.post("http://localhost:8000/api/tournaments", {
-        tournamentName,
-        maxPlayers,
+      const response = await axios.post("http://localhost:8000/api/tournaments/create", {
+        tournament_name: tournamentName, // Match FastAPI expected key
+        max_slots: maxPlayers,          // Match FastAPI expected key
       });
 
-      // Redirect to tournament list or newly created tournament page
-      navigate(`/tournament/${response.data._id}`);
+      // Redirect to tournament page using the returned tournament ID
+      navigate(`/tournament/${response.data.id}`); // Assuming FastAPI response includes 'id'
     } catch (err: any) {
       // Extract detailed error message if available
       const errorMessage =
@@ -56,8 +56,6 @@ const CreateTournament: React.FC = () => {
       >
         Back
       </button>
-
-      
 
       {/* Content Box */}
       <div
@@ -128,3 +126,4 @@ const CreateTournament: React.FC = () => {
 };
 
 export default CreateTournament;
+
