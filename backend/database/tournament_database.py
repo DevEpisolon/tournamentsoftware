@@ -307,7 +307,7 @@ def tournament_to_document(tournament):
         "wins_dict": tournament.wins_dict,
         "losses_dict": tournament.losses_dict,
         "ties_dict": tournament.ties_dict,
-        "join_id": tournament.join_id,
+        "join_code": tournament.join_code,
     }
 
 
