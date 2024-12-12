@@ -13,6 +13,7 @@
     "@g-loot/react-tournament-brackets": "^1.0.31-rc",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
+    "@supabase/supabase-js": "^2.47.6",
     "@tiptap/extension-table": "^2.9.1",
     "@tiptap/extension-table-cell": "^2.9.1",
     "@tiptap/extension-table-header": "^2.9.1",
