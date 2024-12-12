@@ -364,7 +364,7 @@ class Tournament:
         matches = []
         for x in range(self.get_rounds()):
             for _ in range(self.getPlayerCount() - 1):
-                i = +1
+                i += 1
                 m = Match(
                     matchid=i,
                     slots=self.get_MaxSlotsPerMatch(),
@@ -390,10 +390,10 @@ class Tournament:
     Used to assign the players to the match 
     """
 
-    def assingPlayerstoMatches1(self):
-        tempPlayers = self.getPlayers().copy()
-        matches = self.getMatches().copy()
-        for m in range(len(matches) / 2):
+    def addingPlayerstoMatches1(self):
+        tempPlayers = self.get_Players().copy()
+        matches = self.get_Matches().copy()
+        for m in range(len(self.matches) / 2):
             tempPlayersinMatch = []
             for _ in range(2):
                 tempPlayersinMatch.append(tempPlayers.pop())
