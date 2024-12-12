@@ -154,7 +154,7 @@ function App(): JSX.Element {
     if (joinCode.length === 6 && /^[0-9]+$/.test(joinCode)) {
       try {
         const response = await axios.post(
-          `http://localhost:8000/api/tournaments/join`,
+          `http://localhost:8000/api/tournaments/${joinCode}`,
           { joinCode, userId: currentUser.uid }
         );
         if (response.data.success) {
