@@ -51,7 +51,7 @@ function App(): JSX.Element {
     fetchPlayerData();
   }, [currentUser]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     const fetchTournaments = async () => {
       try {
         const [featured, recent, upcoming, friends, last, onlineFriends] = await Promise.all([
@@ -73,7 +73,7 @@ function App(): JSX.Element {
       }
     };
     fetchTournaments();
-  }, []);
+  }, []);*/
 
   const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
@@ -151,27 +151,26 @@ function App(): JSX.Element {
   };
 
   const handleJoinTournament = async () => {
-    if (joinCode.length === 6 ) {
-      try {
-        const response = await axios.post(
-          `http://localhost:8000/api/tournaments/${joinCode}`,
-          { joinCode, userId: currentUser.uid }
-        );
-        navigate(`/tournament/${response}`)
-        if (response.data.success) {
-          alert("Successfully joined the tournament!");
-          setShowJoinModal(false);
-        } else {
-          setErrorMessage("Invalid tournament code.");
-        }
-      } catch (error) {
-        console.error("Error joining tournament:", error);
-        setErrorMessage("An error occurred while joining the tournament.");
+  if (joinCode.length === 6) {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/tournaments/${joinCode}`);
+      if (response.data.success) {
+        const tournamentId = response.data.tournament._id; // Extract the tournament ID
+        navigate(`/tournament/${tournamentId}`); // Navigate to the desired URL
+        alert("Successfully joined the tournament!");
+        setShowJoinModal(false);
+      } else {
+        setErrorMessage("Invalid tournament code.");
       }
-    } else {
-      setErrorMessage("Please enter a valid 6-digit code.");
+    } catch (error) {
+      console.error("Error joining tournament:", error);
+      setErrorMessage("An error occurred while joining the tournament.");
     }
-  };
+  } else {
+    setErrorMessage("Please enter a valid 6-digit code.");
+  }
+};
+
 
   console.log("Player Image before:", playerImage)
 
@@ -252,11 +251,6 @@ function App(): JSX.Element {
             )}
           </div>
           
-        {/* Define Routes */}
-        <Routes>
-        <Route path="/player/:playername" element={<PlayerProfilePage />} />
-        </Routes>
-          
           {/* Search Players Textbox */}
           <div className="ml-4 relative">
             <input
@@ -316,7 +310,7 @@ function App(): JSX.Element {
         </div>
       )}
 
-      <div className="main flex flex-col items-center w-full mt-4 space-y-4" style={{ color: "white" }}>
+      {/*<div className="main flex flex-col items-center w-full mt-4 space-y-4" style={{ color: "white" }}>
         <div className="w-4/5 p-4 border border-gray-300 rounded-lg">
           <h3 className="text-xl font-bold mb-4">Last Tournament</h3>
           {lastTournament ? <div>{lastTournament.name}</div> : <div>No tournament history available.</div>}
@@ -359,7 +353,7 @@ function App(): JSX.Element {
         </div>
 
         {showForm && <SearchPlayerForm />}
-      </div>
+      </div>*/}
     </div>
   );
 }
