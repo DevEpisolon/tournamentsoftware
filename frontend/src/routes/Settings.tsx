@@ -155,14 +155,9 @@ const Settings: React.FC = () => {
             alt="Profile"
             className="w-24 h-24 rounded-full border border-gray-300"
           />
-          <div>
-            <p className="text-xl font-semibold">{playerData.displayname || "Display Name"}</p>
-            <p className="text-gray-400">{playerData.playername || "Player Name"}</p>
-          </div>
         </div>
         <div className="space-y-2">
           <p><strong>Display Name:</strong> {playerData.displayname || "Not set"}</p>
-          <p><strong>Player Name:</strong> {playerData.playername || "Not set"}</p>
           <p><strong>Join Date:</strong> {joinDate}</p>
           <p><strong>About Me:</strong> {playerData.about_me || "No description provided"}</p>
         </div>
@@ -187,12 +182,12 @@ const Settings: React.FC = () => {
     return (
       <div className="player-stats space-y-6">
         <div className="space-y-2">
-          <p><strong>Wins:</strong> {playerData.wins || "Not available"}</p>
-          <p><strong>Losses:</strong> {playerData.losses || "Not available"}</p>
-          <p><strong>Ties:</strong> {playerData.ties || "Not available"}</p>
-          <p><strong>Win/Loss Ratio:</strong> {playerData.wlratio || "Not available"}</p>
-          <p><strong>Tournament Wins:</strong> {playerData.current_tournament_wins || "Not available"}</p>
-          <p><strong>Tournament Losses:</strong> {playerData.current_tournament_losses || "Not available"}</p>
+          <p><strong>Wins:</strong> {playerData.wins}</p>
+          <p><strong>Losses:</strong> {playerData.losses}</p>
+          <p><strong>Ties:</strong> {playerData.ties}</p>
+          <p><strong>Win/Loss Ratio:</strong> {playerData.wlratio}</p>
+          <p><strong>Tournament Wins:</strong> {playerData.current_tournament_wins}</p>
+          <p><strong>Tournament Losses:</strong> {playerData.current_tournament_losses}</p>
         </div>
 
         <div className="space-y-2">
