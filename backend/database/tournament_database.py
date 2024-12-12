@@ -138,7 +138,7 @@ def get_tournament_byJoinCode(join_code: str):
         raise HTTPException(status_code=404, detail="Tournament not found!")
     
     # Return the response with a success flag
-    return tournament_data
+    return {"success": True, "tournament": create_tournament_object(tournament_data)}
 
 
 @tournament_router.get("/tournaments")
