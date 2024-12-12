@@ -1,6 +1,7 @@
 from datetime import datetime
 import math
 
+
 class Tournament:
     def __init__(
         self,
@@ -25,11 +26,10 @@ class Tournament:
         losses_dict=None,
         ties_dict=None,
         rounds=None,
-        currentRound = None,
-        onGoingPlayers = None
-        ):
+        currentRound=None,
+        onGoingPlayers=None,
+    ):
 
-      
         self.tournamentName = tournamentName
         self.STATUS = STATUS
         self.STARTDATE = STARTDATE
@@ -52,10 +52,11 @@ class Tournament:
         self.wins_dict = wins_dict if wins_dict else {}
         self.losses_dict = losses_dict if losses_dict else {}
         self.ties_dict = ties_dict if ties_dict else {}
-       # self.rounds = math.log2(len(Players) + 1)
-        self.rounds = math.ceil(math.log2(len(Players))) if Players else 0 
+        # self.rounds = math.log2(len(Players) + 1)
+        self.rounds = math.ceil(math.log2(len(Players))) if Players else 0
         self.currentRound = currentRound
         self.onGoingPlayers = Players if Players else []
+        self.join_code = join_code
 
     # Getter and setter methods for each attribute
     def get_tournamentName(self):
@@ -93,19 +94,19 @@ class Tournament:
 
     def set_MaxSlotsPerMatch(self, count):
         self.maxSlotsPerMatch = count
-    
+
     def get_currentRound(self):
         return self.currentRound
 
     def get_onGoingPlayers(self):
-        return self.onGoingPlayers 
-   
-    def set_onGoingPlayers(self,players):
+        return self.onGoingPlayers
+
+    def set_onGoingPlayers(self, players):
         self.onGoingPlayers = players
 
-    def set_currentRound(self,count):
+    def set_currentRound(self, count):
         self.currentRound = count
-   
+
     def get_MaxSlotsPerMatch(self):
         return self.maxSlotsPerMatch
 
@@ -175,19 +176,20 @@ class Tournament:
     def addPlayertoTournament(self, Player):
         self.Players.append(Player)
 
-    def allMatchesInRoundFinished(self,roundNumber):
+    def allMatchesInRoundFinished(self, roundNumber):
         for x in self.getMatches:
-            if ((x.get_STATUS() is not "Finished") and (x.get_currentRound() is roundNumber)):
+            if (x.get_STATUS() is not "Finished") and (
+                x.get_currentRound() is roundNumber
+            ):
                 return False
         return True
-    
-    def getMatchesinRound(self,roundNumber):
-        tempMatches: List[Match]= [] 
+
+    def getMatchesinRound(self, roundNumber):
+        tempMatches: List[Match] = []
         for x in self.getMatches():
-            if (x.get_currentRound() == roundNumber):
+            if x.get_currentRound() == roundNumber:
                 tempMatches.append(x)
         return tempMatches
-    
 
     def randomizePlayersinTournament(self):
         random.shuffle(self.getPlayers)
@@ -372,26 +374,25 @@ class Tournament:
 
     def __assingPlayerstoMatches(self):
         tempPlayers = self.getPlayers().copy()
-        matches = self.getMatches().copy() 
-        for m in range(len(matches)/2):
-            tempPlayersinMatch = [] 
+        matches = self.getMatches().copy()
+        for m in range(len(matches) / 2):
+            tempPlayersinMatch = []
             for _ in range(2):
                 tempPlayersinMatch.append(tempPlayers.pop())
         currentMatch = matches.pop(0)
         currentMatch.set_Players(tempPlayersinMatch)
 
-    def __promotePlayersInrroundNumber(self,rn):
-        playerHolder = [] 
+    def __promotePlayersInrroundNumber(self, rn):
+        playerHolder = []
         if allMatchesInRoundFinished(rn):
             for x in getMatchesinRound(rn):
                 playerHolder.append(x.get_round_winner())
-        for y in getMatchesinRound(rn+1):
-            if len(playerHolder) >=2:
-                playersFornextMatch = [playerHolder.pop(0),playerHolder.pop(1)]
+        for y in getMatchesinRound(rn + 1):
+            if len(playerHolder) >= 2:
+                playersFornextMatch = [playerHolder.pop(0), playerHolder.pop(1)]
                 y.set_players(playersFornextMatch)
 
-        
-# call it when tournament ended so it can fetch players' wins, losses, and ties
+    # call it when tournament ended so it can fetch players' wins, losses, and ties
     def update_dict(self):
         for match in self.get_Matches():
             for player in match.get_players():
@@ -423,7 +424,7 @@ class Tournament:
         print("Alloted Match Time:", self.AllotedMatchTime)
         print("Players:", self.Players)
 
-    def __to_dict(self):
+    def _to_dict(self):
         return {
             "tournamentName": self.tournamentName,
             "STATUS": self.STATUS,
@@ -431,14 +432,22 @@ class Tournament:
             "ENDDATE": self.ENDDATE,
             "createdAt": self.createdAt,
             "updatedAt": self.updatedAt,
-            "matches": [match.__to_dict() for match in self.matches],  # Assuming Match class has __to_dict method
+            "matches": [
+                match.__to_dict() for match in self.matches
+            ],  # Assuming Match class has __to_dict method
             "MaxSlotsCount": self.MaxSlotsCount,
             "TournamentType": self.TournamentType,
             "TeamBoolean": self.TeamBoolean,
             "AllotedMatchTime": self.AllotedMatchTime,
-            "Players": [player.__to_dict() for player in self.Players],  # Assuming Player class has __to_dict method
-            "tournamentWinner": self.tournamentWinner.__to_dict() if self.tournamentWinner else None,  # Assuming Player class
-            "droppedPlayers": [player.__to_dict() for player in self.droppedPlayers],  # Assuming Player class
+            "Players": [
+                player.__to_dict() for player in self.Players
+            ],  # Assuming Player class has __to_dict method
+            "tournamentWinner": (
+                self.tournamentWinner.__to_dict() if self.tournamentWinner else None
+            ),  # Assuming Player class
+            "droppedPlayers": [
+                player.__to_dict() for player in self.droppedPlayers
+            ],  # Assuming Player class
             "maxSlotsPerMatch": self.maxSlotsPerMatch,
             "max_rounds": self.max_rounds,
             "wins_dict": self.wins_dict,
@@ -446,7 +455,8 @@ class Tournament:
             "ties_dict": self.ties_dict,
             "rounds": self.rounds,
             "currentRound": self.currentRound,
-            "onGoingPlayers": [player.__to_dict() for player in self.onGoingPlayers],  # Assuming Player class
+            "onGoingPlayers": [
+                player.__to_dict() for player in self.onGoingPlayers
+            ],  # Assuming Player class
             "join_code": self.join_code,
         }
-

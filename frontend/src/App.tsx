@@ -103,7 +103,8 @@ function App(): JSX.Element {
     if (action === "create") {
       navigate("/createTournament")
     } else if (action === "view") {
-      navigate("/OldMain");
+      console.log("View Tournament clicked");
+      navigate("/viewTournaments");
     } else if (action === "join") {
       setShowJoinModal(true); // Show the join modal
     }
