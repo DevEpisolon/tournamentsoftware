@@ -24,22 +24,6 @@ function App(): JSX.Element {
   const { currentUser } = useAuth();
   const [playerData, setPlayerData] = useState<any>(state?.playerData || null);
 
-  // Fetch player data from API (assuming it's available through a fetch or axios call)
-  useEffect(() => {
-    if (currentUser) {
-      const fetchPlayerData = async () => {
-        try {
-          const response = await fetch(
-            `http://localhost:8000/api/players/get_player/${currentUser.displayName}`
-          );
-          setPlayerData(response); // Assuming the player data has the avatar
-        } catch (error) {
-          console.error("Error fetching player data:", error);
-        }
-      };
-      fetchPlayerData();
-    }
-  }, [currentUser]);
 
   const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
