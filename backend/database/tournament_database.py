@@ -275,6 +275,20 @@ def remove_player_from_tournament_by_display_name(
     }
 
 
+@tournament_router.put("/update_match_winner/{tournament_id}/{match_id}/{player_name}")
+def set_match_winner(tournament_id: str, match_id: str, player_name: str):
+    try:
+        int_match_id = int(match_id)
+        tournament_id_obj = ObjectId(tournament_id)
+        tournaments_collection.update_one(
+            {"_id": tournament_id_obj},
+            {"$set": {f"matches.{int_match_id - 1}.match_winner": player_name}},
+        )
+    except Exception as e:
+        print(str(e))
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+
+
 @tournament_router.put("/update_status/{tournament_id}/{updatedStatus}")
 def set_status_by_id(tournament_id: str, updatedStatus: str):
     try:

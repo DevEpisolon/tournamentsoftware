@@ -35,6 +35,7 @@ export default function SideBar({ children }: SideBarProps): React.ReactNode {
             {children}
           </ul>
         </SideBarContext.Provider>
+        {/*
         <div className='flex border-t p-3 border-tourney-navy1'>
           <img
             //TODO: Change src to player avatar or default image
@@ -52,6 +53,7 @@ export default function SideBar({ children }: SideBarProps): React.ReactNode {
             </button>
           </div>
         </div>
+        */}
       </nav>
     </aside >
   )

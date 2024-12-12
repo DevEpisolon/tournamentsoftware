@@ -85,8 +85,10 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
     await axios.put(`http://localhost:8000/api/${tournament._id}/promote_round`)
   }
 
-  const declareWinner = async () => {
-    await axios.put(`http://localhost:8000/api/${tournament._id}/match_winner`)
+  //TODO: Fix this function
+  const declareWinner = async (matchId: string, playerName: string) => {
+    await axios.put(`http://localhost:8000/api/match/${matchId}/promote_player/${playerName}`)
+    alert("Declare Winner called")
   }
 
   if (!tournament) {
@@ -151,13 +153,19 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
                         <span className='text-xl'>{players.displayname}</span>
                       )}
                       {idx === 0 && (
-                        <div className='flex absolute text-3xl left-48'>
-                          <button className='bg-tourney-orange rounded-md md:px-6 hover:scale-105 md:text-base font-semibold'>Declare Winner</button>
+                        <div className='flex absolute text-3xl left-60'>
+                          <button className='bg-tourney-orange rounded-md md:px-6 hover:scale-105 md:text-base font-semibold'
+                            onClick={() => declareWinner(match._id, players.displayname)}>
+                            Declare Winner
+                          </button>
                         </div>
                       )}
                       {idx === 1 && (
-                        <div className='flex absolute text-3xl right-48'>
-                          <button className='bg-tourney-orange rounded-md md:px-6 hover:scale-105 md:text-base font-semibold'>Declare Winner</button>
+                        <div className='flex absolute text-3xl right-60'>
+                          <button className='bg-tourney-orange rounded-md md:px-6 hover:scale-105 md:text-base font-semibold'
+                            onClick={() => declareWinner(match._id, players.displayname)}>
+                            Declare Winner
+                          </button>
                         </div>
                       )}
                     </div>
