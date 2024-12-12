@@ -151,25 +151,26 @@ function App(): JSX.Element {
   };
 
   const handleJoinTournament = async () => {
-  if (joinCode.length === 6) {
-    try {
-      const response = await axios.get(`http://localhost:8000/api/tournaments/join/${joinCode}`);
-      if (response.data.success) {
-        const tournamentId = response.data.tournament._id; // Extract the tournament ID
-        navigate(`/tournament/${tournamentId}`); // Navigate to the desired URL
-        alert("Successfully joined the tournament!");
-        setShowJoinModal(false);
-      } else {
-        setErrorMessage("Invalid tournament code.");
+    if (joinCode.length === 6) {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/tournaments/join/${joinCode}`);
+        if (response.data.success) {
+          const tournamentId = response.data.tournament._id; // Extract the tournament ID
+          navigate(`/tournament/${tournamentId}`); // Navigate to the desired URL
+          alert("Successfully joined the tournament!");
+          setShowJoinModal(false);
+        } else {
+          setErrorMessage("Invalid tournament code.");
+        }
+      } catch (error) {
+        console.error("Error joining tournament:", error);
+        setErrorMessage("An error occurred while joining the tournament.");
       }
-    } catch (error) {
-      console.error("Error joining tournament:", error);
-      setErrorMessage("An error occurred while joining the tournament.");
+    } else {
+      setErrorMessage("Please enter a valid 6-digit code.");
     }
-  } else {
-    setErrorMessage("Please enter a valid 6-digit code.");
-  }
-};
+  };
+  
 
 
   console.log("Player Image before:", playerImage)

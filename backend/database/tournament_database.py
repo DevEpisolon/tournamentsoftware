@@ -132,11 +132,13 @@ def get_tournament_byid(item_id: str):
     return create_tournament_object(tournament_data)
 
 @tournament_router.get("/tournaments/join/{join_code}")
-def get_tournament_byJoinCode(item_id:str):
-    tournament_data = fetch_tournament_data_from_database_by_join_code(item_id)
+def get_tournament_byJoinCode(join_code: str):
+    tournament_data = fetch_tournament_data_from_database_by_join_code(join_code)
     if tournament_data is None:
         raise HTTPException(status_code=404, detail="Tournament not found!")
-    return create_tournament_object(tournament_data)
+    
+    # Return the response with a success flag
+    return tournament_data
 
 
 @tournament_router.get("/tournaments")
