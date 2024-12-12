@@ -238,6 +238,27 @@ async def update_about_me(playername: str, body: dict):
 
     return {"message": f"About me for player '{playername}' updated successfully."}
 
+@player_router.put("/players/update_display_name/{playername}")
+async def update_display_name(playername: str, body: dict):
+    new_display_name = body.get("display_name")
+    if not new_display_name or len(new_display_name) > 30:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid input: 'aboutMe' must be less than or equal to 30 characters.",
+        )
+
+    result = db.players.update_one(
+        {"playername": playername},
+        {"$set": {"displayname": new_display_name}},
+    )
+
+    if result.modified_count == 0:
+        raise HTTPException(
+            status_code=404, detail=f"Player '{playername}' not found."
+        )
+
+    return {"message": f"Displayname for player '{playername}' updated successfully."}
+
 
 @player_router.put("/players/update_avatar/{playername}")
 async def update_avatar(playername: str, body: dict = Body(...)):
@@ -294,9 +315,9 @@ def update_tourney_results(round_wins, round_losses, round_ties, tourney_list):
         else:
             continue
 
-@player_router.get("/players/settings/{displayname}")
-async def get_player_settings(displayname: str):
-    player_document = db.players.find_one({"displayname": displayname})
+@player_router.get("/players/settings/{playername}")
+async def get_player_settings(playername: str):
+    player_document = db.players.find_one({"playername": playername})
     if player_document:
         player = document_to_player(player_document)
         return {
@@ -312,7 +333,7 @@ async def get_player_settings(displayname: str):
             "tournament losses": player.current_tournament_losses,
             "join date": player_document.get("join_date"),
             "uniqueid": player_document.get("uniqueid"),
-            "aboutme": player_document.get("aboutme"),
+            "aboutme": player_document.get("aboutMe"),
             "friends": player_document.get("friends", []),
             "pending invites": player_document.get("pending_invites", []),
             "match history": player_document.get("match_history", [])
