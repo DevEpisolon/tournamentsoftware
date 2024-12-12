@@ -364,6 +364,7 @@ async def create_matches(tournament_id):
         matches_docs = []
         for match in tournament.matches:
             match_doc = match_to_document(match)
+            await post_match(match_doc)
             matches_docs.append(match_doc)
 
         # 5. Update tournament document with new matches
