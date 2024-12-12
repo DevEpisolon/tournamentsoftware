@@ -167,6 +167,7 @@ const TournamentPage: React.FC = () => {
       setPlayersInTournament([...playersInTournament, player]);
       setAvailablePlayers(availablePlayers.filter(p => p.displayname !== player.displayname));
       await axios.put(`http://localhost:8000/api/add_player/${tournamentId}/${player.displayname}`);
+      window.location.reload(); 
     }
   };
 
