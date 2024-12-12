@@ -167,7 +167,6 @@ async def create_tournament(tournament: dict):
     return {"id": str(inserted_id), "message": "Tournament successfully created"}
 
 
-
 @tournament_router.put("/add_player/{tournament_id}/{player_display_name}")
 def add_player_to_tournament_by_display_name(
     tournament_id: str, player_display_name: str
@@ -379,6 +378,10 @@ async def create_matches(tournament_id):
         raise HTTPException(
             status_code=500, detail=f"Failed to create matches: {str(e)}"
         )
+    try:
+        tournament.addingPlayerstoMatches1()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to add players: {str(e)}")
 
     # Return success response
     return {
