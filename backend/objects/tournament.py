@@ -362,8 +362,10 @@ class Tournament:
         totalMatches = math.log2(len(self.Players))
         i = 0
         matches = []
+        pc = self.getPlayerCount()
         for x in range(self.get_rounds()):
-            for _ in range(self.getPlayerCount() - 1):
+            pc = pc /2 
+            for _ in range(pc):
                 i += 1
                 m = Match(
                     matchid=i,
