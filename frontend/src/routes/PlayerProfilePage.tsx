@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import UpdateAvatar from "../components/UpdateAvatar";
+import MatchHistory from "../components/MatchHistory";
 
 const DEFAULT_IMAGE_URL =
   "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
