@@ -389,16 +389,31 @@ class Tournament:
     """
     Used to assign the players to the match 
     """
+    def assignPlayersToMatches1(self):
+        # Get the list of players and matches
+        tempPlayers = self.getPlayers().copy()
+        matches = self.getMatches().copy()
+    
+        # Filter matches for the first tournament round
+        firstRoundMatches = [m for m in matches if m.get_tournamentRoundNumber() == 1]
+    
+        # Iterate over first-round matches and assign players in pairs
+        for match in firstRoundMatches:
+            tempPlayersInMatch = []
+        
+            # Assign up to the max number of slots per match (default is 2 for a pair)
+            for _ in range(self.get_MaxSlotsPerMatch()):
+                if tempPlayers:  # Ensure there are players left to assign
+                    tempPlayersInMatch.append(tempPlayers.pop())
+        
+            # Set players for the current match
+            match.set_Players(tempPlayersInMatch)
+    
+        # Return the updated matches for the first round
+        return firstRoundMatches
 
-    def addingPlayerstoMatches1(self):
-        tempPlayers = self.get_Players().copy()
-        matches = self.get_Matches().copy()
-        for m in range(len(self.matches) / 2):
-            tempPlayersinMatch = []
-            for _ in range(2):
-                tempPlayersinMatch.append(tempPlayers.pop())
-        currentMatch = matches.pop(0)
-        currentMatch.set_Players(tempPlayersinMatch)
+
+
 
     """
     promotes the players in the decided round number to the next set of Matches
