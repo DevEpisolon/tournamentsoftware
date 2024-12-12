@@ -132,11 +132,15 @@ def view_tournaments():
     return tournaments
 
 
-@tournament_router.post("/tournaments/create/{tournament_name}:{max_slots}")
-def create_tournament(tournament_name: str, max_slots: int):
-    #join_id = generate_unique_join_id()
+@tournament_router.post("/tournaments/create")
+async def create_tournament(tournament: dict):
+    tournament_name = tournament.get("tournament_name")
+    max_slots = tournament.get("max_slots")
 
-    tournament = Tournament(
+    if not tournament_name or not max_slots:
+        raise HTTPException(status_code=400, detail="Invalid input data")
+
+    new_tournament = Tournament(
         tournamentName=tournament_name,
         STATUS=1,
         STARTDATE=datetime.now(),
@@ -155,14 +159,13 @@ def create_tournament(tournament_name: str, max_slots: int):
         wins_dict={},
         losses_dict={},
         ties_dict={},
-        join_code=None,
+        join_code=generate_unique_join_id(),
     )
 
-    tournament_data = tournament._to_dict()  # Using the _to_dict() method
+    tournament_data = new_tournament._to_dict()
+    inserted_id = tournaments_collection.insert_one(tournament_data).inserted_id
+    return {"id": str(inserted_id), "message": "Tournament successfully created"}
 
-    # Insert tournament data into collection
-    tournaments_collection.insert_one(tournament_data)
-    return "Message: Tournament successfully created"
 
 
 @tournament_router.put("/add_player/{tournament_id}/{player_display_name}")
