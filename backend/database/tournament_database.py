@@ -35,7 +35,7 @@ tournaments_collection = db["tournaments"]
 def generate_join_id():
     """Generate a unique 4-character join ID consisting of digits and letters."""
     characters = string.ascii_letters + string.digits  # a-z, A-Z, 0-9
-    return "".join(random.choices(characters, k=4))
+    return "".join(random.choices(characters, k=6))
 
 
 def generate_unique_join_id():
