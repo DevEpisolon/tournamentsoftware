@@ -335,7 +335,7 @@ async def create_matches(tournament_id):
     try:
         # Create matches
         tournament.CreateMatches1()
-
+        tournament.assignPlayersToMatches1()
         # Convert to document format
         try:
             updated_tournament = tournament_to_document(tournament)
@@ -378,11 +378,6 @@ async def create_matches(tournament_id):
         raise HTTPException(
             status_code=500, detail=f"Failed to create matches: {str(e)}"
         )
-    try:
-        tournament.assignPlayersToMatches1()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to add players: {str(e)}")
-
     # Return success response
     return {
         "status": "success",
