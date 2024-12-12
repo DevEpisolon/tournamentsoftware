@@ -379,7 +379,7 @@ async def create_matches(tournament_id):
             status_code=500, detail=f"Failed to create matches: {str(e)}"
         )
     try:
-        tournament.addingPlayerstoMatches1()
+        tournament.assignPlayersToMatches1()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to add players: {str(e)}")
 

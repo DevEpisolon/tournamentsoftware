@@ -356,7 +356,7 @@ class Tournament:
     """Updated create match function used with roundNumber so that we can promote users all at once"""
 
     def CreateMatches1(self):
-        
+
         self.set_rounds(int(self.rounds))
         matchCount = self.getPlayerCount() - 1
         totalMatches = math.log2(len(self.Players))
@@ -379,7 +379,7 @@ class Tournament:
                     end_date=None,
                     startTime=None,
                     endTime=None,
-                    tournamentRoundNumber=x,
+                    round_number=x + 1,
                     winner_next_match_id=None,
                 )
                 matches.append(m)
@@ -389,31 +389,29 @@ class Tournament:
     """
     Used to assign the players to the match 
     """
+
     def assignPlayersToMatches1(self):
         # Get the list of players and matches
-        tempPlayers = self.getPlayers().copy()
-        matches = self.getMatches().copy()
-    
+        tempPlayers = self.get_Players().copy()
+        matches = self.get_Matches().copy()
+
         # Filter matches for the first tournament round
-        firstRoundMatches = [m for m in matches if m.get_tournamentRoundNumber() == 1]
-    
+        firstRoundMatches = [m for m in matches if m.get_round_number() == 1]
+
         # Iterate over first-round matches and assign players in pairs
         for match in firstRoundMatches:
             tempPlayersInMatch = []
-        
+
             # Assign up to the max number of slots per match (default is 2 for a pair)
             for _ in range(self.get_MaxSlotsPerMatch()):
                 if tempPlayers:  # Ensure there are players left to assign
                     tempPlayersInMatch.append(tempPlayers.pop())
-        
+
             # Set players for the current match
-            match.set_Players(tempPlayersInMatch)
-    
+            match.set_players(tempPlayersInMatch)
+
         # Return the updated matches for the first round
         return firstRoundMatches
-
-
-
 
     """
     promotes the players in the decided round number to the next set of Matches
@@ -422,10 +420,10 @@ class Tournament:
 
     def promotePlayersInrroundNumber1(self, rn):
         playerHolder = []
-        if allMatchesInRoundFinished(rn):
-            for x in getMatchesinRound(rn):
+        if self.allMatchesInRoundFinished(rn):
+            for x in self.getMatchesinRound(rn):
                 playerHolder.append(x.get_round_winner())
-        for y in getMatchesinRound(rn + 1):
+        for y in self.getMatchesinRound(rn + 1):
             if len(playerHolder) >= 2:
                 playersFornextMatch = [playerHolder.pop(0), playerHolder.pop(1)]
                 y.set_players(playersFornextMatch)
