@@ -177,6 +177,9 @@ class Tournament:
     def addPlayertoTournament(self, Player):
         self.Players.append(Player)
 
+
+'''Checks to see if All matches in a certain round is finished
+'''
     def allMatchesInRoundFinished(self, roundNumber):
         for x in self.getMatches:
             if (x.get_STATUS() is not "Finished") and (
@@ -351,8 +354,8 @@ class Tournament:
             matches.append(m)
         self.set_Matches(matches)
 
-    """Updated create match function under development"""
-    """
+    """Updated create match function used with roundNumber so that we can promote users all at once"""
+    
     def __CreateMatches(self):
         tempPlayers = self.getPlayers().copy()
         self.set_rounds(math.log2(len(tempPlayers)))
@@ -371,7 +374,7 @@ class Tournament:
                     matches.append(m)
                      
         self.set_matches(matches)
-    """
+  '''Used to assign the players to the match '''
 
     def __assingPlayerstoMatches(self):
         tempPlayers = self.getPlayers().copy()
@@ -383,6 +386,10 @@ class Tournament:
         currentMatch = matches.pop(0)
         currentMatch.set_Players(tempPlayersinMatch)
 
+    
+'''promotes the players in the decided round number to the next set of Matches
+rn = round number
+'''
     def __promotePlayersInrroundNumber(self, rn):
         playerHolder = []
         if allMatchesInRoundFinished(rn):
