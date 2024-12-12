@@ -151,12 +151,13 @@ function App(): JSX.Element {
   };
 
   const handleJoinTournament = async () => {
-    if (joinCode.length === 6 && /^[0-9]+$/.test(joinCode)) {
+    if (joinCode.length === 6 ) {
       try {
         const response = await axios.post(
           `http://localhost:8000/api/tournaments/${joinCode}`,
           { joinCode, userId: currentUser.uid }
         );
+        navigate(`/tournament/${response}`)
         if (response.data.success) {
           alert("Successfully joined the tournament!");
           setShowJoinModal(false);
