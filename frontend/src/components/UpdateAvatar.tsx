@@ -7,7 +7,6 @@ import { useAuth } from "../utils/AuthContext";
 const UpdateAvatar = () => {
     const [avatar, setAvatar] = useState("");
     const [message, setMessage] = useState("");
-    const [displayName, setDisplayName] = useState(""); // User's display name
     const { currentUser, auth } = useAuth();
 
     const handleAvatarUpdate = async () => {
@@ -23,7 +22,7 @@ const UpdateAvatar = () => {
             // Make API request to update avatar
             const response = await axios.post(
                 "http://your-backend-url/players/updateAvatar",
-                { displayname: displayName, avatar },
+                { displayname: avatar },
                 {
                     headers: {
                         Authorization: `Bearer ${idToken}`, // Pass the Firebase token
@@ -41,14 +40,8 @@ const UpdateAvatar = () => {
     };
 
     return (
-        <div className="update-avatar">
+        <div className="padding:4px; rounded">
             <h1>Update Avatar</h1>
-            <input
-                type="text"
-                placeholder="Display Name"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-            />
             <input
                 type="text"
                 placeholder="Avatar URL"

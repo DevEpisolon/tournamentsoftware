@@ -332,7 +332,7 @@ async def create_matches(tournament_id):
     # 3. Split the operations for better error tracking
     try:
         # Create matches
-        tournament.createMatches()
+        tournament.CreateMatches1()
 
         # Convert to document format
         try:
