@@ -104,6 +104,7 @@ def player_to_document(player):
         "pending_invites": player.pending_invites,
         "friends": player.friends,
         "firebase_uid": player.firebase_uid,
+        "created_at": player.created_at
     }
 
 # Convert player document to player object
@@ -214,6 +215,7 @@ async def register_player(body:dict):
     email = body.get("email")
     firebase_uid = body.get("firebase_uid")
 
+
     # Check if the displayname is already taken
     existing_player_by_displayname = db["players"].find_one({"displayname": displayname})
     if existing_player_by_displayname:
@@ -310,6 +312,7 @@ def update_tourney_results(round_wins, round_losses, round_ties, tourney_list):
 @player_router.get("/players/settings/{displayname}")
 async def get_player_settings(displayname: str):
     player_document = db.players.find_one({"displayname": displayname})
+    print("Player Document not found: ", )
     if player_document:
         player = document_to_player(player_document)
         return {

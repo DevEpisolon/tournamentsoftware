@@ -1,8 +1,11 @@
+from datetime import datetime, UTC
+
+
 class Player:
     def __init__(self, playername, displayname,firebase_uid=None, uniqueid=None, email=None, avatar=None, join_date=None, aboutMe=None,
                  wins=0, losses=0, ties=0, wlratio=0, winstreaks=0, match_history=[], # general stats
                     current_tournament_wins=0, current_tournament_losses=0, current_tournament_ties=0,
-                    pending_invites=None, friends=None): # tourney info
+                    pending_invites=None, friends=None, created_at=datetime.now(UTC)): # tourney info
         self.playername = playername
         self.displayname = displayname
         self.uniqueid = uniqueid
@@ -23,6 +26,7 @@ class Player:
         self.pending_invites = pending_invites
         self.friends = friends
         self.firebase_uid = firebase_uid
+        self.created_at = created_at
 
 
     # for calling print() on a player
