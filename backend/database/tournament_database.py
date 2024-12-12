@@ -348,63 +348,37 @@ async def create_matches(tournament_id):
             detail=f"Invalid tournament ID format: {str(e)}",
         )
 
-    # 2. Get tournament with null check
+    # 2. Get tournament
     tournament = get_tournament_byid(tournament_id)
     if tournament is None:
         raise HTTPException(
             status_code=404, detail=f"Tournament with ID {tournament_id} not found"
         )
 
-    # 3. Split the operations for better error tracking
     try:
-        # Create matches
+        # 3. Create matches and assign players
         tournament.CreateMatches1()
         tournament.assignPlayersToMatches1()
-        # Convert to document format
-        try:
-            updated_tournament = tournament_to_document(tournament)
-        except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Failed to convert tournament to document: {str(e)}",
-            )
 
-        # Update in database
-        try:
-            print(updated_tournament)
-            result = tournaments_collection.replace_one(
-                {"_id": obj_id}, updated_tournament
-            )
-            if result.modified_count == 0:
-                raise HTTPException(
-                    status_code=500, detail="Failed to update tournament in database"
-                )
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Database update failed: {str(e)}"
-            )
+        # 4. Convert tournament with matches to document format
+        matches_docs = []
+        for match in tournament.matches:
+            match_doc = match_to_document(match)
+            matches_docs.append(match_doc)
 
-        # Create match documents
-        try:
-            for match in tournament.matches:
-                match_doc = match_to_document(match)
-                await post_match(match_doc)
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Failed to create match documents: {str(e)}"
-            )
+        # 5. Update tournament document with new matches
+        tournaments_collection.update_one(
+            {"_id": obj_id}, {"$set": {"matches": matches_docs}}
+        )
 
-    except HTTPException:
-        raise  # Re-raise HTTP exceptions
+        return {
+            "status": "success",
+            "message": "Matches created successfully",
+            "tournament_id": str(tournament_id),
+        }
+
     except Exception as e:
-        # Log the full error for debugging
         print(f"Unexpected error in create_matches: {str(e)}")
         raise HTTPException(
             status_code=500, detail=f"Failed to create matches: {str(e)}"
         )
-    # Return success response
-    return {
-        "status": "success",
-        "message": "Matches created successfully",
-        "tournament_id": str(tournament_id),
-    }

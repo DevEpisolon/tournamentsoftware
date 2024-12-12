@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from objects.match import Match
 from utils import format
 from database.player_database import *
+
 # Router for match-related endpoints
 match_router = APIRouter()
 
@@ -42,6 +43,26 @@ class MatchDatabase:
 
 
 match_db = MatchDatabase()
+
+
+@match_router.get("/match/id/{match_id}")
+async def get_match_by_object_id(match_id: str):
+    try:
+        # Convert string ID to ObjectId
+        match_object_id = ObjectId(match_id)
+        match_document = match_collection.find_one({"_id": match_object_id})
+
+        if not match_document:
+            raise HTTPException(status_code=404, detail="Match not found")
+
+        # Convert ObjectId to string for JSON serialization
+        match_document["_id"] = str(match_document["_id"])
+        return match_document
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"Invalid match ID format or error: {str(e)}"
+        )
 
 
 @match_router.get("/matches/tournament/{tournamentName}")
@@ -86,6 +107,7 @@ async def create_match(match_data: dict):
 async def read_match(matchid: int):
     return await match_db.get_match(matchid)
 
+
 @match_router.put("/match/{matchid}/promote_player/{displayname}")
 async def set_winner(matchid: int, displayname: str):
     """
@@ -114,15 +136,12 @@ async def set_winner(matchid: int, displayname: str):
 
     # Save the updated match document
     updated_match = match_to_document(match)
-    match_collection.replace_one(
-        {"matchid": matchid}, updated_match
-    )
+    match_collection.replace_one({"matchid": matchid}, updated_match)
 
     return {
         "message": f"Match {matchid} updated successfully.",
-        "updated_match": updated_match
+        "updated_match": updated_match,
     }
-
 
 
 @match_router.get("/matches")

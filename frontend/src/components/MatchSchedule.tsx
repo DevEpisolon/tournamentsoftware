@@ -43,6 +43,16 @@ interface Tournament {
   ties_dict: any;
 }
 
+interface Match {
+  _id: string;
+  matchid: number;
+  match_status: number;
+  round: number;
+  start_date: string;
+  players: Player[];
+  // Add other match properties as needed
+}
+
 interface MatchScheduleProps {
   tournament: Tournament | null;
 }
@@ -88,6 +98,7 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
   //TODO: Fix this function
   const declareWinner = async (matchId: string, playerName: string) => {
     console.log(matchId)
+    console.log(playerName)
     await axios.put(`http://localhost:8000/api/match/${matchId}/promote_player/${playerName}`)
     alert("Declare Winner called")
   }
