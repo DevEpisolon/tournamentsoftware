@@ -87,6 +87,11 @@ const PlayerProfilePage: React.FC = () => {
           </p>
         </div>
 
+        <div className="border-4 border-white p-4 rounded-md shadow-md mb-8 bg-gray-200">
+          <h2 className="text-lg font-semibold mb-2 text-black">Match History</h2>
+            <MatchHistory player={playerData} />
+        </div>
+
         <div className="grid grid-cols-2 gap-32 mt-12">
           <div className="transform rotate-45 border-4 border-white w-36 h-36 mx-auto flex items-center justify-center bg-red-500 shadow-md">
             <div className="transform -rotate-45 text-center">
