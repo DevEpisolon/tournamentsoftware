@@ -9,11 +9,12 @@ import { AuthProvider } from "./utils/AuthContext";
 import SignIn from "./routes/SignIn";
 import SignUp from "./routes/SignUp";
 import RegisterPlayer from "./routes/RegisterPlayer";
-import OldApp from "./routes/OldApp"
+import ViewTournaments from "./routes/ViewTournaments.tsx"
 import "./App.css"
 import Settings from "./routes/Settings.tsx";
 import { DialogProvider } from "./utils/DialogProvider.tsx";
 import CreateTournament from "./components/CreateTournament.tsx";
+import SingleElimination from "./routes/SingleElimination.tsx";
 
 const Index = () => {
   return (
@@ -30,7 +31,7 @@ const Index = () => {
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/registerPlayer" element={<RegisterPlayer />} />
-            <Route path="/viewTournaments/*" element={<OldApp />} />
+            <Route path="/viewTournaments/*" element={<ViewTournaments />} />
             <Route path="/featured" element={<div>Featured Tournaments</div>} />
             <Route path="/recent" element={<div>Recent Tournaments</div>} />
             <Route path="/upcoming" element={<div>Upcoming Tournaments</div>} />
@@ -38,6 +39,7 @@ const Index = () => {
             <Route path="/player/:id" element={<div>Player Profile</div>} />
             <Route path="/settings" element={<Settings />} /> {/* Add this line */}
             <Route path="/createTournament" element={<CreateTournament />} /> {/* Add this line */}
+            <Route path="tournament/:tournamentId/bracket" element={<SingleElimination />} />
           </Routes>
         </Router>
       </DialogProvider>

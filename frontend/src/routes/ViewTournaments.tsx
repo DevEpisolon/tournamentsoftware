@@ -6,7 +6,7 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { auth } from "../utils/FirbaseConfig";
 
-function OldApp(): JSX.Element {
+function ViewTournaments(): JSX.Element {
   const [tournaments, setTournaments] = useState<any[]>([]); // State to store fetched tournaments
   const navigate = useNavigate();
 
@@ -72,5 +72,5 @@ function OldApp(): JSX.Element {
   );
 }
 
-export default OldApp;
+export default ViewTournaments;
 

@@ -14,7 +14,7 @@ import TableCell from '@tiptap/extension-table-cell'
 import React, { useCallback, useState } from 'react'
 import {
   LuBold,
-  LuFileEdit,
+  LuFilePen,
   LuEye,
   LuItalic,
   LuList,
@@ -139,7 +139,7 @@ const MenuBar = React.memo(({ editor, isPreview, togglePreview }: MenuBarProps) 
         className="mr-4 shadow sm rounded-md "
       >
         {isPreview ? (
-          <><LuFileEdit className="w-4 h-4 my-2 mx-1" /></>
+          <><LuFilePen className="w-4 h-4 my-2 mx-1" /></>
         ) : (
           <><LuEye className="w-4 h-4 mx-1" /></>
         )}
