@@ -103,8 +103,7 @@ def player_to_document(player):
         "aboutMe": player.aboutMe,
         "pending_invites": player.pending_invites,
         "friends": player.friends,
-        "firebase_uid": player.firebase_uid,
-        "created_at": player.created_at
+        "firebase_uid": player.firebase_uid
     }
 
 # Convert player document to player object
