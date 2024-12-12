@@ -72,15 +72,16 @@ def fetch_tournament_data_from_database(tournament_id: str):
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid tournament ID")
 
+
 def fetch_tournament_data_from_database_by_join_code(join_code: str):
     try:
         # Query the database using the join_code field
         tournament_data = tournaments_collection.find_one({"join_code": join_code})
-        
+
         # Check if the tournament data exists
         if not tournament_data:
             raise HTTPException(status_code=404, detail="Tournament not found")
-        
+
         return tournament_data
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -131,12 +132,13 @@ def get_tournament_byid(item_id: str):
         raise HTTPException(status_code=404, detail="Tournament not found!")
     return create_tournament_object(tournament_data)
 
+
 @tournament_router.get("/tournaments/join/{join_code}")
 def get_tournament_byJoinCode(join_code: str):
     tournament_data = fetch_tournament_data_from_database_by_join_code(join_code)
     if tournament_data is None:
         raise HTTPException(status_code=404, detail="Tournament not found!")
-    
+
     # Return the response with a success flag
     return {"success": True, "tournament": create_tournament_object(tournament_data)}
 
@@ -273,20 +275,6 @@ def remove_player_from_tournament_by_display_name(
     return {
         "message": f"Player {player_display_name} removed from tournament successfully"
     }
-
-
-@tournament_router.put("/update_match_winner/{tournament_id}/{match_id}/{player_name}")
-def set_match_winner(tournament_id: str, match_id: str, player_name: str):
-    try:
-        int_match_id = int(match_id)
-        tournament_id_obj = ObjectId(tournament_id)
-        tournaments_collection.update_one(
-            {"_id": tournament_id_obj},
-            {"$set": {f"matches.{int_match_id - 1}.match_winner": player_name}},
-        )
-    except Exception as e:
-        print(str(e))
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
 
 @tournament_router.put("/update_status/{tournament_id}/{updatedStatus}")

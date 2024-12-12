@@ -87,6 +87,7 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
 
   //TODO: Fix this function
   const declareWinner = async (matchId: string, playerName: string) => {
+    console.log(matchId)
     await axios.put(`http://localhost:8000/api/match/${matchId}/promote_player/${playerName}`)
     alert("Declare Winner called")
   }
