@@ -140,9 +140,12 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
                         <span className='text-xl'>{players.displayname}</span>
                       )}
                       {idx === 0 && (
-                        <div className='flex absolute text-3xl left-72'>
+                        <div className='flex absolute text-3xl left-48'>
                           <button className='bg-tourney-orange rounded-md md:px-4 hover:scale-105 md:text-2xl font-semibold'>Promote</button>
-                          <span className='sm:px-5 md:mx-10'>|</span>
+                        </div>
+                      )}
+                      {idx === 1 && (
+                        <div className='flex absolute text-3xl right-48'>
                           <button className='bg-tourney-orange rounded-md md:px-4 hover:scale-105 md:text-2xl font-semibold'>Promote</button>
                         </div>
                       )}
