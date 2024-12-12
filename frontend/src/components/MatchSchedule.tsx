@@ -119,6 +119,7 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
                   <span className="text-sm font-semibold">
                     Match #{match.matchid}
                   </span>
+                  <span className='text-sm font-medium'>Round {match.round}</span>
                   <span className={`text-sm font-medium ${getMatchStatus(match.match_status).color}`}>
                     {getMatchStatus(match.match_status).text}
                   </span>

@@ -152,5 +152,5 @@ def match_to_document(match):
         "end_time": match.endTime,
         "tournament_name": match.tournamentName,
         "bracket_position": match.bracket_position,
-        "round": match.tournamentRoundNumber,
+        "round": match.round_number,
     }

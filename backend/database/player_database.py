@@ -103,7 +103,7 @@ def player_to_document(player):
         "aboutMe": player.aboutMe,
         "pending_invites": player.pending_invites,
         "friends": player.friends,
-        "firebase_uid": player.firebase_uid
+        "firebase_uid": player.firebase_uid,
     }
 
 # Convert player document to player object
@@ -192,19 +192,6 @@ async def send_friendRequest(sender: str, reciever: str):
         raise HTTPException(status_code=404, detail="Receiver not found.")
 
 
-@player_router.post("/players/updateAvatar")
-async def update_avatar(displayname: str, avatar: str):
-    player_document = db.players.find_one({"displayname": displayname})
-    if player_document:
-        db.players.update_one(
-            {"displayname": displayname},
-            {"$set": {"avatar": avatar}}
-        )
-        return {"message": f"Avatar updated for {displayname}"}
-    else:
-        raise HTTPException(status_code=404, detail="Player not found.")
-
-
 
 @player_router.post("/players/register_player")
 async def register_player(body:dict):
@@ -213,7 +200,6 @@ async def register_player(body:dict):
     displayname = body.get("displayname")
     email = body.get("email")
     firebase_uid = body.get("firebase_uid")
-
 
     # Check if the displayname is already taken
     existing_player_by_displayname = db["players"].find_one({"displayname": displayname})
@@ -311,7 +297,6 @@ def update_tourney_results(round_wins, round_losses, round_ties, tourney_list):
 @player_router.get("/players/settings/{displayname}")
 async def get_player_settings(displayname: str):
     player_document = db.players.find_one({"displayname": displayname})
-    print("Player Document not found: ", )
     if player_document:
         player = document_to_player(player_document)
         return {

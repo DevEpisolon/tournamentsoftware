@@ -11,30 +11,29 @@ const CreateTournament: React.FC = () => {
   const [boxColor, setBoxColor] = useState<string>("#424769"); // Default box color
   const navigate = useNavigate();
 
-  // Handle form submission
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    // Validate input
     if (!tournamentName.trim()) {
       setError("Tournament name is required.");
       return;
     }
 
     setLoading(true);
-    setError(null); // Reset error on retry
+    setError(null);
 
     try {
-      // Send POST request to create tournament
-      const response = await axios.post("http://localhost:8000/api/tournaments", {
-        tournamentName,
-        maxPlayers,
+      const response = await axios.post("http://localhost:8000/api/tournaments/create", {
+        tournament_name: tournamentName,
+        max_slots: maxPlayers,
       });
 
-      // Redirect to tournament list or newly created tournament page
-      navigate(`/tournament/${response.data._id}`);
+      if (response.data?.id) {
+        navigate(`/tournament/${response.data.id}`);
+      } else {
+        setError("Unexpected response from server.");
+      }
     } catch (err: any) {
-      // Extract detailed error message if available
       const errorMessage =
         err.response?.data?.message || "Error creating tournament.";
       setError(errorMessage);
@@ -49,7 +48,6 @@ const CreateTournament: React.FC = () => {
       className="min-h-screen flex flex-col items-center justify-center"
       style={{ backgroundColor: bgColor }}
     >
-      {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
         className="absolute top-4 left-4 bg-[#F6B17A] text-white px-4 py-2 rounded-md"
@@ -57,9 +55,6 @@ const CreateTournament: React.FC = () => {
         Back
       </button>
 
-      
-
-      {/* Content Box */}
       <div
         className="max-w-lg mx-auto p-8 rounded-lg shadow-md"
         style={{ backgroundColor: boxColor }}
@@ -115,7 +110,9 @@ const CreateTournament: React.FC = () => {
           <div className="text-center">
             <button
               type="submit"
-              className="px-6 py-3 bg-[#F6B17A] text-white font-bold rounded-lg w-full"
+              className={`px-6 py-3 bg-[#F6B17A] text-white font-bold rounded-lg w-full ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
               disabled={loading}
             >
               {loading ? "Creating..." : "Create Tournament"}
@@ -128,3 +125,4 @@ const CreateTournament: React.FC = () => {
 };
 
 export default CreateTournament;
+

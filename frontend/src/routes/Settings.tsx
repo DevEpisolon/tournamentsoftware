@@ -6,11 +6,11 @@ import { FaSignOutAlt, FaTrash } from "react-icons/fa";
 import { GiCharacter } from "react-icons/gi";
 import { ImStatsDots } from "react-icons/im";
 import { getAuth, signOut, deleteUser } from "firebase/auth";
+import { useAuth } from "../utils/AuthContext";
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
-  const auth = getAuth();
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const {currentUser} = useAuth()
   const [playerData, setPlayerData] = useState<any>(null);
   const [selectedView, setSelectedView] = useState<string>("playerInfo");
   const [loading, setLoading] = useState<boolean>(true);
@@ -18,17 +18,6 @@ const Settings: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState<string>("");
 
-  // Fetch the current user from Firebase Auth
-  useEffect(() => {
-    const user = auth.currentUser;
-    if (user) {
-      console.log("Current user found:", user);
-      setCurrentUser(user);
-    } else {
-      console.error("No user is signed in. Redirecting to sign-in.");
-      navigate("/routes/sign-in");
-    }
-  }, [auth, navigate]);
 
   // Fetch player data from the backend
   useEffect(() => {
@@ -67,7 +56,7 @@ const Settings: React.FC = () => {
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
+      await signOut(getAuth());
       console.log("User signed out successfully.");
       navigate("/routes/sign-in");
     } catch (error) {
@@ -88,8 +77,8 @@ const Settings: React.FC = () => {
       await axios.delete(deleteUrl);
 
       // Then delete from Firebase
-      if (auth.currentUser) {
-        await deleteUser(auth.currentUser);
+      if (currentUser) {
+        await deleteUser(currentUser);
       }
 
       // Redirect to sign-in page
@@ -153,8 +142,8 @@ const Settings: React.FC = () => {
     if (!playerData) return <p>No player data available.</p>;
 
     // Format join date
-    const joinDate = playerData.join_date 
-      ? new Date(playerData.join_date).toLocaleDateString('en-US', {
+    const joinDate = playerData["join date"] 
+      ? new Date(playerData["join date"]).toLocaleDateString('en-US', {
           year: 'numeric', 
           month: 'long', 
           day: 'numeric'
