@@ -393,10 +393,9 @@ class Tournament:
     def assignPlayersToMatches1(self):
         # Get the list of players and matches
         tempPlayers = self.get_Players().copy()
-        matches = self.get_Matches().copy()
 
         # Filter matches for the first tournament round
-        firstRoundMatches = [m for m in matches if m.get_round_number() == 1]
+        firstRoundMatches = [m for m in self.get_Matches() if m.get_round_number() == 1]
 
         # Iterate over first-round matches and assign players in pairs
         for match in firstRoundMatches:
@@ -410,8 +409,6 @@ class Tournament:
             # Set players for the current match
             match.set_players(tempPlayersInMatch)
 
-        # Return the updated matches for the first round
-        return firstRoundMatches
 
     """
     promotes the players in the decided round number to the next set of Matches
