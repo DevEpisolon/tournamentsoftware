@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
-import PlayerProfilePage from './routes/PlayerProfilePage';
+import PlayerProfilePage from "./routes/PlayerProfilePage";
 import SearchPlayerForm from "./components/searchPlayerForm";
 import { Routes, Route, useNavigate, Link } from "react-router-dom";
 import { auth } from "./utils/FirbaseConfig";
 import Settings from "./routes/Settings";
 import { useAuth } from "./utils/AuthContext.tsx";
+import { Spinner } from "./components/Spinner.tsx";
 
 function App(): JSX.Element {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
-  const [tournamentDropdownOpen, setTournamentDropdownOpen] = useState<boolean>(false);
+  const [tournamentDropdownOpen, setTournamentDropdownOpen] =
+    useState<boolean>(false);
   const [user, setUser] = useState<any>(null);
   const [featuredTournaments, setFeaturedTournaments] = useState<any[]>([]);
   const [recentTournaments, setRecentTournaments] = useState<any[]>([]);
@@ -27,45 +29,43 @@ function App(): JSX.Element {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [playerImage, setPlayerImage] = useState<string | null>(null);
+  const [playerData, setPlayerData] = useState(null);
 
   const fetchPlayerData = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/players/search?query=${currentUser.displayName}`);
+      const response = await axios.get(
+        `http://localhost:8000/api/players/get_player/${currentUser.displayName}`
+      );
       const playerData = response.data; // Assuming the API returns player data in the response
-  
+
       console.log("Player Data after fetch:", playerData);
-  
+
       // Access the avatar URL from playerData
-      setPlayerImage(playerData[0]?.avatar);
-      
-      console.log("avatar url from playerData: ", playerImage)
-      console.log("avatar url from playerImage: ", playerImage)
-  
+      setPlayerData(playerData);
     } catch (error) {
       console.error("Error fetching player data:", error);
     }
   };
-  
+
   useEffect(() => {
     fetchPlayerData();
   }, [currentUser]);
 
-  /*useEffect(() => {
+  useEffect(() => {
     const fetchTournaments = async () => {
       try {
-        const [featured, recent, upcoming, friends, last, onlineFriends] = await Promise.all([
+        const [featured, last, onlineFriends] = await Promise.all([
           axios.get("http://localhost:8000/api/tournaments/featured"),
-          axios.get("http://localhost:8000/api/tournaments/recent"),
-          axios.get("http://localhost:8000/api/tournaments/upcoming"),
-          axios.get("http://localhost:8000/api/tournaments/friends"),
+          // axios.get("http://localhost:8000/api/tournaments/recent"),
+          // axios.get("http://localhost:8000/api/tournaments/upcoming"),
+          // axios.get("http://localhost:8000/api/tournaments/friends"),
           axios.get("http://localhost:8000/api/tournaments/last"),
           axios.get("http://localhost:8000/api/friends/online"),
         ]);
         setFeaturedTournaments(featured.data);
-        setRecentTournaments(recent.data);
-        setUpcomingTournaments(upcoming.data);
-        setFriendsTournaments(friends.data);
+        // setRecentTournaments(recent.data);
+        // setUpcomingTournaments(upcoming.data);
+        // setFriendsTournaments(friends.data);
         setLastTournament(last.data);
         setFriendsOnline(onlineFriends.data);
       } catch (error) {
@@ -73,24 +73,31 @@ function App(): JSX.Element {
       }
     };
     fetchTournaments();
-  }, []);*/
+  }, []);
 
-  const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const query = event.target.value;
     setSearchQuery(query);
-  
+
     if (query.trim() !== "") {
       try {
-        const response = await axios.get(`http://localhost:8000/api/players/search?query=${query}`);
+        const response = await axios.get(
+          `http://localhost:8000/api/players/search?query=${query}`
+        );
         const players = response.data;
 
         players.forEach((player: { displayname: string }) => {
           console.log(player.displayname);
-        });        
+        });
 
         // Filter players to show only those whose displayName starts with the search query
-        const filteredPlayers = players.filter((player: { displayname: string }) =>
-        player.displayname && player.displayname.toLowerCase().startsWith(query.toLowerCase())); // Case-insensitive match for display names starting with query
+        const filteredPlayers = players.filter(
+          (player: { displayname: string }) =>
+            player.displayname &&
+            player.displayname.toLowerCase().startsWith(query.toLowerCase())
+        ); // Case-insensitive match for display names starting with query
 
         setSearchResults(filteredPlayers.slice(0, 10)); // Limit to 10 results
       } catch (error) {
@@ -141,7 +148,7 @@ function App(): JSX.Element {
   const handleTournamentDropdown = (action: string) => {
     setTournamentDropdownOpen(false);
     if (action === "create") {
-      navigate("/createTournament")
+      navigate("/createTournament");
     } else if (action === "view") {
       console.log("View Tournament clicked");
       navigate("/viewTournaments");
@@ -153,7 +160,9 @@ function App(): JSX.Element {
   const handleJoinTournament = async () => {
     if (joinCode.length === 6) {
       try {
-        const response = await axios.get(`http://localhost:8000/api/tournaments/join/${joinCode}`);
+        const response = await axios.get(
+          `http://localhost:8000/api/tournaments/join/${joinCode}`
+        );
         if (response.data.success) {
           const tournamentId = response.data.tournament._id; // Extract the tournament ID
           navigate(`/tournament/${tournamentId}`); // Navigate to the desired URL
@@ -170,16 +179,30 @@ function App(): JSX.Element {
       setErrorMessage("Please enter a valid 6-digit code.");
     }
   };
-  
 
-
-  console.log("Player Image before:", playerImage)
+  if (!playerData) {
+    return (
+      <div
+        className={
+          "app flex flex-col w-full h-full justify-center items-center"
+        }
+        style={{ backgroundColor: "#2D3250" }}
+      >
+        <Spinner />
+        <p>Loading Player Data...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="app" style={{ backgroundColor: "#2D3250" }}>
       <header
         className="header relative flex justify-between items-center w-full"
-        style={{ height: "60px", padding: "0 20px", backgroundColor: "#424769" }}
+        style={{
+          height: "60px",
+          padding: "0 20px",
+          backgroundColor: "#424769",
+        }}
       >
         <div className="relative flex items-center space-x-2">
           <div className="relative">
@@ -187,9 +210,9 @@ function App(): JSX.Element {
               className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#7077A1] focus:outline-none"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              {currentUser? (
+              {currentUser ? (
                 <img
-                  src={playerImage}
+                  src={playerData.avatar}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
@@ -201,18 +224,30 @@ function App(): JSX.Element {
             {dropdownOpen && (
               <div className="absolute left-0 mt-2 w-[140px] bg-white shadow-md rounded-md z-50">
                 <ul className="text-gray-700">
-                  <li className="p-2 hover:bg-gray-200 cursor-pointer" onClick={handleProfile}>
+                  <li
+                    className="p-2 hover:bg-gray-200 cursor-pointer"
+                    onClick={handleProfile}
+                  >
                     Profile
                   </li>
-                  <li className="p-2 hover:bg-gray-200 cursor-pointer" onClick={handleSettings}>
+                  <li
+                    className="p-2 hover:bg-gray-200 cursor-pointer"
+                    onClick={handleSettings}
+                  >
                     Settings
                   </li>
                   {currentUser == null ? (
-                    <li className="p-2 hover:bg-gray-200 cursor-pointer" onClick={() => navigate("/signin")}>
+                    <li
+                      className="p-2 hover:bg-gray-200 cursor-pointer"
+                      onClick={() => navigate("/signin")}
+                    >
                       Sign In
                     </li>
                   ) : (
-                    <li className="p-2 hover:bg-gray-200 cursor-pointer" onClick={handleSignOut}>
+                    <li
+                      className="p-2 hover:bg-gray-200 cursor-pointer"
+                      onClick={handleSignOut}
+                    >
                       Sign Out
                     </li>
                   )}
@@ -238,20 +273,29 @@ function App(): JSX.Element {
             {tournamentDropdownOpen && (
               <div className="absolute left-0 mt-2 w-[160px] bg-white shadow-md rounded-md z-50">
                 <ul className="text-gray-700">
-                  <li className="p-2 hover:bg-gray-200 cursor-pointer" onClick={() => handleTournamentDropdown("create")}>
+                  <li
+                    className="p-2 hover:bg-gray-200 cursor-pointer"
+                    onClick={() => handleTournamentDropdown("create")}
+                  >
                     Create Tournament
                   </li>
-                  <li className="p-2 hover:bg-gray-200 cursor-pointer" onClick={() => handleTournamentDropdown("view")}>
+                  <li
+                    className="p-2 hover:bg-gray-200 cursor-pointer"
+                    onClick={() => handleTournamentDropdown("view")}
+                  >
                     View Tournaments
                   </li>
-                  <li className="p-2 hover:bg-gray-200 cursor-pointer" onClick={() => handleTournamentDropdown("join")}>
+                  <li
+                    className="p-2 hover:bg-gray-200 cursor-pointer"
+                    onClick={() => handleTournamentDropdown("join")}
+                  >
                     Join Tournament
                   </li>
                 </ul>
               </div>
             )}
           </div>
-          
+
           {/* Search Players Textbox */}
           <div className="ml-4 relative">
             <input
@@ -270,7 +314,9 @@ function App(): JSX.Element {
                     key={player.displayname}
                     className="py-2 px-4 hover:bg-gray-700 cursor-pointer"
                   >
-                    <Link to={`/player/${player.displayname}`}>{player.displayname}</Link>
+                    <Link to={`/player/${player.displayname}`}>
+                      {player.displayname}
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -283,7 +329,9 @@ function App(): JSX.Element {
       {showJoinModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-            <h3 className="text-lg font-semibold mb-4">Enter Tournament Code</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              Enter Tournament Code
+            </h3>
             <input
               type="text"
               value={joinCode}
@@ -292,7 +340,9 @@ function App(): JSX.Element {
               maxLength={6}
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
             />
-            {errorMessage && <p className="text-red-500 text-sm mt-2">{errorMessage}</p>}
+            {errorMessage && (
+              <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
+            )}
             <div className="flex justify-between mt-4">
               <button
                 className="bg-blue-500 text-white px-4 py-2 rounded-md"
@@ -311,50 +361,73 @@ function App(): JSX.Element {
         </div>
       )}
 
-      {/*<div className="main flex flex-col items-center w-full mt-4 space-y-4" style={{ color: "white" }}>
+      <div
+        className="main flex flex-col items-center w-full mt-4 space-y-4"
+        style={{ color: "white" }}
+      >
         <div className="w-4/5 p-4 border border-gray-300 rounded-lg">
-          <h3 className="text-xl font-bold mb-4">Last Tournament</h3>
-          {lastTournament ? <div>{lastTournament.name}</div> : <div>No tournament history available.</div>}
+          <h3 className="text-xl font-bold mb-4">Friends</h3>
+          {playerData.friends.length > 0 ? (
+            playerData.friends.map((friend) => (
+              <button
+                onClick={() => navigate(`player/${friend.playername}`)}
+                className="flex flex-row gap-2 items-center"
+              >
+                <img
+                  src={friend.avatar || "/default-avatar.png"}
+                  alt="Profile"
+                  className="size-12 rounded-full border border-gray-300 hover:bg-gray-100"
+                />
+                <div key={friend.id} className="font-semibold">
+                  {friend.playername}
+                </div>
+              </button>
+            ))
+          ) : (
+            <div>No friends.</div>
+          )}
         </div>
 
         <div className="w-4/5 p-4 border border-gray-300 rounded-lg">
-          <h3 className="text-xl font-bold mb-4">Friends Online</h3>
-          {friendsOnline.length > 0 ? (
-            friendsOnline.map((friend) => <div key={friend.id}>{friend.username}</div>)
+          <h3 className="text-xl font-bold mb-4">Last Tournament</h3>
+          {lastTournament ? (
+            <div>{lastTournament.name}</div>
           ) : (
-            <div>No friends online.</div>
+            <div>No tournament history available.</div>
           )}
         </div>
 
         <div className="w-4/5 p-4 border border-gray-300 rounded-lg">
           <h3 className="text-xl font-bold mb-4">Featured Tournaments</h3>
           {featuredTournaments.length > 0 ? (
-            featuredTournaments.map((tournament) => <div key={tournament.id}>{tournament.name}</div>)
+            featuredTournaments.map((tournament) => (
+              <div key={tournament.id}>{tournament.name}</div>
+            ))
           ) : (
             <div>No featured tournaments available.</div>
           )}
         </div>
 
-        <div className="w-4/5 p-4 border border-gray-300 rounded-lg">
-          <h3 className="text-xl font-bold mb-4">Upcoming Tournaments</h3>
-          {upcomingTournaments.length > 0 ? (
-            upcomingTournaments.map((tournament) => <div key={tournament.id}>{tournament.name}</div>)
-          ) : (
-            <div>No upcoming tournaments available.</div>
-          )}
-        </div>
+        {/*<div className="w-4/5 p-4 border border-gray-300 rounded-lg">*/}
+        {/*  <h3 className="text-xl font-bold mb-4">Upcoming Tournaments</h3>*/}
+        {/*  {upcomingTournaments.length > 0 ? (*/}
+        {/*    upcomingTournaments.map((tournament) => <div key={tournament.id}>{tournament.name}</div>)*/}
+        {/*  ) : (*/}
+        {/*    <div>No upcoming tournaments available.</div>*/}
+        {/*  )}*/}
+        {/*</div>*/}
 
-        <div className="w-4/5 p-4 border border-gray-300 rounded-lg">
-          <h3 className="text-xl font-bold mb-4">Recent Tournaments</h3>
-          {recentTournaments.length > 0 ? (
-            recentTournaments.map((tournament) => <div key={tournament.id}>{tournament.name}</div>)
-          ) : (
-            <div>No recent tournaments available.</div>
-          )}
-        </div>
+        {/*<div className="w-4/5 p-4 border border-gray-300 rounded-lg">*/}
+        {/*  <h3 className="text-xl font-bold mb-4">Recent Tournaments</h3>*/}
+        {/*  {recentTournaments.length > 0 ? (*/}
+        {/*    recentTournaments.map((tournament) => <div key={tournament.id}>{tournament.name}</div>)*/}
+        {/*  ) : (*/}
+        {/*    <div>No recent tournaments available.</div>*/}
+        {/*  )}*/}
+        {/*</div>*/}
 
-        {showForm && <SearchPlayerForm />}
-      </div>*/}
+        {/*{showForm && <SearchPlayerForm />}*/}
+      </div>
     </div>
   );
 }

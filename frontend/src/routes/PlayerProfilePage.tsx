@@ -44,11 +44,49 @@ const PlayerProfilePage: React.FC = () => {
     navigate("/");
   };
 
-      if (loading) {
+  const addFriend = async () => {
+    try {
+      console.log(currentUser);
+      const r = await fetch(`http://localhost:8000/api/players/add_friend`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", // Add this header
+        },
+        body: JSON.stringify({
+          sender: currentUser.displayName,
+          receiver: playerData.playername,
+        }),
+      });
+      window.location.reload();
+    } catch (e) {
+      alert("This is my error");
+    }
+  };
+
+  const removeFriend = async () => {
+    try {
+      console.log(currentUser);
+      const r = await fetch(`http://localhost:8000/api/players/remove_friend`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", // Add this header
+        },
+        body: JSON.stringify({
+          sender: currentUser.displayName,
+          receiver: playerData.playername,
+        }),
+      });
+      window.location.reload();
+    } catch (e) {
+      alert("This is my error");
+    }
+  };
+
+  if (loading) {
     return <div className="container mx-auto mt-8 text-center">Loading...</div>;
   }
 
-  if (!playerData) {
+  if (!playerData || !currentUser) {
     return (
       <div className="container mx-auto mt-8 text-center">Player not found</div>
     );
@@ -58,39 +96,53 @@ const PlayerProfilePage: React.FC = () => {
 
   return (
     <div className="bg-[#2D3250] min-h-screen text-white">
-      <div className="container mx-auto pt-8 pb-10 px-4 relative">
-        <button
-          className="absolute top-3 left-4 bg-pink-700 font-bold text-white px-3 py-2 rounded"
-          onClick={handleGoBack}
-        >
-          Back
-        </button>
-        <header className="text-center mb-8">
-          <img
-            src={playerImage}
-            alt="Player Avatar"
-            className="rounded-full w-32 h-32 mx-auto mb-4 border-4 border-white cursor-pointer"
-          />
-          <h1 className="text-4xl font-bold">{playerData.displayname}</h1>
-          <p className="text-sm italic">Joined: {playerData.join_date}</p>
-        </header>
-
-        {showUpdateAvatar && <UpdateAvatar />}
-
-        <div className="border-4 border-white p-4 rounded-md shadow-md mb-8 bg-gray-200">
-          <h2 className="text-lg font-semibold mb-2 text-black">About Me</h2>
-          <div
-            className="p-2 text-gray-800 bg-gray-200 cursor-text outline-none min-h-[50px]"
+      <div className="p-5">
+        <div className={"flex flex-row justify-between p-5"}>
+          <button
+            className="bg-pink-700 h-[60px] w-[100px] font-bold text-white px-3 py-2 rounded"
+            onClick={handleGoBack}
           >
-            {aboutMe}
-          </div>
-          <p className="text-sm italic text-gray-600">
-          </p>
+            Back
+          </button>
+          <header className="text-center mb-8">
+            <img
+              src={playerImage}
+              alt="Player Avatar"
+              className="rounded-full w-32 h-32 mx-auto mb-4 border-4 border-white cursor-pointer"
+            />
+            <h1 className="text-4xl font-bold">{playerData.displayname}</h1>
+            <p className="text-sm italic">Joined: {playerData.join_date}</p>
+          </header>
+
+          {playerData.playername != currentUser?.displayName ? (
+            playerData.friends.some(
+              (f) => f.playername == currentUser.displayName
+            ) ? (
+              <button
+                className="bg-red-700 h-[60px] w-[150px] font-bold text-white px-3 py-2 rounded"
+                onClick={removeFriend}
+              >
+                Remove Friend
+              </button>
+            ) : (
+              <button
+                className="bg-green-700 h-[60px] w-[150px] font-bold text-white px-3 py-2 rounded"
+                onClick={addFriend}
+              >
+                Add Friend
+              </button>
+            )
+          ) : (
+            <div></div>
+          )}
         </div>
 
         <div className="border-4 border-white p-4 rounded-md shadow-md mb-8 bg-gray-200">
-          <h2 className="text-lg font-semibold mb-2 text-black">Match History</h2>
-            <MatchHistory player={playerData} />
+          <h2 className="text-lg font-semibold mb-2 text-black">About Me</h2>
+          <div className="p-2 text-gray-800 bg-gray-200 cursor-text outline-none min-h-[50px]">
+            {aboutMe}
+          </div>
+          <p className="text-sm italic text-gray-600"></p>
         </div>
 
         <div className="grid grid-cols-2 gap-32 mt-12">
@@ -125,4 +177,3 @@ const PlayerProfilePage: React.FC = () => {
 };
 
 export default PlayerProfilePage;
-
