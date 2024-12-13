@@ -41,7 +41,10 @@ const Settings: React.FC = () => {
         return;
       }
 
+      const url = `http://localhost:8000/api/players/get_player/${currentUser.displayName}`
+      {/*
       const url = `http://localhost:8000/api/players/settings/${currentUser.displayName}`;
+      */}
       console.log("Fetching player data from:", url);
 
       try {
@@ -395,6 +398,24 @@ const Settings: React.FC = () => {
 
         <div className="space-y-2">
           <h3 className="font-semibold">Match History</h3>
+          <ul className="list-disc pl-5">
+                {playerData.match_history.map((match, index) => (
+                    <li key={index} className="mb-2">
+                        {Object.values(match)[0] === 'winner' ? (
+                            <div className="bg-green-100 p-4 rounded-lg shadow-md">
+                                <p className="text-lg text-black">{Object.keys(match)[0]}</p>
+                                <p className="text-md text-black">Result: Winner</p>
+                            </div>
+                        ) : (
+                            <div className="bg-red-100 p-4 rounded-lg shadow-md">
+                                <p className="text-lg text-black">{Object.keys(match)[0]}</p>
+                                <p className="text-md text-black">Result: LOSER</p>
+                            </div>
+                        )}
+                    </li>
+                ))}
+          </ul>
+          {/*
           <ul>
             {playerData.match_history && playerData.match_history.length > 0 ? (
               playerData.match_history.map((match: any, index: number) => (
@@ -406,6 +427,7 @@ const Settings: React.FC = () => {
               <p>No match history available</p>
             )}
           </ul>
+          */}
         </div>
       </div>
     );
