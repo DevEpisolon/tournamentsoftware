@@ -107,44 +107,67 @@ async def create_match(match_data: dict):
 async def read_match(matchid: int):
     return await match_db.get_match(matchid)
 
+
+
+
+
+
+
 @match_router.put("/match/{tournamentName}/{match_id}/set_winner/{displayname}")
-async def set_winner(tournametnName: str, match_id:int, displayname: str):
+async def set_winner(tournamentName: str, match_id: int, displayname: str):
     """
-    Set the winner of a match and update the match's status to 'Finished'.
+    Set the winner of a match and update the match's status to 'Finished' in the tournament.
 
     Args:
-        matchid (int): The unique ID of the match.
+        tournamentName (str): The name of the tournament.
+        match_id (int): The unique ID of the match.
         displayname (str): The display name of the player to set as the winner.
 
     Returns:
         dict: Response with the updated match details or an error message.
     """
     try:
-        # Fetch the match by matchid
+        # Fetch the tournament data using the tournament name
         tourney = fetch_tournament_data_fromTournamentName(tournamentName)
-        tourneyObject = document_to_tournamnet(tourney) 
         if not tourney:
-            raise HTTPException(status_code=404, detail="Match not found")
-
+            raise HTTPException(status_code=404, detail="Tournament not found")
+        
+        tourneyObject = document_to_tournamnet(tourney)
+        
         # Fetch the player by display name
         player = await get_player(displayname)  # Ensure this function retrieves the player from the database
         if not player:
             raise HTTPException(status_code=404, detail="Player not found")
-        match_document = tourneyObject.get_MatchbyId(self,match_id)
-        match_document = match_to_document(match_document)
+
+        # Fetch the match by match_id from the tournament object
+        match_document = tourneyObject.get_MatchbyId(match_id)
+        if not match_document:
+            raise HTTPException(status_code=404, detail="Match not found")
+
         # Update the match with the winner and status
         match_document["match_winner"] = player  # Store player details
         match_document["match_status"] = "Finished"
 
-        # Save the updated match back to the database
-        result = match_collection.update_one(
-            {"matchid": matchid}, {"$set": match_document}
+        # Update the specific match in the tournament's matches list
+        for idx, match in enumerate(tourneyObject):
+            if match["matchid"] == match_id:
+                tourneyObject.matches[idx] = match_document
+                break
+
+        # Now update the entire tournament document in the database
+        tournament_data = touranment_to_document(tournament_data)  # Convert the updated tournament object back to a document
+        
+        # Update the tournament collection with the new match data
+        result = tournament_collection.update_one(
+            {"tournament_name": tournamentName}, 
+            {"$set": {"matches": tourneyObject.matches}}  # Update the matches array with the updated matches
         )
+
         if result.matched_count == 0:
-            raise HTTPException(status_code=500, detail="Failed to update match")
+            raise HTTPException(status_code=500, detail="Failed to update tournament matches")
 
         return {
-            "message": f"Match {matchid} updated successfully.",
+            "message": f"Match {match_id} updated successfully in tournament {tournamentName}.",
             "updated_match": match_document,
         }
 
@@ -152,6 +175,7 @@ async def set_winner(tournametnName: str, match_id:int, displayname: str):
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
 
 @match_router.get("/matches")
 async def get_all_matches():
