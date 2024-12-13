@@ -151,7 +151,7 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
               <div key={match.matchid} className="bg-tourney-navy1 rounded-lg p-4">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm font-semibold">Match #{match.matchid}</span>
-                  <span className="text-sm font-medium">Round {match.round}</span>
+                  <span className="text-sm font-medium">Round {match.round_number}</span>
                   <span className={`text-sm font-medium ${getMatchStatus(match.match_status).color}`}>
                     {getMatchStatus(match.match_status).text}
                   </span>
