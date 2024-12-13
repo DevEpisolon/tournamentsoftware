@@ -67,8 +67,8 @@ async def get_match_by_object_id(match_id: str):
 
 
 @match_router.get("/matches/tournament/{tournamentName}")
-async def get_matches_by_tournament(tournamentName: str):
-    tourney = tournament_collection.find({"tournamentName": tournamentName})
+async def get_matches_by_tournament(tourneyName: str):
+    tourney = tournament_collection.find({"tournamentName": tourneyName})
     if not matches:
         raise HTTPException(status_code=404, detail="Matches not found")
     tourney = document_to_tournamnet(tourney)
@@ -112,7 +112,7 @@ async def read_match(matchid: int):
 
 @match_router.put("/match/{tournamentName}/{match_id}/set_winner/{displayname}")
 async def set_winner(
-    tournamentName: str,  # This should match the route path parameter
+    tourneyName: str,  # This should match the route path parameter
     match_id: int,
     displayname: str
 ):
@@ -129,7 +129,7 @@ async def set_winner(
     """
     try:
         # Fetch the tournament data using the tournament name
-        tourney = fetch_tournament_data_fromTournamentName(tournamentName)
+        tourney = fetch_tournament_data_fromTournamentName(tourneyName)
         if not tourney:
             raise HTTPException(status_code=404, detail="Tournament not found")
 
@@ -163,7 +163,7 @@ async def set_winner(
 
         # Update the tournament collection with the new match data
         result = tournaments_collection.update_one(
-            {"tournament_name": tournamentName},
+            {"tournament_name": tourneyName},
             {
                 "$set": {"matches": tourneyObject.matches}
             },  # Update the matches array with the updated matches
