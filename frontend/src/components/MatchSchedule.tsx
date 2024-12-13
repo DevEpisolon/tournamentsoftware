@@ -29,7 +29,7 @@ interface Match {
   round: number;
   start_date?: string;
   players: Player[];
-  match_winner?: Player | null;
+  match_winner?: string | null;
   match_loser?: Player | null;
   winner_next_match_id?: number;
   previous_match_id?: number;
@@ -166,8 +166,8 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
                   {getMatchPlayers(match).map((player: Player, idx: number) => (
                     <div key={player.displayname} className="flex relative items-center gap-5 text-gray-200">
                       {/* Winner Trophy Icon */}
-                      {match.match_winner && match.match_winner.displayname === player.displayname && (
-                        <FaTrophy className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-yellow-400 text-xl animate-bounce" />
+                      {match.match_winner && match.match_winner === player.displayname && (
+                        <FaTrophy className="absolute top-3 left-1/2 transform -translate-x-1/2 text-yellow-400 text-xl animate-bounce" />
                       )}
 
                       {idx === 1 && <span className="text-xl">{player.displayname}</span>}
@@ -193,6 +193,18 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
                           >
                             Declare Winner
                           </button>
+                        </div>
+                      )}
+                      {match.match_status === 2 && (
+                        <div className={`flex absolute text-3xl ${idx === 0 ? 'left-60' : 'right-60'}`}>
+
+                          {match.match_winner && match.match_winner === player.displayname && (
+                            <span>Winner</span>
+                          )}
+
+                          {match.match_winner && match.match_winner !== player.displayname && (
+                            <span>Loser</span>
+                          )}
                         </div>
                       )}
                     </div>
