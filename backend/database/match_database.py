@@ -110,9 +110,9 @@ async def read_match(matchid: int):
     return await match_db.get_match(matchid)
 
 
-def document_to_match(match_document):
-    if match_document:
-        return Match(**match_document)
+def document_to_match(self,md):
+    if md:
+        return Match(**md)
     else:
         print("Match not found.")
         return None
