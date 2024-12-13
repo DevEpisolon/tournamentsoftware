@@ -20,8 +20,8 @@ function SearchPlayerForm() {
     } catch (error) {
       console.error('Error fetching player data:', error);
       alert('Player not found');
-		}
-	
+    }
+
   };
 
   return (
@@ -40,4 +40,3 @@ function SearchPlayerForm() {
 }
 
 export default SearchPlayerForm;
-

@@ -1,24 +1,80 @@
 {
     "$jsonSchema": {
         "bsonType": "object",
-        "required": ["tournamentName", "STATUS", "maxSlotsCount"],
+        "required": ["tournamentName", "STATUS", "maxSlotsCount", "join_id"],
         "properties": {
-            "tournamentName": {"bsonType": "string"},
-            "STATUS": {"bsonType": "string"},
-            "STARTDATE": {"bsonType": ["string", "null"]},
-            "ENDDATE": {"bsonType": ["string", "null"]},
-            "createdAt": {"bsonType": ["string", "null"]},
-            "updatedAt": {"bsonType": ["string", "null"]},
-            "max_rounds": {"bsonType": "int"},
-            "matches": {"bsonType": "array", "items": {"bsonType": "object"}},
-            "maxSlotsCount": {"bsonType": "int"},
-            "TournamentType": {"bsonType": ["string", "null"]},
-            "TeamBoolean": {"bsonType": ["bool", "null"]},
-            "AllotedMatchTime": {"bsonType": ["string", "null"]},
-            "Players": {"bsonType": "array", "items": {"bsonType": "object"}},
-            "tournamentWinner": {"bsonType": ["string", "null"]},
-            "droppedPlayers": {"bsonType": "array", "items": {"bsonType": "object"}},
-            "maxSlotsPerMatch": {"bsonType": "int"}
+            "tournamentName": {
+                "bsonType": "string"
+            },
+            "STATUS": {
+                "bsonType": "string"
+            },
+            "STARTDATE": {
+                "bsonType": ["string", "null"]
+            },
+            "ENDDATE": {
+                "bsonType": ["string", "null"]
+            },
+            "createdAt": {
+                "bsonType": ["string", "null"]
+            },
+            "updatedAt": {
+                "bsonType": ["string", "null"]
+            },
+            "max_rounds": {
+                "bsonType": "int"
+            },
+            "matches": {
+                "bsonType": "array",
+                "items": {
+                    "bsonType": "object"
+                }
+            },
+            "maxSlotsCount": {
+                "bsonType": "int"
+            },
+            "TournamentType": {
+                "bsonType": ["string", "null"]
+            },
+            "TeamBoolean": {
+                "bsonType": ["bool", "null"]
+            },
+            "AllotedMatchTime": {
+                "bsonType": ["string", "null"]
+            },
+            "Players": {
+                "bsonType": "array",
+                "items": {
+                    "bsonType": "object"
+                }
+            },
+            "tournamentWinner": {
+                "bsonType": ["string", "null"]
+            },
+            "droppedPlayers": {
+                "bsonType": "array",
+                "items": {
+                    "bsonType": "object"
+                }
+            },
+            "maxSlotsPerMatch": {
+                "bsonType": "int"
+            },
+            "rounds": {
+                "bsonType": "int"
+            },
+            "currentRound": {
+                "bsonType": "int"
+            },
+            "onGoingPlayers": {
+                "bsonType": "array",
+                "items": {
+                    "bsonType": "object"
+                }
+            },
+            "join_id": {
+                "bsonType": "string"
+            }
         }
     }
 }

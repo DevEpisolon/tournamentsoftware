@@ -1,25 +1,40 @@
-import asyncio
-from fastapi import FastAPI, HTTPException
+import os
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.responses import JSONResponse
 from pymongo import MongoClient
-from match_database import match_router
-from tournament_database import tournament_router
-from player_database import player_router
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo.errors import ServerSelectionTimeoutError, ConnectionFailure, OperationFailure, DocumentTooLarge
+from dotenv import load_dotenv
+import firebase_admin
+from firebase_admin import credentials
+from database.match_database import match_router
+from database.tournament_database import tournament_router
+from database.player_database import player_router
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Get the MongoDB connection string from the environment variable
+MONGODB_CONNECTION_STRING = os.getenv("MONGODB_URI")
+if not MONGODB_CONNECTION_STRING:
+    raise ValueError("MONGODB_URI is not set in the environment")
+
+# Initialize MongoDB client
+client = MongoClient(MONGODB_CONNECTION_STRING)
+db = client["tournamentsoftware"]
+
+# Initialize Firebase Admin SDK (only once)
+FIREBASE_CREDENTIALS = os.getenv("FIREBASE_CREDENTIALS_PATH")  # Path to your Firebase service account file
+if not FIREBASE_CREDENTIALS:
+    raise ValueError("FIREBASE_CREDENTIALS_PATH is not set in the environment")
+
+firebase_admin.initialize_app(credentials.Certificate(FIREBASE_CREDENTIALS))
 
 # Initialize FastAPI app
 app = FastAPI()
 
-# # MongoDB Atlas connection string
-# MONGODB_CONNECTION_STRING = "mongodb+srv://tas32admin:onward508@tournamentsoftware.l9dyjo7.mongodb.net/?retryWrites=true&w=majority&appName=tournamentsoftware"
-# # Replace <username>, <password>, <cluster-url>, and <dbname> with your actual MongoDB Atlas credentials and database name
 
-# # Establish connection to MongoDB Atlas
-# client = MongoClient(MONGODB_CONNECTION_STRING)
-# db = client["tournamentsoftware"]
-
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Change this to the appropriate origins in production
@@ -28,6 +43,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Exception handlers
 @app.exception_handler(Exception)
 async def exception_handler(_, __):
     return JSONResponse(
@@ -35,15 +51,7 @@ async def exception_handler(_, __):
         content={"message": "Internal server error"},
     )
 
-
-# Include the match router in the main application
-app.include_router(match_router, prefix="/api")
-app.include_router(player_router,prefix="/api")
-app.include_router(tournament_router,prefix="/api")
-
-
-# Some of the MongoDB exceptions that could be caused. 
-
+# MongoDB exception handlers
 @app.exception_handler(ConnectionFailure)
 async def handle_connection_failure(_, __):
     return JSONResponse(
@@ -71,7 +79,28 @@ async def handle_document_too_large(_, __):
         status_code=413,
         content={"message": "The document you are trying to save is too large."},
     )
+app.include_router(match_router, prefix="/api")
+app.include_router(player_router, prefix="/api")
+app.include_router(tournament_router, prefix="/api")
 
+# Include routers with database dependency
+#app.include_router(match_router, prefix="/api", dependencies=[Depends(lambda: db)])
+#app.include_router(player_router, prefix="/api", dependencies=[Depends(lambda: db)])
+#app.include_router(tournament_router, prefix="/api", dependencies=[Depends(lambda: db)])
+
+
+
+# Test database connection
+@app.get("/test_db")
+async def test_db():
+    try:
+        # Test MongoDB connection by pinging the server
+        client.admin.command("ping")
+        return {"message": "MongoDB connection successful"}
+    except Exception as e:
+        return {"error": str(e)}
+
+# Root route
 @app.get("/")
 async def root():
     return {"message": "Welcome to the Tournament Software!"}

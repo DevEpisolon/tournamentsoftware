@@ -112,7 +112,7 @@ interface IExtendedRenderSeedProps extends IRenderSeedProps {
 }
 
 const SingleElimination: React.FC = () => {
-  //const { tournamentId } = useParams<{ tournamentId: string }>();
+  const { tournamentId } = useParams<{ tournamentId: string }>();
   const [players, setPlayers] = useState<string[]>([]);
   const [selectedSeed, setSelectedSeed] = useState(false);
   const [rounds, setRounds] = useState<IRoundProps[]>([]);
@@ -122,12 +122,16 @@ const SingleElimination: React.FC = () => {
     setRounds(rounds);
   };
 
-  //Fetches players from the backend. Right now it is hardcoded to grab all the players in the database
+  //Function to create matches in the tournament through the API
+  
+
+  //Fetches players from the tournament
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/players/all`);
-        const playerData = response.data as any[]; // Assuming the response data is an array of player objects
+        const tournament = await axios.get(`http://localhost:8000/api/tournaments/${tournamentId}`);
+        const playerIds = tournament.data.Players;
+        const playerData = playerIds as any[]; // Assuming the response data is an array of player objects
         const playerNames = playerData.map((player: any) => player.displayname); // Extract display names
         setPlayers(playerNames);
         console.log(playerNames);

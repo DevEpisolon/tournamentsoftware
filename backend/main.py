@@ -1,14 +1,12 @@
 from auth import verify_firebase_token
 from typing import Union
 from fastapi import FastAPI, Request, HTTPException
-import player_database
-from tournament import Tournament
-from player import *
-from player_database import *
+from objects.tournament import Tournament
+from objects.player import *
+from database.player_database import *
 from fastapi import FastAPI
 from pydantic import BaseModel
 from pymongo import MongoClient
-from player_database import *
 import asyncio
 
 import firebase_admin
@@ -44,25 +42,20 @@ async def collect_players():
     temp_players = []
     size = 8
     players_in_tournament = 0
-    '''
     while(players_in_tournament < size):
         add_player = input("Enter your display name: ")
         #get player from database
-        player_data = await get_player(add_player)
+        player_data = document_to_player(await get_player(add_player))
         if player_data:
             print("Player Found.")
             print(player_data)
-            players.append(player_data.get_displayname())
+            players.append(player_data.get_playername())
             temp_players.append(player_data)
             players_in_tournament += 1
             print(players)
         else:
             print("Player not found. Please try again.")
-    '''
-    players = await tourney_players()
-    for i in players:
-        print(i.displayname)
-    return players
+    return temp_players
 
 def play_tournament(tournament):
 
