@@ -144,7 +144,7 @@ async def set_winner(
             raise HTTPException(status_code=404, detail="Player not found")
 
         # Fetch the match by match_id from the tournament object
-        match_document = tourneyObject.get_MatchbyId(match_id)
+        match_document = tourneyObject.get_MatchbyID(match_id)
         if not match_document:
             raise HTTPException(status_code=404, detail="Match not found")
 
