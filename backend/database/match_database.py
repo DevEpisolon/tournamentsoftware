@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from objects.match import Match
 from utils import format
 from database.player_database import *
-
+from database.tournament_database import *
 # Router for match-related endpoints
 match_router = APIRouter()
 
@@ -66,12 +66,12 @@ async def get_match_by_object_id(match_id: str):
 
 
 @match_router.get("/matches/tournament/{tournamentName}")
-async def get_matches_by_tournament(tournamentName: int):
-    matches = match_collection.find({"tournamentName": tournamentName})
+async def get_matches_by_tournament(tournamentName: str):
+    tourney = tournament_collection.find({"tournamentName": tournamentName})
     if not matches:
         raise HTTPException(status_code=404, detail="Matches not found")
-    return format(matches)
-
+    tourney = document_to_tournamnet(tourney)
+    return tourney.get_Matches()
 
 @match_router.get("/matches/players/{displayname}")
 def get_matches_by_player(displayname: str):
@@ -107,8 +107,8 @@ async def create_match(match_data: dict):
 async def read_match(matchid: int):
     return await match_db.get_match(matchid)
 
-@match_router.put("/match/{matchid}/set_winner/{displayname}")
-async def set_winner(matchid: int, displayname: str):
+@match_router.put("/match/{tournamentName}/{match_id}/set_winner/{displayname}")
+async def set_winner(tournametnName: str, match_id:int, displayname: str):
     """
     Set the winner of a match and update the match's status to 'Finished'.
 
@@ -121,15 +121,17 @@ async def set_winner(matchid: int, displayname: str):
     """
     try:
         # Fetch the match by matchid
-        match_document = match_collection.find_one({"matchid": matchid})
-        if not match_document:
+        tourney = fetch_tournament_data_fromTournamentName(tournamentName)
+        tourneyObject = document_to_tournamnet(tourney) 
+        if not tourney:
             raise HTTPException(status_code=404, detail="Match not found")
 
         # Fetch the player by display name
         player = await get_player(displayname)  # Ensure this function retrieves the player from the database
         if not player:
             raise HTTPException(status_code=404, detail="Player not found")
-
+        match_document = tourneyObject.get_MatchbyId(self,match_id)
+        match_document = match_to_document(match_document)
         # Update the match with the winner and status
         match_document["match_winner"] = player  # Store player details
         match_document["match_status"] = "Finished"

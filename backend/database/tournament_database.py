@@ -86,6 +86,15 @@ def fetch_tournament_data_from_database_by_join_code(join_code: str):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+def fetch_tournament_data_fromTournamentName(tournametnName: str):
+    try:    
+        tournametn_data = tournaments_collection.find_one({"tournamentName":tournamentName})
+
+        if not tournametn_data:
+            raise HTTPException(status_code=404, detail="Tournamnet not found")
+        return tournament_data
+    except Exception as e:
+        raise HTTPException(status_code=400,detail=str(e))
 
 # fetches the objectid for the tourament and promote all players within the round if they are finished
 @tournament_router.put("/tournaments/{tournament_id}/promote_players/{round_number}")
