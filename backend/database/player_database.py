@@ -109,6 +109,10 @@ def player_to_document(player):
 # Convert player document to player object
 def document_to_player(player_document):
     if player_document:
+        friends = player_document.get("friends")
+        pending_invites = player_document.get("pending_invites")
+        friends = [] if friends is None else friends
+        pending_invites = [] if pending_invites is None else pending_invites
         player = Player(
             playername=player_document.get("playername"),
             displayname=player_document.get("displayname"),
@@ -126,8 +130,8 @@ def document_to_player(player_document):
             current_tournament_losses=player_document.get("current_tournament_losses"),
             current_tournament_ties=player_document.get("current_tournament_ties"),
             aboutMe=player_document.get("aboutMe"),
-            pending_invites=player_document.get("pending_invites"),
-            friends=player_document.get("friends"),
+            pending_invites=pending_invites,
+            friends=friends,
             firebase_uid=player_document.get("firebase_uid"), 
         )
         return player
@@ -191,11 +195,16 @@ async def send_friendRequest(sender: str, reciever: str):
     else:
         raise HTTPException(status_code=404, detail="Receiver not found.")
 
+@player_router.post("/players/add_friend")
+async def add_friend():
+    return {"hello": "Hello"}
+
+
+
 
 
 @player_router.post("/players/register_player")
 async def register_player(body:dict):
-   
     playername = body.get("playername")
     displayname = body.get("displayname")
     email = body.get("email")

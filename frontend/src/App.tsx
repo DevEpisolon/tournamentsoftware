@@ -311,7 +311,7 @@ function App(): JSX.Element {
         </div>
       )}
 
-      {/*<div className="main flex flex-col items-center w-full mt-4 space-y-4" style={{ color: "white" }}>
+      <div className="main flex flex-col items-center w-full mt-4 space-y-4" style={{ color: "white" }}>
         <div className="w-4/5 p-4 border border-gray-300 rounded-lg">
           <h3 className="text-xl font-bold mb-4">Last Tournament</h3>
           {lastTournament ? <div>{lastTournament.name}</div> : <div>No tournament history available.</div>}
@@ -326,7 +326,7 @@ function App(): JSX.Element {
           )}
         </div>
 
-        <div className="w-4/5 p-4 border border-gray-300 rounded-lg">
+        {/*<div className="w-4/5 p-4 border border-gray-300 rounded-lg">
           <h3 className="text-xl font-bold mb-4">Featured Tournaments</h3>
           {featuredTournaments.length > 0 ? (
             featuredTournaments.map((tournament) => <div key={tournament.id}>{tournament.name}</div>)
@@ -353,8 +353,8 @@ function App(): JSX.Element {
           )}
         </div>
 
-        {showForm && <SearchPlayerForm />}
-      </div>*/}
+        {showForm && <SearchPlayerForm />}*/}
+      </div>
     </div>
   );
 }
