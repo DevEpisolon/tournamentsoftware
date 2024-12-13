@@ -157,7 +157,7 @@ async def set_winner(tournamentName: str, match_id: int, displayname: str):
         # Convert the updated tournament object back to a document
 
         # Update the tournament collection with the new match data
-        result = tournament_collection.update_one(
+        result = tournaments_collection.update_one(
             {"tournament_name": tournamentName},
             {
                 "$set": {"matches": tourneyObject.matches}
