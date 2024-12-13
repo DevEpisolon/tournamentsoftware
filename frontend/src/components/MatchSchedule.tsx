@@ -109,10 +109,10 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
   };
 
   const declareWinner = async (matchId: number, playerName: string): Promise<void> => {
-    if (!tournament?._id) return;
     try {
+      console.log("Function work")
       await axios.put(
-        `http://localhost:8000/api/update_match_winner/${tournament._id}/${matchId}/${playerName}`
+        `http://localhost:8000/api/match/${tournament.tournamentName}/${matchId}/set_winner/${playerName}`
       );
       // You might want to refresh the tournament data here
     } catch (error) {
