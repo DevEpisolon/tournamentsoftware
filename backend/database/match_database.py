@@ -110,6 +110,14 @@ async def read_match(matchid: int):
     return await match_db.get_match(matchid)
 
 
+def document_to_match(match_document):
+    if match_document:
+        return Match(**match_document)
+    else:
+        print("Match not found.")
+        return None
+
+
 @match_router.put("/match/setWinner/{tournamentName}/{match_id}/set_winner/{displayname}")
 async def set_winner(
     tourneyName: str,  # This should match the route path parameter
@@ -142,12 +150,12 @@ async def set_winner(
         )  # Ensure this function retrieves the player from the database
         if not player:
             raise HTTPException(status_code=404, detail="Player not found")
-
+        match_object = document_to_match(match_document)
         # Fetch the match by match_id from the tournament object
-        match_document = tourneyObject.get_MatchbyID(match_id)
+        match_object = tourneyObject.get_MatchbyID(match_id)
         if not match_document:
             raise HTTPException(status_code=404, detail="Match not found")
-
+        console.log(match_document)
         # Update the match with the winner and status
         match_document["match_winner"] = player  # Store player details
         match_document["match_status"] = "Finished"
