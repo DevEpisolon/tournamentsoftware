@@ -111,7 +111,11 @@ async def read_match(matchid: int):
 
 
 @match_router.put("/match/{tournamentName}/{match_id}/set_winner/{displayname}")
-async def set_winner(tournamentName: str, match_id: int, displayname: str):
+async def set_winner(
+    tournamentName: str,  # This should match the route path parameter
+    match_id: int,
+    displayname: str
+):
     """
     Set the winner of a match and update the match's status to 'Finished' in the tournament.
 
@@ -149,12 +153,13 @@ async def set_winner(tournamentName: str, match_id: int, displayname: str):
 
         match_object = document_to_match(match_document)
         # Update the specific match in the tournament's matches list
-        for idx, match in enumerate(tourneyObject):
+        for idx, match in enumerate(tourneyObject.matches):
             if match["matchid"] == match_id:
                 tourneyObject.matches[idx] = match_object
                 break
 
         # Convert the updated tournament object back to a document
+        tournament_data = tourneyObject.to_document()
 
         # Update the tournament collection with the new match data
         result = tournaments_collection.update_one(
@@ -178,6 +183,7 @@ async def set_winner(tournamentName: str, match_id: int, displayname: str):
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
 
 
 @match_router.get("/matches")
