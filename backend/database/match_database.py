@@ -200,7 +200,7 @@ async def set_winner(
 
         # Try to get match
         try:
-            match_document = tourneyObject.get_MatchbyId(match_id)
+            match_document = tourneyObject.get_MatchbyID(match_id)
             if not match_document:
                 raise HTTPException(status_code=404, detail="Match not found")
             print(f"Match found with ID: {match_id}")  # Debug log
