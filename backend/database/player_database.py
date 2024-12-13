@@ -6,6 +6,7 @@ from bson.regex import Regex
 from auth import verify_token
 import os
 from dotenv import load_dotenv
+from pydantic import BaseModel
 from pymongo import MongoClient
 from objects.player import Player
 import firebase_admin
@@ -108,10 +109,23 @@ def player_to_document(player):
 
 # Convert player document to player object
 def document_to_player(player_document):
+    friends = []
+    # Convert ObjectId to string and only take relevant friend fields
+    if "friends" in player_document and player_document["friends"]:
+        
+        for friend in player_document["friends"]:
+            friend_copy = friend.copy()  # Create a copy to avoid modifying original
+            if "_id" in friend_copy:
+                del friend_copy["_id"] 
+                del friend_copy["friends"]# Remove the _id field
+            friends.append(friend_copy)
+    else:
+        friends = []
+
+        
+        
     if player_document:
-        friends = player_document.get("friends")
         pending_invites = player_document.get("pending_invites")
-        friends = [] if friends is None else friends
         pending_invites = [] if pending_invites is None else pending_invites
         player = Player(
             playername=player_document.get("playername"),
@@ -196,11 +210,79 @@ async def send_friendRequest(sender: str, reciever: str):
         raise HTTPException(status_code=404, detail="Receiver not found.")
 
 @player_router.post("/players/add_friend")
-async def add_friend():
-    return {"hello": "Hello"}
+async def add_friend(body: dict):
+    try:
+        sender = body.get('sender')
+        receiver = body.get("receiver")
+        player_document = db.players.find_one({"playername": receiver})
+        sender_document = db.players.find_one({"playername": sender})
+        
+        if not player_document or not sender_document:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"One or both players not found: {receiver}, {sender}"
+            )
+            
+        if (sender_document["friends"] is None):
+            db.players.update_one(
+                {"playername": sender},
+                {"$set": {"friends": [player_document]}}
+            )
+            
+        else:
+            # Update sender's friends list
+            db.players.update_one(
+                {"playername": sender},
+                {"$addToSet": {"friends": player_document}}
+            )
+            
+        # Add to  receiver
+        if (player_document["friends"] is None):
+            db.players.update_one(
+                {"playername": receiver},
+                {"$set": {"friends": [sender_document]}}
+            )
+        else:
+            # Update sender's friends list
+            db.players.update_one(
+                {"playername": receiver},
+                {"$addToSet": {"friends": sender_document}}
+            )
+        
+        return {"message": f"Friend added: {receiver}"}
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Error  ${receiver} ${sender} ${str(e)}")
+    
 
+@player_router.post("/players/remove_friend")
+async def remove_friend(body: dict):
+    try:
+        sender = body.get('sender')
+        receiver = body.get("receiver")
+        player_document = db.players.find_one({"playername": receiver})
+        sender_document = db.players.find_one({"playername": sender})
+        
+        if not player_document or not sender_document:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"One or both players not found: {receiver}, {sender}"
+            )
+            
+        # Remove receiver from sender's friends list
+        db.players.update_one(
+            {"playername": sender},
+            {"$pull": {"friends": {"playername": receiver}}}
+        )
+        
+        db.players.update_one(
+            {"playername": receiver},
+            {"$pull": {"friends": {"playername": sender}}}
+        )
 
-
+        
+        return {"message": f"Friend removed: {receiver}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error removing friend: {str(e)}")
 
 
 @player_router.post("/players/register_player")
@@ -328,6 +410,17 @@ def update_tourney_results(round_wins, round_losses, round_ties, tourney_list):
 async def get_player_settings(playername: str):
     player_document = db.players.find_one({"playername": playername})
     if player_document:
+        friends = []
+        # Convert ObjectId to string and only take relevant friend fields
+        if "friends" in player_document and player_document["friends"]:
+            
+            for friend in player_document["friends"]:
+                friend_copy = friend.copy()  # Create a copy to avoid modifying original
+                if "_id" in friend_copy:
+                    del friend_copy["_id"]  # Remove the _id field
+                friends.append(friend_copy)
+        else:
+            friends = []
         player = document_to_player(player_document)
         return {
             "playername": player.playername,
@@ -343,7 +436,7 @@ async def get_player_settings(playername: str):
             "join date": player_document.get("join_date"),
             "uniqueid": player_document.get("uniqueid"),
             "aboutme": player_document.get("aboutMe"),
-            "friends": player_document.get("friends", []),
+            "friends": friends,
             "pending invites": player_document.get("pending_invites", []),
             "match history": player_document.get("match_history", [])
         }
