@@ -133,6 +133,7 @@ async def set_winner(
         if not tourney:
             raise HTTPException(status_code=404, detail="Tournament not found")
 
+        tourney.pop("_id", None)  # Remove _id field from the data
         tourneyObject = document_to_tournament(tourney)
 
         # Fetch the player by display name
