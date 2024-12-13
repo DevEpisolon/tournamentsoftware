@@ -220,4 +220,6 @@ class Player:
         self.wlratio = round(self.wins / (self.wins + self.losses) * 100, 1)
 
     def update_match_history(self, match):
-        pass
+        if(len(self.match_history) > 7):
+            self.match_history.pop(0)
+        self.match_history.append(match)
