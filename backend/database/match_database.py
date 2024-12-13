@@ -114,7 +114,7 @@ async def read_match(matchid: int):
 async def set_winner(
     tourneyName: str,  # This should match the route path parameter
     match_id: int,
-    displayname: str
+    displayname: str,
 ):
     """
     Set the winner of a match and update the match's status to 'Finished' in the tournament.
@@ -171,19 +171,90 @@ async def set_winner(
 
         if result.matched_count == 0:
             raise HTTPException(
-                status_code=500, detail="Failed to update tournament matches"
+                status_code=500, detail=f"Error fetching tournament data: {str(e)}"
             )
 
-        return {
-            "message": f"Match {match_id} updated successfully in tournament {tournamentName}.",
-            "updated_match": match_document,
-        }
+        # Try to convert to tournament object
+        try:
+            tourneyObject = document_to_tournament(tourney)
+            print(
+                f"Tournament object created with name: {tourneyObject.tournamentName}"
+            )  # Debug log
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Error converting tournament document: {str(e)}",
+            )
 
-    except HTTPException as e:
-        raise e
+        # Try to fetch player
+        try:
+            player = await get_player(displayname)
+            if not player:
+                raise HTTPException(status_code=404, detail="Player not found")
+            print(f"Player found: {player.displayname}")  # Debug log
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Error fetching player: {str(e)}"
+            )
+
+        # Try to get match
+        try:
+            match_document = tourneyObject.get_MatchbyId(match_id)
+            if not match_document:
+                raise HTTPException(status_code=404, detail="Match not found")
+            print(f"Match found with ID: {match_id}")  # Debug log
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Error fetching match: {str(e)}"
+            )
+
+        # Try to update match
+        try:
+            match_document["match_winner"] = player
+            match_document["match_status"] = "Finished"
+            match_object = document_to_match(match_document)
+            print(f"Match updated with winner: {player.displayname}")  # Debug log
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Error updating match document: {str(e)}"
+            )
+
+        # Try to update tournament object
+        try:
+            for idx, match in enumerate(tourneyObject):
+                if match["matchid"] == match_id:
+                    tourneyObject.matches[idx] = match_object
+                    break
+            print("Tournament object updated with new match")  # Debug log
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Error updating tournament object: {str(e)}"
+            )
+
+        # Try database update
+        try:
+            result = tournaments_collection.update_one(
+                {"tournamentName": tournamentName},
+                {"$set": {"matches": tourneyObject.matches}},
+            )
+            if result.modified_count == 0:
+                raise HTTPException(
+                    status_code=500, detail="Failed to update tournament in database"
+                )
+            print("Database successfully updated")  # Debug log
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Database update error: {str(e)}"
+            )
+
+    except HTTPException as http_ex:
+        print(f"HTTP Exception occurred: {str(http_ex)}")  # Debug log
+        raise http_ex
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
-
+        print(f"Unexpected error occurred: {str(e)}")  # Debug log
+        raise HTTPException(
+            status_code=500, detail=f"An unexpected error occurred: {str(e)}"
+        )
 
 
 @match_router.get("/matches")
