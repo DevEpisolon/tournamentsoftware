@@ -418,6 +418,7 @@ async def get_player_settings(playername: str):
                 friend_copy = friend.copy()  # Create a copy to avoid modifying original
                 if "_id" in friend_copy:
                     del friend_copy["_id"]  # Remove the _id field
+                    del friend_copy["friends"]  # Remove the friends field
                 friends.append(friend_copy)
         else:
             friends = []
