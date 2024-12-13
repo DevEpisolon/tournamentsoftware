@@ -1,7 +1,9 @@
 import axios from 'axios';
-import React from 'react';
 import { MdPerson, MdOutlineSchedule } from 'react-icons/md';
+import { FaTrophy } from 'react-icons/fa';
+import React from 'react'
 
+// Interface definitions
 interface Player {
   displayname: string;
   playername: string;
@@ -12,18 +14,32 @@ interface Player {
   ties: number;
   wlratio: number;
   winstreaks: number;
-  match_history: any[];
-  avatar?: string;
+  match_history: any[]; // Consider defining a specific type for match history
+  avatar?: string | null;
   join_date?: string;
   current_tournament_wins: number;
   current_tournament_losses: number;
   current_tournament_ties: number;
 }
 
+interface Match {
+  matchid: number;
+  slots: number;
+  match_status: number;
+  round: number;
+  start_date?: string;
+  players: Player[];
+  match_winner?: Player | null;
+  match_loser?: Player | null;
+  winner_next_match_id?: number;
+  previous_match_id?: number;
+  round_number: number;
+}
+
 interface Tournament {
   _id: string;
   tournamentName: string;
-  STATUS: string;
+  STATUS: number;
   STARTDATE: string;
   ENDDATE: string;
   createdAt: string;
@@ -31,34 +47,36 @@ interface Tournament {
   max_rounds: number;
   maxSlotsPerMatch: number;
   MaxSlotsCount: number;
-  matches: any[];
-  TournamentType?: any;
-  TeamBoolean?: any;
-  AllotedMatchTime?: any;
+  matches: Match[];
+  TournamentType?: string;
+  TeamBoolean?: boolean;
+  AllotedMatchTime?: number;
   Players: Player[];
-  tournamentWinner?: any;
-  droppedPlayers: any[];
-  wins_dict: any;
-  losses_dict: any;
-  ties_dict: any;
+  tournamentWinner?: Player | null;
+  droppedPlayers: Player[];
+  wins_dict: Record<string, number>;
+  losses_dict: Record<string, number>;
+  ties_dict: Record<string, number>;
 }
 
 interface MatchScheduleProps {
   tournament: Tournament | null;
 }
 
+interface MatchStatus {
+  text: string;
+  color: string;
+}
+
 const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
   // Helper function to get player names for a match
-  const getMatchPlayers = (match: any) => {
+  const getMatchPlayers = (match: Match): Player[] => {
     if (!match.players) return [];
-    return match.players.map((Player: Player) => {
-      return Player || 'TBD';
-    });
+    return match.players;
   };
 
-
   // Helper function to get match status text and color
-  const getMatchStatus = (status: number) => {
+  const getMatchStatus = (status: number): MatchStatus => {
     switch (status) {
       case 0:
         return { text: 'In Progress', color: 'text-yellow-500' };
@@ -71,8 +89,7 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
     }
   };
 
-  // Format date using your function
-  const formatDate = (mongo_date: string | undefined) => {
+  const formatDate = (mongo_date: string | undefined): string => {
     const safeDate = mongo_date ?? "";
     const date = new Date(safeDate);
     const month = date.getUTCMonth() + 1;
@@ -81,13 +98,28 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
     return `${month}/${day}/${year}`;
   };
 
-  const promoteRound = async () => {
-    await axios.put(`http://localhost:8000/api/${tournament._id}/promote_round`)
-  }
+  const promoteRound = async (): Promise<void> => {
+    if (!tournament?._id) return;
+    try {
+      await axios.put(`http://localhost:8000/api/${tournament._id}/promote_round`);
+    } catch (error) {
+      console.error('Error promoting round:', error);
+      alert('Failed to promote round');
+    }
+  };
 
-  const declareWinner = async () => {
-    await axios.put(`http://localhost:8000/api/${tournament._id}/match_winner`)
-  }
+  const declareWinner = async (matchId: number, playerName: string): Promise<void> => {
+    if (!tournament?._id) return;
+    try {
+      await axios.put(
+        `http://localhost:8000/api/update_match_winner/${tournament._id}/${matchId}/${playerName}`
+      );
+      // You might want to refresh the tournament data here
+    } catch (error) {
+      console.error('Error declaring winner:', error);
+      alert('Failed to declare winner');
+    }
+  };
 
   if (!tournament) {
     return (
@@ -104,22 +136,22 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
           <MdOutlineSchedule className="text-tourney-orange" />
           Match Schedule
         </h2>
-        <button className='bg-tourney-orange md:px-4 md:text-xl rounded-lg font-semibold hover:scale-105' onClick={() => promoteRound()}>Promote Round</button>
+        <button
+          className="bg-tourney-orange md:px-4 md:text-xl rounded-lg font-semibold hover:scale-105"
+          onClick={promoteRound}
+        >
+          Promote Round
+        </button>
       </div>
 
       <div className="pt-4">
         {tournament.matches && tournament.matches.length > 0 ? (
           <div className="space-y-4">
-            {tournament.matches.map((match: any, index: number) => (
-              <div
-                key={match.matchid || index}
-                className="bg-tourney-navy1 rounded-lg p-4"
-              >
+            {tournament.matches.map((match: Match) => (
+              <div key={match.matchid} className="bg-tourney-navy1 rounded-lg p-4">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-semibold">
-                    Match #{match.matchid}
-                  </span>
-                  <span className='text-sm font-medium'>Round {match.round}</span>
+                  <span className="text-sm font-semibold">Match #{match.matchid}</span>
+                  <span className="text-sm font-medium">Round {match.round}</span>
                   <span className={`text-sm font-medium ${getMatchStatus(match.match_status).color}`}>
                     {getMatchStatus(match.match_status).text}
                   </span>
@@ -127,62 +159,58 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
 
                 <div className="flex items-center gap-2 mb-2">
                   <MdOutlineSchedule className="text-gray-400" />
-                  <span className="text-sm text-gray-300">
-                    {formatDate(match.start_date)}
-                  </span>
+                  <span className="text-sm text-gray-300">{formatDate(match.start_date)}</span>
                 </div>
 
-                <div className="flex items-center justify-between ">
-                  {getMatchPlayers(match).map((players: Player, idx: number) => (
-                    <div
-                      key={idx}
-                      className="flex relative items-center gap-5 text-gray-200 "
-                    >
-                      {idx === 1 && (
-                        <span className='text-xl'>{players.displayname}</span>
+                <div className="flex items-center justify-between">
+                  {getMatchPlayers(match).map((player: Player, idx: number) => (
+                    <div key={player.displayname} className="flex relative items-center gap-5 text-gray-200">
+                      {/* Winner Trophy Icon */}
+                      {match.match_winner && match.match_winner.displayname === player.displayname && (
+                        <FaTrophy className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-yellow-400 text-xl animate-bounce" />
                       )}
-                      {players?.avatar === null &&
-                        <MdPerson className="text-gray-400 size-20 border rounded-full border-white bg-white " />
-                      }
-                      {players?.avatar !== null &&
-                        <img src={players.avatar} className='size-20 rounded-full' />
-                      }
-                      {idx === 0 && (
-                        <span className='text-xl'>{players.displayname}</span>
+
+                      {idx === 1 && <span className="text-xl">{player.displayname}</span>}
+
+                      {player.avatar === null ? (
+                        <MdPerson className="text-gray-400 size-20 border rounded-full border-white bg-white" />
+                      ) : (
+                        <img
+                          src={player.avatar}
+                          className="size-20 rounded-full"
+                          alt={`${player.displayname}'s avatar`}
+                        />
                       )}
-                      {idx === 0 && (
-                        <div className='flex absolute text-3xl left-48'>
-                          <button className='bg-tourney-orange rounded-md md:px-6 hover:scale-105 md:text-base font-semibold'>Declare Winner</button>
-                        </div>
-                      )}
-                      {idx === 1 && (
-                        <div className='flex absolute text-3xl right-48'>
-                          <button className='bg-tourney-orange rounded-md md:px-6 hover:scale-105 md:text-base font-semibold'>Declare Winner</button>
+
+                      {idx === 0 && <span className="text-xl">{player.displayname}</span>}
+
+                      {/* Declare Winner buttons */}
+                      {match.match_status !== 2 && (
+                        <div className={`flex absolute text-3xl ${idx === 0 ? 'left-60' : 'right-60'}`}>
+                          <button
+                            className="bg-tourney-orange rounded-md md:px-6 hover:scale-105 md:text-base font-semibold"
+                            onClick={() => declareWinner(match.matchid, player.displayname)}
+                          >
+                            Declare Winner
+                          </button>
                         </div>
                       )}
                     </div>
                   ))}
+
                   {getMatchPlayers(match).length === 0 && (
-                    <div className='space-y-2'>
-                      <div className='flex items-center gap-2 text-tourney-navy3'>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-tourney-navy3">
                         <MdPerson className="text-gray-400" />
                         <p className="text-gray-400 text-sm italic">TBD</p>
                       </div>
-                      <div className='flex items-center gap-2 text-tourney-navy3'>
+                      <div className="flex items-center gap-2 text-tourney-navy3">
                         <MdPerson className="text-gray-400" />
                         <p className="text-gray-400 text-sm italic">TBD</p>
                       </div>
                     </div>
                   )}
                 </div>
-
-                {match.match_winner && (
-                  <div className="mt-2 pt-2 border-t border-gray-700">
-                    <span className="text-green-500 text-sm font-medium">
-                      Winner: {match.match_winner.displayname}
-                    </span>
-                  </div>
-                )}
               </div>
             ))}
           </div>
@@ -195,3 +223,4 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
 };
 
 export default MatchSchedule;
+

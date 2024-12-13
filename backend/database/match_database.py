@@ -45,6 +45,26 @@ class MatchDatabase:
 match_db = MatchDatabase()
 
 
+@match_router.get("/match/id/{match_id}")
+async def get_match_by_object_id(match_id: str):
+    try:
+        # Convert string ID to ObjectId
+        match_object_id = ObjectId(match_id)
+        match_document = match_collection.find_one({"_id": match_object_id})
+
+        if not match_document:
+            raise HTTPException(status_code=404, detail="Match not found")
+
+        # Convert ObjectId to string for JSON serialization
+        match_document["_id"] = str(match_document["_id"])
+        return match_document
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"Invalid match ID format or error: {str(e)}"
+        )
+
+
 @match_router.get("/matches/tournament/{tournamentName}")
 async def get_matches_by_tournament(tournamentName: int):
     matches = match_collection.find({"tournamentName": tournamentName})
@@ -87,21 +107,49 @@ async def create_match(match_data: dict):
 async def read_match(matchid: int):
     return await match_db.get_match(matchid)
 
+@match_router.put("/match/{matchid}/set_winner/{displayname}")
+async def set_winner(matchid: int, displayname: str):
+    """
+    Set the winner of a match and update the match's status to 'Finished'.
 
-@match_router.put("/match/{matchid}/promote_player/{winner}")
-async def promote_player(matchid, displayname):
-    match = await get_match(matchid)
-    matches = await get_all_matches()
-    player = await get_player(displayname)
-    for next_match in matches:
-        if next_match.get_matchid() == match.matchid + match.winner_next_match_id:
-            next_match.add_players(player)
-            updated_match = match_to_document(next_match)
-            match_collection.replace_one(
-                {"matchid": int(next_match.matchid)}, updated_match
-            )
-            break
+    Args:
+        matchid (int): The unique ID of the match.
+        displayname (str): The display name of the player to set as the winner.
 
+    Returns:
+        dict: Response with the updated match details or an error message.
+    """
+    try:
+        # Fetch the match by matchid
+        match_document = match_collection.find_one({"matchid": matchid})
+        if not match_document:
+            raise HTTPException(status_code=404, detail="Match not found")
+
+        # Fetch the player by display name
+        player = await get_player(displayname)  # Ensure this function retrieves the player from the database
+        if not player:
+            raise HTTPException(status_code=404, detail="Player not found")
+
+        # Update the match with the winner and status
+        match_document["match_winner"] = player  # Store player details
+        match_document["match_status"] = "Finished"
+
+        # Save the updated match back to the database
+        result = match_collection.update_one(
+            {"matchid": matchid}, {"$set": match_document}
+        )
+        if result.matched_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to update match")
+
+        return {
+            "message": f"Match {matchid} updated successfully.",
+            "updated_match": match_document,
+        }
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 @match_router.get("/matches")
 async def get_all_matches():
