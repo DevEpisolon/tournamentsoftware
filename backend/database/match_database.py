@@ -4,7 +4,6 @@ from pymongo import MongoClient
 from objects.match import Match
 from utils import format
 from database.player_database import *
-from database.tournament_database import *
 
 # Router for match-related endpoints
 match_router = APIRouter()
@@ -110,160 +109,12 @@ async def read_match(matchid: int):
     return await match_db.get_match(matchid)
 
 
-def document_to_match(self,md):
+def document_to_match(self, md):
     if md:
         return Match(**md)
     else:
         print("Match not found.")
         return None
-
-
-@match_router.put("/match/setWinner/{tournamentName}/{match_id}/set_winner/{displayname}")
-async def set_winner(
-    tourneyName: str,  # This should match the route path parameter
-    match_id: int,
-    displayname: str,
-):
-    """
-    Set the winner of a match and update the match's status to 'Finished' in the tournament.
-
-    Args:
-        tournamentName (str): The name of the tournament.
-        match_id (int): The unique ID of the match.
-        displayname (str): The display name of the player to set as the winner.
-
-    Returns:
-        dict: Response with the updated match details or an error message.
-    """
-    try:
-        # Fetch the tournament data using the tournament name
-        tourney = fetch_tournament_data_fromTournamentName(tourneyName)
-        if not tourney:
-            raise HTTPException(status_code=404, detail="Tournament not found")
-
-        tourney.pop("_id", None)  # Remove _id field from the data
-        tourneyObject = document_to_tournament(tourney)
-
-        # Fetch the player by display name
-        player = await get_player(
-            displayname
-        )  # Ensure this function retrieves the player from the database
-        if not player:
-            raise HTTPException(status_code=404, detail="Player not found")
-        match_object = document_to_match(match_document)
-        # Fetch the match by match_id from the tournament object
-        match_object = tourneyObject.get_MatchbyID(match_id)
-        if not match_document:
-            raise HTTPException(status_code=404, detail="Match not found")
-        console.log(match_document)
-        # Update the match with the winner and status
-        match_document["match_winner"] = player  # Store player details
-        match_document["match_status"] = "Finished"
-
-        match_object = document_to_match(match_document)
-        # Update the specific match in the tournament's matches list
-        for idx, match in enumerate(tourneyObject.matches):
-            if match["matchid"] == match_id:
-                tourneyObject.matches[idx] = match_object
-                break
-
-        # Convert the updated tournament object back to a document
-        tournament_data = tourneyObject.to_document()
-
-        # Update the tournament collection with the new match data
-        result = tournaments_collection.update_one(
-            {"tournament_name": tourneyName},
-            {
-                "$set": {"matches": tourneyObject.matches}
-            },  # Update the matches array with the updated matches
-        )
-
-        if result.matched_count == 0:
-            raise HTTPException(
-                status_code=500, detail=f"Error fetching tournament data: {str(e)}"
-            )
-
-        # Try to convert to tournament object
-        try:
-            tourneyObject = document_to_tournament(tourney)
-            print(
-                f"Tournament object created with name: {tourneyObject.tournamentName}"
-            )  # Debug log
-        except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Error converting tournament document: {str(e)}",
-            )
-
-        # Try to fetch player
-        try:
-            player = await get_player(displayname)
-            if not player:
-                raise HTTPException(status_code=404, detail="Player not found")
-            print(f"Player found: {player.displayname}")  # Debug log
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error fetching player: {str(e)}"
-            )
-
-        # Try to get match
-        try:
-            match_document = tourneyObject.get_MatchbyID(match_id)
-            if not match_document:
-                raise HTTPException(status_code=404, detail="Match not found")
-            print(f"Match found with ID: {match_id}")  # Debug log
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error fetching match: {str(e)}"
-            )
-
-        # Try to update match
-        try:
-            match_document["match_winner"] = player
-            match_document["match_status"] = "Finished"
-            match_object = document_to_match(match_document)
-            print(f"Match updated with winner: {player.displayname}")  # Debug log
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error updating match document: {str(e)}"
-            )
-
-        # Try to update tournament object
-        try:
-            for idx, match in enumerate(tourneyObject):
-                if match["matchid"] == match_id:
-                    tourneyObject.matches[idx] = match_object
-                    break
-            print("Tournament object updated with new match")  # Debug log
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error updating tournament object: {str(e)}"
-            )
-
-        # Try database update
-        try:
-            result = tournaments_collection.update_one(
-                {"tournamentName": tournamentName},
-                {"$set": {"matches": tourneyObject.matches}},
-            )
-            if result.modified_count == 0:
-                raise HTTPException(
-                    status_code=500, detail="Failed to update tournament in database"
-                )
-            print("Database successfully updated")  # Debug log
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Database update error: {str(e)}"
-            )
-
-    except HTTPException as http_ex:
-        print(f"HTTP Exception occurred: {str(http_ex)}")  # Debug log
-        raise http_ex
-    except Exception as e:
-        print(f"Unexpected error occurred: {str(e)}")  # Debug log
-        raise HTTPException(
-            status_code=500, detail=f"An unexpected error occurred: {str(e)}"
-        )
 
 
 @match_router.get("/matches")

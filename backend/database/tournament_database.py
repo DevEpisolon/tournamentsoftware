@@ -361,37 +361,99 @@ async def create_matches(tournament_id):
             detail=f"Invalid tournament ID format: {str(e)}",
         )
 
-    # 2. Get tournament
+    # 2. Get tournament with null check
     tournament = get_tournament_byid(tournament_id)
     if tournament is None:
         raise HTTPException(
             status_code=404, detail=f"Tournament with ID {tournament_id} not found"
         )
 
+    # 3. Split the operations for better error tracking
     try:
-        # 3. Create matches and assign players
+        # Create matches
         tournament.CreateMatches1()
         tournament.assignPlayersToMatches1()
+        # Convert to document format
+        try:
+            updated_tournament = tournament_to_document(tournament)
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to convert tournament to document: {str(e)}",
+            )
 
-        # 4. Convert tournament with matches to document format
-        matches_docs = []
-        for match in tournament.matches:
-            match_doc = match_to_document(match)
-            matches_docs.append(match_doc)
+        # Update in database
+        try:
+            print(updated_tournament)
+            result = tournaments_collection.replace_one(
+                {"_id": obj_id}, updated_tournament
+            )
+            if result.modified_count == 0:
+                raise HTTPException(
+                    status_code=500, detail="Failed to update tournament in database"
+                )
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Database update failed: {str(e)}"
+            )
 
-        # 5. Update tournament document with new matches
-        tournaments_collection.update_one(
-            {"_id": obj_id}, {"$set": {"matches": matches_docs}}
-        )
-
-        return {
-            "status": "success",
-            "message": "Matches created successfully",
-            "tournament_id": str(tournament_id),
-        }
-
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions
     except Exception as e:
+        # Log the full error for debugging
         print(f"Unexpected error in create_matches: {str(e)}")
         raise HTTPException(
             status_code=500, detail=f"Failed to create matches: {str(e)}"
+        )
+    # Return success response
+    return {
+        "status": "success",
+        "message": "Matches created successfully",
+        "tournament_id": str(tournament_id),
+    }
+
+
+@tournament_router.put(
+    "/tournament/{tournamentName}/{match_id}/set_winner/{displayname}"
+)
+async def set_match_winner(tournamentName: str, match_id: int, displayname: str):
+    try:
+        print(displayname)
+        # Find the specific tournament
+        tournament = tournaments_collection.find_one({"tournamentName": tournamentName})
+        if not tournament:
+            raise HTTPException(status_code=404, detail="Tournament not found")
+
+        # Find the specific match in the tournament's matches array
+        # Convert match_id to integer for comparison
+        match_index = None
+        for index, match in enumerate(tournament.get("matches", [])):
+            if match.get("matchid") == match_id:
+                match_index = index
+                break
+
+        if match_index is None:
+            raise HTTPException(status_code=404, detail="Match not found in tournament")
+
+        # Update the match winner
+        result = tournaments_collection.update_one(
+            {"tournamentName": tournamentName},
+            {
+                "$set": {
+                    f"matches.{match_index}.match_winner": displayname,
+                    f"matches.{match_index}.match_status": 2,  # Set status to Finished
+                }
+            },
+        )
+
+        if result.modified_count == 0:
+            raise HTTPException(status_code=400, detail="Failed to update match winner")
+
+        return {
+            "message": f"Successfully set {displayname} as winner for match {match_id}"
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error setting match winner: {str(e)}"
         )

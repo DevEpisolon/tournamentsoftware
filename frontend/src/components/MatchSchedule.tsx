@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { MdPerson, MdOutlineSchedule } from 'react-icons/md';
 import { FaTrophy } from 'react-icons/fa';
-import React from 'react'
+import React, { useState } from 'react'
 
 // Interface definitions
 interface Player {
@@ -39,7 +39,7 @@ interface Match {
 interface Tournament {
   _id: string;
   tournamentName: string;
-  STATUS: number;
+  STATUS: string;
   STARTDATE: string;
   ENDDATE: string;
   createdAt: string;
@@ -61,6 +61,7 @@ interface Tournament {
 
 interface MatchScheduleProps {
   tournament: Tournament | null;
+  onTournamentUpdate?: () => Promise<void>;
 }
 
 interface MatchStatus {
@@ -68,7 +69,8 @@ interface MatchStatus {
   color: string;
 }
 
-const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
+const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament: initialTournament, onTournamentUpdate }) => {
+  const [tournament, setTournament] = useState<Tournament | null>(initialTournament);
   // Helper function to get player names for a match
   const getMatchPlayers = (match: Match): Player[] => {
     if (!match.players) return [];
@@ -109,11 +111,34 @@ const MatchSchedule: React.FC<MatchScheduleProps> = ({ tournament }) => {
   };
 
   const declareWinner = async (matchId: number, playerName: string): Promise<void> => {
+    if (!tournament) return;
+
     try {
       await axios.put(
-        `http://localhost:8000/api/match/${tournament.tournamentName}/${matchId}/set_winner/${playerName}`
+        `http://localhost:8000/api/tournament/${tournament.tournamentName}/${matchId}/set_winner/${playerName}`
       );
-      // You might want to refresh the tournament data here
+
+      // Update local state after successful API call
+      setTournament(prevTournament => {
+        if (!prevTournament) return null;
+
+        return {
+          ...prevTournament,
+          matches: prevTournament.matches.map(match => {
+            if (match.matchid === matchId) {
+              return {
+                ...match,
+                match_winner: playerName,
+                match_status: 2 // Set to Finished
+              };
+            }
+            return match;
+          })
+        };
+      });
+      if (onTournamentUpdate) {
+        await onTournamentUpdate();
+      }
     } catch (error) {
       console.error('Error declaring winner:', error);
       alert('Failed to declare winner');

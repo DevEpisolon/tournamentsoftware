@@ -346,7 +346,7 @@ const TournamentPage: React.FC = () => {
             )}
             {selectedPage === 'matches' && (
               <div className='flex'>
-                <MatchSchedule tournament={tournament} />
+                <MatchSchedule tournament={tournament} onUpdate={fetchTournamentData} />
               </div>
             )
             }
