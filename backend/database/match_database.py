@@ -110,7 +110,7 @@ async def read_match(matchid: int):
     return await match_db.get_match(matchid)
 
 
-@match_router.put("/match/{tournamentName}/{match_id}/set_winner/{displayname}")
+@match_router.put("/match/setWinner/{tournamentName}/{match_id}/set_winner/{displayname}")
 async def set_winner(
     tourneyName: str,  # This should match the route path parameter
     match_id: int,
