@@ -42,7 +42,7 @@ const SignUp = () => {
       console.log(response.data); // You can handle the response from your backend here
 
       // Redirect to home page on successful sign-up
-      navigate("/");
+      navigate("/Home");
 
     } catch (err) {
       setError("Failed to sign up. Please try again.");
@@ -54,7 +54,7 @@ const SignUp = () => {
       {/* Home Button */}
       <button
         className="absolute top-5 left-5 bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/Home")}
       >
         Home
       </button>

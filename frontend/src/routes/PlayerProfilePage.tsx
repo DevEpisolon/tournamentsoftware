@@ -41,7 +41,7 @@ const PlayerProfilePage: React.FC = () => {
   }, [playername, playerData]);
 
   const handleGoBack = () => {
-    navigate("/");
+    navigate("/Home");
   };
 
   const addFriend = async () => {

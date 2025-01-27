@@ -30,7 +30,7 @@ function App(): JSX.Element {
   const { currentUser } = useAuth();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [playerData, setPlayerData] = useState(null);
-
+  const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(null); // Timeout reference for debouncing
   const fetchPlayerData = async () => {
     try {
       const response = await axios.get(
@@ -75,12 +75,25 @@ function App(): JSX.Element {
     fetchTournaments();
   }, []);
 
-  const handleSearchChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+   const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
-    setSearchQuery(query);
+    setSearchQuery(query); // Update the search query
 
+    // If a timeout is already set, clear it before starting a new one
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+
+    // Set a new timeout to call the search function after 300ms
+    const newTimeout = setTimeout(() => {
+      performSearch(query); // Call the search function after the delay
+    }, 300);
+
+    // Save the timeout reference
+    setDebounceTimeout(newTimeout);
+  };
+
+  const performSearch = async (query: string) => {
     if (query.trim() !== "") {
       try {
         const response = await axios.get(
@@ -88,39 +101,21 @@ function App(): JSX.Element {
         );
         const players = response.data;
 
-        players.forEach((player: { displayname: string }) => {
-          console.log(player.displayname);
-        });
-
-        // Filter players to show only those whose displayName starts with the search query
+        // Filter players based on the query (case-insensitive match)
         const filteredPlayers = players.filter(
           (player: { displayname: string }) =>
             player.displayname &&
             player.displayname.toLowerCase().startsWith(query.toLowerCase())
-        ); // Case-insensitive match for display names starting with query
+        ); 
 
         setSearchResults(filteredPlayers.slice(0, 10)); // Limit to 10 results
       } catch (error) {
         console.error("Error searching players:", error);
       }
     } else {
-      setSearchResults([]); // Clear results if search query is empty
+      setSearchResults([]); // Clear results if query is empty
     }
   };
-
-  const handleSearch = async () => {
-    if (searchQuery.trim() !== "") {
-      try {
-        const response = await axios.get(
-          `http://localhost:8000/api/players/search?query=${searchQuery}`
-        );
-        setSearchResults(response.data);
-      } catch (error) {
-        console.error("Error searching players:", error);
-      }
-    }
-  };
-
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       handleSearch();

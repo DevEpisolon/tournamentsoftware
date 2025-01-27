@@ -22,13 +22,13 @@ const Index = () => {
       <DialogProvider>
         <Router>
           <Routes>
-            <Route path="*" element={<App />} />
+            <Route path="/home" element={<App />} />
             <Route path="/player/:playername" element={<PlayerProfilePage />} />
             <Route
               path="/tournament/:tournamentId"
               element={<TournamentPage />}
             />
-            <Route path="/signin" element={<SignIn />} />
+            <Route path="*" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/registerPlayer" element={<RegisterPlayer />} />
             <Route path="/viewTournaments/*" element={<ViewTournaments />} />
