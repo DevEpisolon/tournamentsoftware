@@ -252,7 +252,7 @@ const TournamentPage: React.FC = () => {
       <div className="bg-tourney-navy1 text-white p-8 pl-0 pt-0 pb-0 ">
         <div className="flex left-10 ">
           <SideBar>
-            <SideBarItem icon={<LuLayoutDashboard size={25} />} text="Dashboard" link="/" alert onClick={() => handleTabClick('none')} />
+            <SideBarItem icon={<LuLayoutDashboard size={25} />} text="Dashboard" link="/home" alert onClick={() => handleTabClick('none')} />
             <SideBarItem icon={<MdCasino size={25} />} text="Tournaments" active={selectedPage === 'tournaments'} onClick={() => handleTabClick('tournaments')} />
             <hr className='my-3' />
             <SideBarItem icon={<MdFeed size={25} />} text="Information" active={selectedPage === 'info'} onClick={() => handleTabClick('info')} />

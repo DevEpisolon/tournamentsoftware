@@ -2,13 +2,29 @@ from datetime import datetime, UTC
 
 
 class Player:
-    def __init__(self, playername, displayname,firebase_uid=None, uniqueid=None, email=None, avatar=None, join_date=datetime.now(UTC), aboutMe=None,
-                 wins=0, losses=0, ties=0, wlratio=0, winstreaks=0, match_history=[], # general stats
-                    current_tournament_wins=0, current_tournament_losses=0, current_tournament_ties=0,
-                    pending_invites=None, friends=None): # tourney info
+    def __init__(
+        self,
+        playername,
+        displayname,
+        firebase_uid=None,
+        email=None,
+        avatar=None,
+        join_date=datetime.now(UTC),
+        aboutMe=None,
+        wins=0,
+        losses=0,
+        ties=0,
+        wlratio=0,
+        winstreaks=0,
+        match_history=[],  # general stats
+        current_tournament_wins=0,
+        current_tournament_losses=0,
+        current_tournament_ties=0,
+        pending_invites=None,
+        friends=None,
+    ):  # tourney info
         self.playername = playername
         self.displayname = displayname
-        self.uniqueid = uniqueid
         self.email = email
         self.avatar = avatar
         self.wins = wins
@@ -27,11 +43,10 @@ class Player:
         self.friends = friends
         self.firebase_uid = firebase_uid
 
-
     # for calling print() on a player
     def __str__(self):
         return f"""Dummy Player Info:
-            Player: {self.displayname}-{self.playername} | ID: {self.uniqueid}
+            Player: {self.displayname}-{self.playername} | ID: {self.firebase_uid}
             Email: {self.email} | Join Date: {self.join_date}
             Wins: {self.wins} | Losses: {self.losses} | Ties: {self.ties} | W/L: {self.wlratio}%
             """
@@ -52,9 +67,6 @@ class Player:
 
     def get_displayname(self):
         return self.displayname
-
-    def get_uniqueid(self):
-        return self.uniqueid
 
     def get_email(self):
         return self.email
@@ -91,7 +103,7 @@ class Player:
 
     def get_current_tournament_ties(self):
         return self.current_tournament_ties
-    
+
     def get_firebase_uid(self):
         return self.firebase_uid
 
@@ -101,9 +113,6 @@ class Player:
 
     def set_displayname(self, displayname):
         self.displayname = displayname
-
-    def set_uniqueid(self, uniqueid):
-        self.uniqueid = uniqueid
 
     def set_email(self, email):
         self.email = email
@@ -175,51 +184,52 @@ class Player:
             self.ties -= 1
         else:
             print("Error: Number of ties cannot be negative.")
+
     def get_pendingInvites(self):
         return self.pending_invites
-    
-    def set_pendingInvites(self,pending_friends):
-        self.pending = pending_friends 
-    
-    def append_topendingInvites(self,senderName):
+
+    def set_pendingInvites(self, pending_friends):
+        self.pending = pending_friends
+
+    def append_topendingInvites(self, senderName):
         self.pending_invites.append(senderName)
 
-    def remove_pendingInvites(self,senderName):
+    def remove_pendingInvites(self, senderName):
         if senderName in self.pending_invites:
             self.pending_invites.remove(senderName)
-    
+
     def get_friends(self):
         return self.friends
 
-    def set_friends(self,friends):
+    def set_friends(self, friends):
         self.friends = friends
-    
-    def append_Friend(self,friend):
+
+    def append_Friend(self, friend):
         self.friends.append(friend)
 
-    def remove_Friend(self,friend):
+    def remove_Friend(self, friend):
         self.friends.remove(friend)
-   
-    '''
+
+    """
     To accept/decline friendRequest
     friend : displayname
     status : boolean True(accepted)  or false(declined) 
-    '''
+    """
 
-    def confirm_pendingFriendRequest(self,name,status):
+    def confirm_pendingFriendRequest(self, name, status):
         if name in self.pending_invites:
             remove_pendingInvites(name)
             if status:
                 if name not in self.friends:
-                    append_Friend(name)    
-         
-    def set_firebase_uid(self,ID):
+                    append_Friend(name)
+
+    def set_firebase_uid(self, ID):
         self.firebase_uid = ID
 
     def update_wl_ratio(self):
         self.wlratio = round(self.wins / (self.wins + self.losses) * 100, 1)
 
     def update_match_history(self, match):
-        if(len(self.match_history) > 7):
+        if len(self.match_history) > 7:
             self.match_history.pop(0)
         self.match_history.append(match)

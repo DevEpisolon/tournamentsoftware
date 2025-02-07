@@ -11,6 +11,7 @@ import asyncio
 from objects.match import Match
 import random
 import string
+from typing import Any
 
 tournament_router = APIRouter()
 
@@ -30,6 +31,21 @@ if not MONGODB_CONNECTION_STRING:
 client = MongoClient(MONGODB_CONNECTION_STRING)
 db = client["tournamentsoftware"]
 tournaments_collection = db["tournaments"]
+
+
+# Function to serialize data when fetched from database
+# Will Recursively check any values for potential ObjectID objects and converts to String
+def serialize(obj: Any) -> Any:
+    if isinstance(obj, ObjectId):
+        return str(obj)  # Convert ObjectId to string
+    elif isinstance(obj, dict):
+        return {key: serialize(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [serialize(item) for item in obj]
+    elif hasattr(obj, "__dict__"):
+        return serialize(obj.__dict__)  # Serialize custom Python objects
+    else:
+        return obj
 
 
 def generate_join_id():
@@ -59,7 +75,9 @@ def document_to_tournament(tournament_document):
 def create_tournament_object(tournament_data):
     if tournament_data:
         tournament_data.pop("_id", None)  # Remove _id field from the data
-        return Tournament(**tournament_data)
+        serialize(tournament_data)
+        tournament = Tournament(**tournament_data)
+        return tournament
     else:
         print("Tournament data is None.")
         return None
@@ -68,7 +86,8 @@ def create_tournament_object(tournament_data):
 def fetch_tournament_data_from_database(tournament_id: str):
     try:
         tournament_id_obj = ObjectId(tournament_id)
-        return tournaments_collection.find_one({"_id": tournament_id_obj})
+        tournament = tournaments_collection.find_one({"_id": tournament_id_obj})
+        return serialize(tournament)
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid tournament ID")
 
@@ -140,7 +159,10 @@ async def promote_players(tournament_id: str, round_number: int):
 
 @tournament_router.get("/tournaments/{item_id}")
 def get_tournament_byid(item_id: str):
-    tournament_data = fetch_tournament_data_from_database(item_id)
+    try:
+        tournament_data = fetch_tournament_data_from_database(item_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"{str(e)}")
     if tournament_data is None:
         raise HTTPException(status_code=404, detail="Tournament not found!")
     return create_tournament_object(tournament_data)
@@ -375,7 +397,7 @@ async def create_matches(tournament_id):
         tournament.assignPlayersToMatches1()
         # Convert to document format
         try:
-            updated_tournament = tournament_to_document(tournament)
+            serialized_matches = [serialize(match) for match in tournament.matches]
         except Exception as e:
             raise HTTPException(
                 status_code=500,
@@ -384,9 +406,8 @@ async def create_matches(tournament_id):
 
         # Update in database
         try:
-            print(updated_tournament)
-            result = tournaments_collection.replace_one(
-                {"_id": obj_id}, updated_tournament
+            result = tournaments_collection.update_one(
+                {"_id": obj_id}, {"$set": {"matches": serialized_matches}}
             )
             if result.modified_count == 0:
                 raise HTTPException(

@@ -36,7 +36,6 @@ async def test_insert_player():
     test_player = {
         "playername": "TestPlayer",
         "displayname": "TestDisplay",
-        "uniqueid": "test123",
         "email": "test@example.com",
         "avatar": None,
         "join_date": None,
@@ -52,7 +51,7 @@ async def test_insert_player():
         "aboutMe": "This is a test player.",
         "pending_invites": [],
         "friends": [],
-        "firebase_uid": "testFirebaseUID"
+        "firebase_uid": "testFirebaseUID",
     }
 
     try:
@@ -61,16 +60,15 @@ async def test_insert_player():
         inserted_id = str(result.inserted_id)  # Convert ObjectId to string
         return {
             "message": "Test player inserted successfully.",
-            "inserted_id": inserted_id
+            "inserted_id": inserted_id,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error inserting test player: {e}")
 
 
-
 async def verify_token(request: Request):
     token = request.headers.get("Authorization").split("Bearer ")[-1]  # Extract token
-    decoded_token = auth.verify_id_token(token)  
+    decoded_token = auth.verify_id_token(token)
     return decoded_token
 
 
@@ -83,12 +81,12 @@ async def verify_firebase_token(displayname: str, id_token: str = Query(...)):
     except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid Firebase token") from e
 
+
 # Convert player object to player document
 def player_to_document(player):
     return {
         "playername": player.playername,
         "displayname": player.displayname,
-        "uniqueid": player.uniqueid,
         "email": player.email,
         "avatar": player.avatar,
         "join_date": player.join_date,
@@ -107,30 +105,28 @@ def player_to_document(player):
         "firebase_uid": player.firebase_uid,
     }
 
+
 # Convert player document to player object
 def document_to_player(player_document):
     friends = []
     # Convert ObjectId to string and only take relevant friend fields
     if "friends" in player_document and player_document["friends"]:
-        
+
         for friend in player_document["friends"]:
             friend_copy = friend.copy()  # Create a copy to avoid modifying original
             if "_id" in friend_copy:
-                del friend_copy["_id"] 
-                del friend_copy["friends"]# Remove the _id field
+                del friend_copy["_id"]
+                del friend_copy["friends"]  # Remove the _id field
             friends.append(friend_copy)
     else:
         friends = []
 
-        
-        
     if player_document:
         pending_invites = player_document.get("pending_invites")
         pending_invites = [] if pending_invites is None else pending_invites
         player = Player(
             playername=player_document.get("playername"),
             displayname=player_document.get("displayname"),
-            uniqueid=player_document.get("uniqueid"),
             email=player_document.get("email"),
             avatar=player_document.get("avatar"),
             join_date=player_document.get("join_date"),
@@ -146,34 +142,36 @@ def document_to_player(player_document):
             aboutMe=player_document.get("aboutMe"),
             pending_invites=pending_invites,
             friends=friends,
-            firebase_uid=player_document.get("firebase_uid"), 
+            firebase_uid=player_document.get("firebase_uid"),
         )
         return player
     else:
         print("Player not found.")
         return None
 
+
 @player_router.get("/players/search")
-async def search_players(query: str ):
+async def search_players(query: str):
     try:
         # Using a case-insensitive regular expression to find partial matches
         regex = Regex(f".*{query}.*", "i")  # "i" makes the regex case-insensitive
         players = db.players.find({"displayname": regex})
-        
+
         # Convert the players cursor to a list
         players_list = [document_to_player(player).__dict__ for player in players]
 
         if not players_list:
             raise HTTPException(status_code=404, detail="No players found.")
-        
+
         # Limit search results to 10 players
         return players_list[:10]
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @player_router.get("/players/get_player/{displayname}")
-async def get_player(displayname: str ):
+async def get_player(displayname: str):
     player_document = db.players.find_one({"displayname": displayname})
     player = document_to_player(player_document)
     if player:
@@ -183,6 +181,7 @@ async def get_player(displayname: str ):
         raise HTTPException(
             status_code=404, detail=f"Player '{displayname}' not found."
         )
+
 
 @player_router.get("/player/email/{email}")
 async def get_player_by_email(email: str):
@@ -194,112 +193,117 @@ async def get_player_by_email(email: str):
             status_code=404, detail=f"Player with email '{email}' not found."
         )
 
+
 @player_router.post("/players/sendFriendRequest")
 async def send_friendRequest(sender: str, reciever: str):
     player_document = db.players.find_one({"displayname": reciever})
     if player_document:
         player = document_to_player(player_document)
-        pending_invites = player.pending_invites or []  # Default to an empty list if None
+        pending_invites = (
+            player.pending_invites or []
+        )  # Default to an empty list if None
         pending_invites.append(sender)  # Add the sender to the pending invites list
         db.players.update_one(
-            {"displayname": reciever},
-            {"$set": {"pending_invites": pending_invites}}
+            {"displayname": reciever}, {"$set": {"pending_invites": pending_invites}}
         )
         return {"message": f"Friend request sent to {reciever}"}
     else:
         raise HTTPException(status_code=404, detail="Receiver not found.")
 
+
 @player_router.post("/players/add_friend")
 async def add_friend(body: dict):
     try:
-        sender = body.get('sender')
+        sender = body.get("sender")
         receiver = body.get("receiver")
         player_document = db.players.find_one({"playername": receiver})
         sender_document = db.players.find_one({"playername": sender})
-        
+
         if not player_document or not sender_document:
             raise HTTPException(
-                status_code=404, 
-                detail=f"One or both players not found: {receiver}, {sender}"
+                status_code=404,
+                detail=f"One or both players not found: {receiver}, {sender}",
             )
-            
-        if (sender_document["friends"] is None):
+
+        if sender_document["friends"] is None:
             db.players.update_one(
-                {"playername": sender},
-                {"$set": {"friends": [player_document]}}
+                {"playername": sender}, {"$set": {"friends": [player_document]}}
             )
-            
+
         else:
             # Update sender's friends list
             db.players.update_one(
-                {"playername": sender},
-                {"$addToSet": {"friends": player_document}}
+                {"playername": sender}, {"$addToSet": {"friends": player_document}}
             )
-            
+
         # Add to  receiver
-        if (player_document["friends"] is None):
+        if player_document["friends"] is None:
             db.players.update_one(
-                {"playername": receiver},
-                {"$set": {"friends": [sender_document]}}
+                {"playername": receiver}, {"$set": {"friends": [sender_document]}}
             )
         else:
             # Update sender's friends list
             db.players.update_one(
-                {"playername": receiver},
-                {"$addToSet": {"friends": sender_document}}
+                {"playername": receiver}, {"$addToSet": {"friends": sender_document}}
             )
-        
+
         return {"message": f"Friend added: {receiver}"}
     except Exception as e:
-        raise HTTPException(status_code=404, detail=f"Error  ${receiver} ${sender} ${str(e)}")
-    
+        raise HTTPException(
+            status_code=404, detail=f"Error  ${receiver} ${sender} ${str(e)}"
+        )
+
 
 @player_router.post("/players/remove_friend")
 async def remove_friend(body: dict):
     try:
-        sender = body.get('sender')
+        sender = body.get("sender")
         receiver = body.get("receiver")
         player_document = db.players.find_one({"playername": receiver})
         sender_document = db.players.find_one({"playername": sender})
-        
+
         if not player_document or not sender_document:
             raise HTTPException(
-                status_code=404, 
-                detail=f"One or both players not found: {receiver}, {sender}"
+                status_code=404,
+                detail=f"One or both players not found: {receiver}, {sender}",
             )
-            
+
         # Remove receiver from sender's friends list
         db.players.update_one(
-            {"playername": sender},
-            {"$pull": {"friends": {"playername": receiver}}}
-        )
-        
-        db.players.update_one(
-            {"playername": receiver},
-            {"$pull": {"friends": {"playername": sender}}}
+            {"playername": sender}, {"$pull": {"friends": {"playername": receiver}}}
         )
 
-        
+        db.players.update_one(
+            {"playername": receiver}, {"$pull": {"friends": {"playername": sender}}}
+        )
+
         return {"message": f"Friend removed: {receiver}"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error removing friend: {str(e)}")
 
 
 @player_router.post("/players/register_player")
-async def register_player(body:dict):
+async def register_player(body: dict):
     playername = body.get("playername")
     displayname = body.get("displayname")
     email = body.get("email")
     firebase_uid = body.get("firebase_uid")
 
     # Check if the displayname is already taken
-    existing_player_by_displayname = db["players"].find_one({"displayname": displayname})
+    existing_player_by_displayname = db["players"].find_one(
+        {"displayname": displayname}
+    )
     if existing_player_by_displayname:
         raise HTTPException(status_code=400, detail="Display name is already taken")
 
     # Insert the player document into the database
-    #player_document = player.dict()
-    new_player = Player(playername=playername,displayname=displayname,email=email,firebase_uid=firebase_uid) 
+    # player_document = player.dict()
+    new_player = Player(
+        playername=playername,
+        displayname=displayname,
+        email=email,
+        firebase_uid=firebase_uid,
+    )
     player_document = player_to_document(new_player)
     result = db.players.insert_one(player_document)
 
@@ -307,9 +311,8 @@ async def register_player(body:dict):
     return {"Recieved"}
 
 
-
 @player_router.put("/players/update_about_me/{playername}")
-async def update_about_me(playername: str, body: dict): 
+async def update_about_me(playername: str, body: dict):
     new_about_me = body.get("aboutMe")
     if not new_about_me or len(new_about_me) > 25:
         raise HTTPException(
@@ -323,11 +326,10 @@ async def update_about_me(playername: str, body: dict):
     )
 
     if result.modified_count == 0:
-        raise HTTPException(
-            status_code=404, detail=f"Player '{playername}' not found."
-        )
+        raise HTTPException(status_code=404, detail=f"Player '{playername}' not found.")
 
     return {"message": f"About me for player '{playername}' updated successfully."}
+
 
 @player_router.put("/players/update_display_name/{playername}")
 async def update_display_name(playername: str, body: dict):
@@ -344,9 +346,7 @@ async def update_display_name(playername: str, body: dict):
     )
 
     if result.modified_count == 0:
-        raise HTTPException(
-            status_code=404, detail=f"Player '{playername}' not found."
-        )
+        raise HTTPException(status_code=404, detail=f"Player '{playername}' not found.")
 
     return {"message": f"Displayname for player '{playername}' updated successfully."}
 
@@ -354,10 +354,12 @@ async def update_display_name(playername: str, body: dict):
 @player_router.put("/players/update_avatar/{playername}")
 async def update_avatar(playername: str, body: dict = Body(...)):
     new_avatar = body.get("avatar")
-    if not new_avatar or len(new_avatar) > 255:  # Ensure the avatar URL isn't excessively long
+    if (
+        not new_avatar or len(new_avatar) > 255
+    ):  # Ensure the avatar URL isn't excessively long
         raise HTTPException(
             status_code=400,
-            detail="Invalid input: 'avatar' must be a valid URL and less than 255 characters."
+            detail="Invalid input: 'avatar' must be a valid URL and less than 255 characters.",
         )
 
     result = db.players.update_one(
@@ -365,11 +367,10 @@ async def update_avatar(playername: str, body: dict = Body(...)):
     )
 
     if result.matched_count == 0:
-        raise HTTPException(
-            status_code=404, detail=f"Player '{playername}' not found."
-        )
+        raise HTTPException(status_code=404, detail=f"Player '{playername}' not found.")
 
     return {"message": "Avatar updated successfully"}
+
 
 @player_router.delete("/players/delete_player/{displayname}")
 async def delete_player(displayname: str):
@@ -384,6 +385,7 @@ async def delete_player(displayname: str):
         raise HTTPException(
             status_code=404, detail=f"Player '{displayname}' not found."
         )
+
 
 def update_tourney_results(round_wins, round_losses, round_ties, tourney_list):
     for player in tourney_list:
@@ -406,6 +408,7 @@ def update_tourney_results(round_wins, round_losses, round_ties, tourney_list):
         else:
             continue
 
+
 @player_router.get("/players/settings/{playername}")
 async def get_player_settings(playername: str):
     player_document = db.players.find_one({"playername": playername})
@@ -413,7 +416,7 @@ async def get_player_settings(playername: str):
         friends = []
         # Convert ObjectId to string and only take relevant friend fields
         if "friends" in player_document and player_document["friends"]:
-            
+
             for friend in player_document["friends"]:
                 friend_copy = friend.copy()  # Create a copy to avoid modifying original
                 if "_id" in friend_copy:
@@ -435,11 +438,10 @@ async def get_player_settings(playername: str):
             "tournament wins": player.current_tournament_wins,
             "tournament losses": player.current_tournament_losses,
             "join date": player_document.get("join_date"),
-            "uniqueid": player_document.get("uniqueid"),
             "aboutme": player_document.get("aboutMe"),
             "friends": friends,
             "pending invites": player_document.get("pending_invites", []),
-            "match history": player_document.get("match_history", [])
+            "match history": player_document.get("match_history", []),
         }
     raise HTTPException(status_code=404, detail="Player not found.")
 

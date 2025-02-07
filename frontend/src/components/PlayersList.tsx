@@ -4,7 +4,7 @@ import { MdSearch } from 'react-icons/md';
 interface Player {
   displayname: string;
   playername: string;
-  uniqueid?: string;
+  firebase_uid: string;
   email?: string;
   wins: number;
   losses: number;
@@ -69,7 +69,7 @@ const PlayerList = ({
           <ul>
             {filteredPlayers.map((player) => (
               <li
-                key={player.uniqueid || player.displayname}
+                key={player.firebase_uid || player.displayname}
                 onClick={() => handlePlayerClick(player)}
                 className="cursor-pointer mb-2 p-2 bg-gray-800 rounded text-white hover:bg-gray-700 transition-colors"
               >
